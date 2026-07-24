@@ -17,7 +17,9 @@ tools/
 │           ├── base.py     # Processor基底クラス
 │           └── example.py  # サンプル実装（新規追加時のテンプレート）
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
-└── configs/                # 処理ごとの設定ファイル(TOML)を置く場所
+├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所
+├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象）
+└── tmp/                    # 一時ファイル・実行結果ダンプなど（.gitignore対象）
 ```
 
 ## 新しい処理の追加方法

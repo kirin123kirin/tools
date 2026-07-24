@@ -11,3 +11,7 @@ venv/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# scratch / verification files (not part of the package)
+tmp/
+scripts/
