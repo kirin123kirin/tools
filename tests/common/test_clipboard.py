@@ -12,8 +12,9 @@ def test_load_image_from_path(tmp_path: Path) -> None:
 
     result = load_image(str(img_path))
 
-    assert result.mode == "RGBA"
-    assert result.size == (2, 2)
+    assert result.image.mode == "RGBA"
+    assert result.image.size == (2, 2)
+    assert result.source_path == img_path
 
 
 def test_load_image_from_clipboard_image_data(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -22,8 +23,9 @@ def test_load_image_from_clipboard_image_data(monkeypatch: pytest.MonkeyPatch) -
 
     result = load_image(None)
 
-    assert result.mode == "RGBA"
-    assert result.size == (3, 3)
+    assert result.image.mode == "RGBA"
+    assert result.image.size == (3, 3)
+    assert result.source_path is None
 
 
 def test_load_image_from_clipboard_file_object(
@@ -37,7 +39,8 @@ def test_load_image_from_clipboard_file_object(
 
     result = load_image(None)
 
-    assert result.size == (4, 4)
+    assert result.image.size == (4, 4)
+    assert result.source_path == img_path
 
 
 def test_load_image_from_empty_clipboard(monkeypatch: pytest.MonkeyPatch) -> None:

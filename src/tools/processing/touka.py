@@ -16,10 +16,15 @@ logger = logging.getLogger(__name__)
 class ToukaProcessor(Processor):
     """Remove the background from an image, producing a transparent PNG.
 
-    Input source is auto-detected:
-    - `path` given: read that image file (jpg/png/...)
-    - `path` omitted: read from the clipboard (raw image data, or a copied
-      file object such as Ctrl+C on a file in Explorer)
+    Input source is auto-detected, and the default output location follows
+    whichever of the three it was:
+    - `path` given: read that image file (jpg/png/...); output defaults next
+      to it as `{stem}_touka.png`
+    - `path` omitted, clipboard holds a copied file (e.g. Ctrl+C on a file in
+      Explorer): output defaults next to that source file, same as above
+    - `path` omitted, clipboard holds raw image data (e.g. "Copy Image" in a
+      viewer): no source file exists, so output defaults to a timestamped
+      file in the current directory
     """
 
     name = "touka"
@@ -37,20 +42,21 @@ class ToukaProcessor(Processor):
         )
 
     def run(self, args: argparse.Namespace) -> int:
-        image = load_image(args.path)
-        logger.info("background removal starting (size=%s)", image.size)
+        loaded = load_image(args.path)
+        logger.info("background removal starting (size=%s)", loaded.image.size)
 
-        result = remove(image)
+        result = remove(loaded.image)
 
-        output_path = Path(args.output) if args.output else self._default_output_path(args.path)
+        output_path = (
+            Path(args.output) if args.output else self._default_output_path(loaded.source_path)
+        )
         result.save(output_path)
         print(output_path)
         return 0
 
     @staticmethod
-    def _default_output_path(path: str | None) -> Path:
-        if path:
-            src = Path(path)
-            return src.with_name(f"{src.stem}_touka.png")
+    def _default_output_path(source_path: Path | None) -> Path:
+        if source_path is not None:
+            return source_path.with_name(f"{source_path.stem}_touka.png")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return Path.cwd() / f"clipboard_touka_{timestamp}.png"

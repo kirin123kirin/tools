@@ -50,3 +50,20 @@ def test_run_from_clipboard_image(
     proc.run(args)
 
     assert list(tmp_path.glob("clipboard_touka_*.png"))
+
+
+def test_run_from_clipboard_file_object_saves_next_to_source(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    copied = tmp_path / "copied.png"
+    Image.new("RGB", (5, 5), color="white").save(copied)
+    monkeypatch.setattr(
+        "tools.common.clipboard.ImageGrab.grabclipboard", lambda: [str(copied)]
+    )
+    monkeypatch.setattr(touka_module, "remove", lambda img: img)
+
+    proc = ToukaProcessor()
+    args = argparse.Namespace(path=None, output=None)
+    proc.run(args)
+
+    assert (tmp_path / "copied_touka.png").exists()

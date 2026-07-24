@@ -26,10 +26,11 @@ class KukiriProcessor(Processor):
     edge-preserving bilateral filter (smooths within regions, leaves edges
     intact) followed by an unsharp mask (boosts edge contrast).
 
-    Input source is auto-detected (same convention as touka/denoise):
-    - `path` given: read that image file
-    - `path` omitted: read from the clipboard (raw image data, or a copied
-      file object such as Ctrl+C on a file in Explorer)
+    Input source and default output location follow the same convention as
+    touka/denoise: when a source file is known (explicit `path`, or a file
+    copied in Explorer), output defaults next to it as `{stem}_kukiri.png`;
+    for raw clipboard image data with no source file, output defaults to a
+    timestamped file in the current directory.
     """
 
     name = "kukiri"
@@ -61,17 +62,19 @@ class KukiriProcessor(Processor):
         )
 
     def run(self, args: argparse.Namespace) -> int:
-        image = load_image(args.path)
+        loaded = load_image(args.path)
         logger.info(
             "kukiri starting (size=%s, smooth=%s, sharpen=%s)",
-            image.size,
+            loaded.image.size,
             args.smooth,
             args.sharpen,
         )
 
-        result = self._process(image, smooth=args.smooth, sharpen=args.sharpen)
+        result = self._process(loaded.image, smooth=args.smooth, sharpen=args.sharpen)
 
-        output_path = Path(args.output) if args.output else self._default_output_path(args.path)
+        output_path = (
+            Path(args.output) if args.output else self._default_output_path(loaded.source_path)
+        )
         result.save(output_path)
         print(output_path)
         return 0
@@ -95,9 +98,8 @@ class KukiriProcessor(Processor):
         return Image.fromarray(out, mode="RGBA")
 
     @staticmethod
-    def _default_output_path(path: str | None) -> Path:
-        if path:
-            src = Path(path)
-            return src.with_name(f"{src.stem}_kukiri.png")
+    def _default_output_path(source_path: Path | None) -> Path:
+        if source_path is not None:
+            return source_path.with_name(f"{source_path.stem}_kukiri.png")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return Path.cwd() / f"clipboard_kukiri_{timestamp}.png"

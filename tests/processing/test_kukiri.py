@@ -58,6 +58,24 @@ def test_run_from_clipboard_image(monkeypatch: pytest.MonkeyPatch, tmp_path: Pat
     assert list(tmp_path.glob("clipboard_kukiri_*.png"))
 
 
+def test_run_from_clipboard_file_object_saves_next_to_source(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    copied = tmp_path / "copied.png"
+    Image.new("RGB", (5, 5), color="white").save(copied)
+    monkeypatch.setattr(
+        "tools.common.clipboard.ImageGrab.grabclipboard", lambda: [str(copied)]
+    )
+    monkeypatch.setattr(kukiri_module.cv2, "bilateralFilter", _identity_filter)
+    monkeypatch.setattr(kukiri_module.cv2, "GaussianBlur", _identity_filter)
+
+    proc = KukiriProcessor()
+    args = argparse.Namespace(path=None, output=None, smooth=75.0, sharpen=0.5)
+    proc.run(args)
+
+    assert (tmp_path / "copied_kukiri.png").exists()
+
+
 def test_process_preserves_alpha_channel(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(kukiri_module.cv2, "bilateralFilter", _identity_filter)
     monkeypatch.setattr(kukiri_module.cv2, "GaussianBlur", _identity_filter)
