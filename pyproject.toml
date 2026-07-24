@@ -29,6 +29,7 @@ tools = "tools.cli:main"
 # 新しい処理を processing/ に追加したら、ここにも同名のエントリーを追加すること。
 touka = "tools.cli:run_as_subcommand"
 denoise = "tools.cli:run_as_subcommand"
+kukiri = "tools.cli:run_as_subcommand"
 
 [tool.setuptools.packages.find]
 where = ["src"]

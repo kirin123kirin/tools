@@ -17,6 +17,7 @@ def test_discover_processors_finds_registered_commands() -> None:
     processors = _discover_processors()
     assert "denoise" in processors
     assert "touka" in processors
+    assert "kukiri" in processors
 
 
 def test_build_parser_registers_subcommand() -> None:

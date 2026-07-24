@@ -19,7 +19,8 @@ tools/
 │       └── processing/     # 個々の処理。1ファイル=1処理
 │           ├── base.py             # Processor基底クラス
 │           ├── touka.py            # 画像背景透過ツール
-│           └── denoise.py          # 画像ノイズ除去ツール（OpenCV Non-local Means）
+│           ├── denoise.py          # 画像ノイズ除去ツール（OpenCV Non-local Means）
+│           └── kukiri.py           # JPEG輪郭滲み除去・境界強調ツール（バイラテラル+アンシャープマスク）
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
 ├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象）
@@ -93,17 +94,31 @@ tools denoise C:\path\to\photo.jpg --strength 15
 
 # 出力先を指定
 tools denoise C:\path\to\photo.jpg -o C:\path\to\out.png
+
+# JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）
+tools kukiri C:\path\to\illustration.jpg
+
+# 平滑化・シャープ強度を指定（デフォルト: smooth=75.0, sharpen=0.5）
+tools kukiri C:\path\to\illustration.jpg --smooth 90 --sharpen 0.8
+
+# 出力先を指定
+tools kukiri C:\path\to\illustration.jpg -o C:\path\to\out.png
 ```
 
 `touka` は初回実行時に背景除去モデル（U2Net, rembg）をインターネットからダウンロードします。
-`denoise`はOpenCVの古典的アルゴリズム（Non-local Means Denoising）のみを使用し、モデルダウンロードは行いません（外部通信なし）。
+`denoise`・`kukiri`はOpenCVの古典的アルゴリズムのみを使用し、モデルダウンロードは行いません（外部通信なし）。
+
+`kukiri`は`denoise`とは異なり、ランダムノイズではなくJPEG圧縮特有の輪郭のにじみ・リンギングを
+対象にしています。バイラテラルフィルタ（輪郭を保ったまま平滑化）→アンシャープマスク（輪郭強調）
+の順に処理し、フラットデザインのイラストなど「境界をくっきりさせたい」用途向けです。
 
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
-（`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` など）。
+（`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` など）。
 
 ```powershell
 denoise C:\path\to\photo.jpg
 touka C:\path\to\photo.jpg
+kukiri C:\path\to\illustration.jpg
 ```
 
 ## テスト・lint
