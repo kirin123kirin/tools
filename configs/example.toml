@@ -1,3 +1,0 @@
-# Sample config for a processing command. Load with tools.common.config.load_config().
-[example]
-verbose = false

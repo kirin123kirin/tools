@@ -27,7 +27,6 @@ dev = [
 tools = "tools.cli:main"
 # サブコマンドごとの単体エントリーポイント（例: `denoise.exe`）。
 # 新しい処理を processing/ に追加したら、ここにも同名のエントリーを追加すること。
-example = "tools.cli:run_as_subcommand"
 remove-bg = "tools.cli:run_as_subcommand"
 denoise = "tools.cli:run_as_subcommand"
 

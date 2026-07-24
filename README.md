@@ -18,11 +18,10 @@ tools/
 │       │   └── clipboard.py # クリップボードからの画像/ファイル取得（Windows専用）
 │       └── processing/     # 個々の処理。1ファイル=1処理
 │           ├── base.py             # Processor基底クラス
-│           ├── example.py          # サンプル実装（新規追加時のテンプレート）
 │           ├── remove_background.py # 画像背景透過ツール
 │           └── denoise.py          # 画像ノイズ除去ツール（OpenCV Non-local Means）
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
-├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所
+├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
 ├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象）
 └── tmp/                    # 一時ファイル・実行結果ダンプなど（.gitignore対象）
 ```
@@ -31,7 +30,7 @@ tools/
 
 1. `src/tools/processing/` に新しいモジュールを作成する
 2. `Processor` を継承したクラスを定義し、`name`（サブコマンド名）と
-   `add_arguments` / `run` を実装する（`example.py` を参照）
+   `add_arguments` / `run` を実装する（`remove_background.py` や `denoise.py` を参照）
 3. それだけで`tools <name>`としてCLIに自動登録される（`cli.py` の編集は不要）
 4. **単体実行用のエントリーポイントも追加する**: `pyproject.toml` の
    `[project.scripts]` に `name`（`Processor.name`と同じ文字列）を
@@ -72,8 +71,6 @@ pip install -e ".[dev]"
 ## 実行
 
 ```powershell
-tools example "hello"
-
 # 画像の背景を透過（ファイルパス指定）
 tools remove-bg C:\path\to\photo.jpg
 
@@ -102,7 +99,7 @@ tools denoise C:\path\to\photo.jpg -o C:\path\to\out.png
 `denoise`はOpenCVの古典的アルゴリズム（Non-local Means Denoising）のみを使用し、モデルダウンロードは行いません（外部通信なし）。
 
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
-（`pip install -e .` でインストールされる `example.exe` / `remove-bg.exe` / `denoise.exe` など）。
+（`pip install -e .` でインストールされる `remove-bg.exe` / `denoise.exe` など）。
 
 ```powershell
 denoise C:\path\to\photo.jpg
