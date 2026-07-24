@@ -19,7 +19,8 @@ tools/
 │       └── processing/     # 個々の処理。1ファイル=1処理
 │           ├── base.py             # Processor基底クラス
 │           ├── example.py          # サンプル実装（新規追加時のテンプレート）
-│           └── remove_background.py # 画像背景透過ツール
+│           ├── remove_background.py # 画像背景透過ツール
+│           └── denoise.py          # 画像ノイズ除去ツール（OpenCV Non-local Means）
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所
 ├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象）
@@ -73,9 +74,22 @@ tools remove-bg
 
 # 出力先を指定
 tools remove-bg C:\path\to\photo.jpg -o C:\path\to\out.png
+
+# 画像のノイズ除去（ファイルパス指定）
+tools denoise C:\path\to\photo.jpg
+
+# 画像のノイズ除去（クリップボードから取得）
+tools denoise
+
+# ノイズ除去強度を指定（デフォルト: 10.0、大きいほど強くノイズを除去）
+tools denoise C:\path\to\photo.jpg --strength 15
+
+# 出力先を指定
+tools denoise C:\path\to\photo.jpg -o C:\path\to\out.png
 ```
 
 `remove-bg` は初回実行時に背景除去モデル（U2Net, rembg）をインターネットからダウンロードします。
+`denoise`はOpenCVの古典的アルゴリズム（Non-local Means Denoising）のみを使用し、モデルダウンロードは行いません（外部通信なし）。
 
 ## テスト・lint
 
