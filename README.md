@@ -32,7 +32,17 @@ tools/
 1. `src/tools/processing/` に新しいモジュールを作成する
 2. `Processor` を継承したクラスを定義し、`name`（サブコマンド名）と
    `add_arguments` / `run` を実装する（`example.py` を参照）
-3. それだけでCLIに自動登録される（`cli.py` の編集は不要）
+3. それだけで`tools <name>`としてCLIに自動登録される（`cli.py` の編集は不要）
+4. **単体実行用のエントリーポイントも追加する**: `pyproject.toml` の
+   `[project.scripts]` に `name`（`Processor.name`と同じ文字列）を
+   `tools.cli:run_as_subcommand` として登録する。これにより
+   `pip install -e .` 後、`tools <name> ...` に加えて `<name> ...`
+   （Windowsでは `<name>.exe ...`）としても直接実行できるようになる。
+
+```toml
+[project.scripts]
+my-process = "tools.cli:run_as_subcommand"
+```
 
 ```python
 # src/tools/processing/my_process.py
@@ -90,6 +100,14 @@ tools denoise C:\path\to\photo.jpg -o C:\path\to\out.png
 
 `remove-bg` は初回実行時に背景除去モデル（U2Net, rembg）をインターネットからダウンロードします。
 `denoise`はOpenCVの古典的アルゴリズム（Non-local Means Denoising）のみを使用し、モデルダウンロードは行いません（外部通信なし）。
+
+各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
+（`pip install -e .` でインストールされる `example.exe` / `remove-bg.exe` / `denoise.exe` など）。
+
+```powershell
+denoise C:\path\to\photo.jpg
+remove-bg C:\path\to\photo.jpg
+```
 
 ## テスト・lint
 

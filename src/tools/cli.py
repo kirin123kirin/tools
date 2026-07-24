@@ -5,6 +5,7 @@ import importlib
 import inspect
 import pkgutil
 import sys
+from pathlib import PureWindowsPath
 
 from tools import processing
 from tools.common.logging import setup_logging
@@ -49,6 +50,18 @@ def main(argv: list[str] | None = None) -> int:
 
     processor = processors[args.command]
     return processor.run(args)
+
+
+def run_as_subcommand() -> int:
+    """Entry point for a per-command executable (e.g. `denoise.exe`).
+
+    The subcommand name is taken from how this executable was invoked (its
+    own file name), so `denoise.exe args...` behaves like `tools denoise
+    args...`. Register one `[project.scripts]` entry per Processor name in
+    pyproject.toml, all pointing to this same function.
+    """
+    command_name = PureWindowsPath(sys.argv[0]).stem
+    return main([command_name, *sys.argv[1:]])
 
 
 if __name__ == "__main__":
