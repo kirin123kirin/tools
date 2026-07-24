@@ -17,7 +17,11 @@ def _discover_processors() -> dict[str, Processor]:
     for module_info in pkgutil.iter_modules(processing.__path__, prefix=f"{processing.__name__}."):
         if module_info.name.endswith(".base"):
             continue
-        module = importlib.import_module(module_info.name)
+        try:
+            module = importlib.import_module(module_info.name)
+        except ImportError as exc:
+            print(f"warning: skipping {module_info.name}: {exc}", file=sys.stderr)
+            continue
         for _, obj in inspect.getmembers(module, inspect.isclass):
             if issubclass(obj, Processor) and obj is not Processor:
                 instance = obj()

@@ -2,6 +2,8 @@
 
 さまざまな処理をコマンドとして追加していくためのPythonプロジェクト。
 
+**動作環境: Windows 11 専用**（クリップボード連携等はWindows APIに依存するため、他OSは考慮しない）
+
 ## 構成
 
 ```
@@ -12,10 +14,12 @@ tools/
 │       ├── cli.py          # エントリポイント。processing/配下を自動探索してサブコマンド化
 │       ├── common/         # 処理間で使い回す共通機能
 │       │   ├── logging.py
-│       │   └── config.py
+│       │   ├── config.py
+│       │   └── clipboard.py # クリップボードからの画像/ファイル取得（Windows専用）
 │       └── processing/     # 個々の処理。1ファイル=1処理
-│           ├── base.py     # Processor基底クラス
-│           └── example.py  # サンプル実装（新規追加時のテンプレート）
+│           ├── base.py             # Processor基底クラス
+│           ├── example.py          # サンプル実装（新規追加時のテンプレート）
+│           └── remove_background.py # 画像背景透過ツール
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所
 ├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象）
@@ -46,21 +50,32 @@ class MyProcess(Processor):
         return 0
 ```
 
-## セットアップ
+## セットアップ（Windows / PowerShell）
 
-```bash
+```powershell
 python -m venv .venv
-source .venv/bin/activate
+.venv\Scripts\activate
 pip install -e ".[dev]"
 ```
 
 ## 実行
 
-```bash
+```powershell
 tools example "hello"
-# または
-python -m tools.cli example "hello"
+
+# 画像の背景を透過（ファイルパス指定）
+tools remove-bg C:\path\to\photo.jpg
+
+# 画像の背景を透過（クリップボードから取得）
+# - 画像編集ソフトで「画像をコピー」した場合、または
+# - Explorerで画像ファイルをコピー（Ctrl+C）した場合
+tools remove-bg
+
+# 出力先を指定
+tools remove-bg C:\path\to\photo.jpg -o C:\path\to\out.png
 ```
+
+`remove-bg` は初回実行時に背景除去モデル（U2Net, rembg）をインターネットからダウンロードします。
 
 ## テスト・lint
 
