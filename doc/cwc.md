@@ -58,6 +58,61 @@ class LoadedText:
   デフォルト経路では読み込まないため、`import janome` はこのオプションが指定されたときだけ
   行う（遅延インポート）ことで、通常実行時の起動コストを避ける。
 
+#### ユーザー辞書
+
+固有名詞や社内用語が意図せず分割されるのを防ぐため、Janomeのユーザー辞書に対応する
+（`Tokenizer(udic=..., udic_type=...)`）。分かち書き経路でのみ効くため、`-w` 未指定時は無視する。
+
+辞書の解決順は以下の3段階で、**下にあるものが上を上書きする**。
+
+1. 同梱の既定辞書 `data/user.dic`
+2. 設定ファイル `%APPDATA%\tools\config.toml` の `[cwc] user_dict`
+3. コマンドライン `--user-dict`
+
+##### 1. 既定のユーザー辞書（同梱）
+
+- パッケージ内の `data/user.dic` を既定のユーザー辞書として同梱する
+  （実体は `src/tools/data/user.dic`。パッケージデータとして配布物に含めるため、
+  `pyproject.toml` に `[tool.setuptools.package-data]` の設定を追加する）。
+- 中身は Janome が読める CSV 形式（既定は ipadic 形式）。
+  `.dic` という拡張子だが中身はCSVである点が紛らわしいため、
+  **先頭にコメント行で形式（ipadic/simpledic）を明記する**。
+  なお Janome の `udic` が拡張子を見ずにCSVとして読めるかは実装時に実際に通して確認する
+  （読めない場合は `data/user.csv` に改名するか、`udic_type` の指定で対処する）。
+- 初期状態では空、またはサンプル数行のみとし、利用者が追記して育てる想定。
+- 同梱辞書が存在しない場合の扱いは後述の「辞書が見つからない場合」に従う
+  （配布形態によっては欠落しうる）。
+
+##### 2. 設定ファイルによる上書き
+
+- 設定ファイルの既定位置は `%APPDATA%\tools\config.toml`
+  （`common/config.py` には現状「既定位置を決める仕組み」がないため、
+  `default_config_path()` のような関数を追加する）。
+- 記述例:
+
+  ```toml
+  [cwc]
+  user_dict = "C:/Users/xxx/dict/mydict.csv"
+  user_dict_type = "ipadic"   # "ipadic" | "simpledic"（既定: "ipadic"）
+  ```
+
+- 設定ファイルが存在しない場合、`[cwc]` セクションがない場合は、
+  同梱の既定辞書をそのまま使う（エラーにしない）。
+
+##### 3. コマンドラインによる上書き
+
+- `--user-dict` 指定時は、同梱辞書・設定ファイルの値の双方を上書きする
+  （単発で別の辞書を試せるようにするため）。
+- `--no-user-dict` で、同梱辞書も含めて一切のユーザー辞書を無効化できるようにする。
+
+##### 辞書が見つからない場合
+
+同梱辞書・設定ファイル記載・`--user-dict` のいずれの経路でも、
+**辞書ファイルが見つからなければその辞書をスキップして処理を続行する**（エラー終了しない）。
+
+ただし黙って挙動が変わると原因が追えなくなるため、
+`common/logging.py` 経由で「どのパスの辞書が見つからずスキップしたか」を警告ログに出す。
+
 ### ストップワード
 
 どちらの分割方式でも、集計前にストップワードで雑音を落とす。
@@ -71,23 +126,26 @@ class LoadedText:
   - 記号・約物・空白のみのトークン、および1文字の記号
 - `--stopwords` オプションで、デフォルトリストへの**追加**（カンマ区切り、またはファイルパス指定）ができる。
 - `--no-default-stopwords` でデフォルトリストを無効化し、ユーザー指定分のみを使う逃げ道も用意する。
-- `wordcloud` ライブラリ内蔵の英語 `STOPWORDS` は既定で有効なままにするか、
-  明示的に空集合を渡して自前リストに一本化するかは実装時に決める
-  （日本語テキストには実質作用しないが、英語混じりの入力での挙動が変わるため）。
+- `wordcloud` ライブラリ内蔵の英語 `STOPWORDS` は**既定で有効のまま**にし、
+  自前の日本語リストと併用する（和文・英文が混じった入力でも両方に効く）。
+  `--no-default-stopwords` 指定時は、この英語リストも合わせて無効化する。
 
 ## ワードクラウド生成
 
 - 描画ライブラリは **wordcloud**（Pythonデファクト標準）を採用。依存追加: `wordcloud`。
-- 日本語の文字化け対策として、フォントパスの指定が必須
-  （Windows同梱の游ゴシック等、システムフォントを既定値として使用。要検討・実装時に確定）。
+- 日本語の文字化け対策として、`wordcloud` へのフォントパス指定は必須。
+  **既定はシステムフォントのメイリオ**（`C:\Windows\Fonts\meiryo.ttc`）を使う。
+  Windows 11 標準搭載のため同梱は不要で、リポジトリ・exeが肥大化しない。
+- `--font` オプションで任意のフォントファイルパスを指定できるようにする。
+- 既定のメイリオが存在しない場合は、その旨を明示したエラーを出して終了する
+  （黙って文字化けした画像を出さない）。
 - 出力画像はPNG、背景・サイズ・カラーマップ等はひとまずデフォルト値で固定し、
   必要に応じて `--width` / `--height` 等のオプションを追加余地として残す（初期実装では固定でよい）。
 
 ## 出力
 
-既存の `common/output.py` の `save_result()` をそのまま流用する。
-`save_result` は `LoadedImage`（画像処理系の入力情報）を受け取る設計になっているため、
-テキスト系コマンド用に入力情報を渡せるよう、関数シグネチャまたはオーバーロードの調整が必要になる。
+既存の `common/output.py` の `save_result()` を流用する
+（受け取る型は後述の `HasSource` プロトコルに広げる）。
 
 対応表（画像系と同じ規約）:
 
@@ -99,15 +157,36 @@ class LoadedText:
 
 `-o`/`--output` 明示時は他コマンドと同様、指定パスへの保存のみを行いクリップボード操作はしない。
 
-## 実装上の論点（要決定事項）
+## `save_result()` の型の共通化（決定済み）
 
-1. `save_result()` のシグネチャ変更方法
-   - 案A: `LoadedImage` と `LoadedText` の共通プロトコル（`source_path` / `source_kind` を持つ）を定義し、
-     `save_result(loaded: HasSource, result: Image.Image, command: str, output: str | None)` とする
-   - 案B: `save_result` の入力を `source_path: Path | None, source_kind: SourceKind` の生の値に変更し、
-     `LoadedImage` / `LoadedText` 両方から呼び出し側で取り出して渡す
-2. 日本語フォントのバンドル方法（システムフォント依存 or フォントファイル同梱）
-3. Janomeの辞書ロードコスト（初回起動時間）が許容範囲か
+現状の `save_result()` は `loaded: LoadedImage` を受け取るが、関数の中で実際に参照しているのは
+`source_path` と `source_kind` の2つだけで、`image` は使っていない。
+テキスト入力の `LoadedText` も同じ2属性を持つため、**共通プロトコルを定義して受け口を広げる**。
+
+```python
+class HasSource(Protocol):
+    source_path: Path | None
+    source_kind: SourceKind
+
+
+def save_result(
+    loaded: HasSource, result: Image.Image, command: str, output: str | None
+) -> Path | None: ...
+```
+
+`LoadedImage` / `LoadedText` はどちらも構造的に `HasSource` を満たすため、
+既存の touka / denoise / kukiri の呼び出しコードは変更不要。
+「この関数は入力の出所情報だけを見る」という意図が型として表現される。
+
+なお `source_kind` の値域はテキスト側で `"clipboard_text"` が増えるため、
+`SourceKind` の Literal に追加する。`save_result` 側の分岐は
+「`source_path` があるか」「クリップボード由来か」で判定しているため、
+`clipboard_data` と `clipboard_text` を同じ扱い（ファイル出力せずクリップボードへ）にまとめられる。
+
+## Janomeの辞書ロードコスト
+
+`-w` 指定時のみ Janome を遅延インポートするため、既定の空白分割経路では辞書ロードは発生せず、
+起動コストに影響しない。`-w` 指定時の初回ロード（数百ms〜1秒程度）は許容範囲とする。
 
 ## 依存追加まとめ
 
@@ -134,3 +213,10 @@ dependencies = [
 - デフォルトストップワード（「こと」「する」「の」等）が集計から除外されること
 - `--stopwords` 指定分がデフォルトリストに追加されること
 - `--no-default-stopwords` 指定時にデフォルトリストが効かなくなること
+- 設定・オプションいずれもない場合、同梱の `data/user.dic` がTokenizerに渡ること
+- 設定ファイルの `[cwc] user_dict` が同梱辞書を上書きすること
+- `--user-dict` 指定時に同梱辞書・設定ファイルの双方を上書きすること
+- `--no-user-dict` 指定時にユーザー辞書が一切渡らないこと
+- 設定ファイルなし／`[cwc]`セクションなしでも同梱辞書で正常動作すること
+- 明示指定された辞書ファイルが存在しない場合、エラー終了せず警告ログを出して続行すること
+- 同梱辞書が欠落していてもエラーにならず辞書なしで動作すること
