@@ -13,7 +13,7 @@ from tools.processing.base import Processor
 logger = logging.getLogger(__name__)
 
 
-class RemoveBackgroundProcessor(Processor):
+class ToukaProcessor(Processor):
     """Remove the background from an image, producing a transparent PNG.
 
     Input source is auto-detected:
@@ -22,7 +22,7 @@ class RemoveBackgroundProcessor(Processor):
       file object such as Ctrl+C on a file in Explorer)
     """
 
-    name = "remove-bg"
+    name = "touka"
     help = "画像の背景を透過する（ファイルパス／クリップボード入力対応）"
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -51,6 +51,6 @@ class RemoveBackgroundProcessor(Processor):
     def _default_output_path(path: str | None) -> Path:
         if path:
             src = Path(path)
-            return src.with_name(f"{src.stem}_nobg.png")
+            return src.with_name(f"{src.stem}_touka.png")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return Path.cwd() / f"clipboard_nobg_{timestamp}.png"
+        return Path.cwd() / f"clipboard_touka_{timestamp}.png"

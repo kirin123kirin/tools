@@ -22,7 +22,7 @@ _DEFAULT_SEARCH_WINDOW_SIZE = 21
 class DenoiseProcessor(Processor):
     """Remove photographic grain / sensor noise using OpenCV Non-local Means Denoising.
 
-    Input source is auto-detected (same convention as remove-bg):
+    Input source is auto-detected (same convention as touka):
     - `path` given: read that image file
     - `path` omitted: read from the clipboard (raw image data, or a copied
       file object such as Ctrl+C on a file in Explorer)
