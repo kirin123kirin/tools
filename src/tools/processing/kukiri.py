@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import argparse
 import logging
-from datetime import datetime
-from pathlib import Path
 
 import cv2
 import numpy as np
 from PIL import Image
 
 from tools.common.clipboard import load_image
+from tools.common.output import describe_output, save_result
 from tools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
@@ -27,10 +26,10 @@ class KukiriProcessor(Processor):
     intact) followed by an unsharp mask (boosts edge contrast).
 
     Input source and default output location follow the same convention as
-    touka/denoise: when a source file is known (explicit `path`, or a file
-    copied in Explorer), output defaults next to it as `{stem}_kukiri.png`;
-    for raw clipboard image data with no source file, output defaults to a
-    timestamped file in the current directory.
+    touka/denoise: explicit `path` or a file copied in Explorer saves next
+    to (or, for the clipboard-file case, into the OS temp dir and back onto
+    the clipboard as) `{stem}_kukiri.png`; raw clipboard image data skips
+    the file and is placed directly on the clipboard as image data.
     """
 
     name = "kukiri"
@@ -72,11 +71,8 @@ class KukiriProcessor(Processor):
 
         result = self._process(loaded.image, smooth=args.smooth, sharpen=args.sharpen)
 
-        output_path = (
-            Path(args.output) if args.output else self._default_output_path(loaded.source_path)
-        )
-        result.save(output_path)
-        print(output_path)
+        output_path = save_result(loaded, result, "kukiri", args.output)
+        print(describe_output(output_path))
         return 0
 
     @staticmethod
@@ -96,10 +92,3 @@ class KukiriProcessor(Processor):
         result_rgb = cv2.cvtColor(sharpened, cv2.COLOR_BGR2RGB)
         out = np.dstack([result_rgb, alpha])
         return Image.fromarray(out, mode="RGBA")
-
-    @staticmethod
-    def _default_output_path(source_path: Path | None) -> Path:
-        if source_path is not None:
-            return source_path.with_name(f"{source_path.stem}_kukiri.png")
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return Path.cwd() / f"clipboard_kukiri_{timestamp}.png"

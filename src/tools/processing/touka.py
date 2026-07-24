@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import argparse
 import logging
-from datetime import datetime
-from pathlib import Path
 
 from rembg import remove
 
 from tools.common.clipboard import load_image
+from tools.common.output import describe_output, save_result
 from tools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
@@ -21,10 +20,11 @@ class ToukaProcessor(Processor):
     - `path` given: read that image file (jpg/png/...); output defaults next
       to it as `{stem}_touka.png`
     - `path` omitted, clipboard holds a copied file (e.g. Ctrl+C on a file in
-      Explorer): output defaults next to that source file, same as above
+      Explorer): output is saved under the OS temp dir as `{stem}_touka.png`
+      and the file is placed on the clipboard, ready to paste
     - `path` omitted, clipboard holds raw image data (e.g. "Copy Image" in a
-      viewer): no source file exists, so output defaults to a timestamped
-      file in the current directory
+      viewer): no file is written; the processed image is placed on the
+      clipboard as raw image data, ready to paste
     """
 
     name = "touka"
@@ -47,16 +47,6 @@ class ToukaProcessor(Processor):
 
         result = remove(loaded.image)
 
-        output_path = (
-            Path(args.output) if args.output else self._default_output_path(loaded.source_path)
-        )
-        result.save(output_path)
-        print(output_path)
+        output_path = save_result(loaded, result, "touka", args.output)
+        print(describe_output(output_path))
         return 0
-
-    @staticmethod
-    def _default_output_path(source_path: Path | None) -> Path:
-        if source_path is not None:
-            return source_path.with_name(f"{source_path.stem}_touka.png")
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return Path.cwd() / f"clipboard_touka_{timestamp}.png"
