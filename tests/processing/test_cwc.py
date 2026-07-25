@@ -23,6 +23,10 @@ def _base_args(**overrides: object) -> argparse.Namespace:
         stopwords_file=None,
         no_default_stopwords=False,
         font=None,
+        similar=False,
+        similar_threshold=0.2,
+        similar_model="paraphrase-multilingual-MiniLM-L12-v2",
+        similar_max_length=10,
     )
     defaults.update(overrides)
     return argparse.Namespace(**defaults)
@@ -358,3 +362,183 @@ def test_cp932_file_is_read_via_fallback(tmp_path: Path) -> None:
     result = proc.run(args)
 
     assert result == 0
+
+
+# --- --similar ---
+
+
+def _fake_embed(monkeypatch: pytest.MonkeyPatch, vectors: dict) -> None:
+    import numpy as np
+
+    def fake_embed_sentences(sentences, model_name=None):
+        return np.array([vectors[s] for s in sentences])
+
+    monkeypatch.setattr(cwc_module, "embed_sentences", fake_embed_sentences)
+
+
+def test_similar_sentence_split_on_period_newline_and_halfwidth_marks() -> None:
+    from tools.processing.cwc import _SENTENCE_SPLIT_PATTERN
+
+    text = "今日は天気が良い。散歩した\n特になし!他は?"
+    parts = [s for s in _SENTENCE_SPLIT_PATTERN.split(text) if s]
+    assert parts == ["今日は天気が良い", "散歩した", "特になし", "他は"]
+
+
+def test_similar_clusters_by_threshold(monkeypatch: pytest.MonkeyPatch) -> None:
+    import numpy as np
+
+    vectors = {
+        "文A": np.array([1.0, 0.0]),
+        "文Aに似た文": np.array([0.99, 0.01]),
+        "全く違う文": np.array([0.0, 1.0]),
+    }
+    for v in vectors.values():
+        v /= np.linalg.norm(v)
+    _fake_embed(monkeypatch, vectors)
+
+    proc = CwcProcessor()
+    args = _base_args(similar_threshold=0.2)
+    freq = proc._frequencies_from_similar("文A。文Aに似た文。全く違う文", args)
+
+    assert sum(freq.values()) == 3
+    assert len(freq) == 2  # 似た2文がまとまり、違う文は分離
+
+
+def test_similar_representative_is_most_frequent_then_shortest(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import numpy as np
+
+    vectors = {
+        "特になし": np.array([1.0, 0.0]),
+        "特に何もありません": np.array([0.99, 0.01]),
+    }
+    for v in vectors.values():
+        v /= np.linalg.norm(v)
+    _fake_embed(monkeypatch, vectors)
+
+    proc = CwcProcessor()
+    args = _base_args(similar_threshold=0.5)
+    freq = proc._frequencies_from_similar("特になし。特に何もありません", args)
+
+    assert list(freq.keys()) == ["特になし"]
+    assert freq["特になし"] == 2
+
+
+def test_similar_max_length_truncates_with_ellipsis(monkeypatch: pytest.MonkeyPatch) -> None:
+    import numpy as np
+
+    sentence = "これはとても長い文章のテストです"
+    vectors = {sentence: np.array([1.0, 0.0])}
+    _fake_embed(monkeypatch, vectors)
+
+    proc = CwcProcessor()
+    args = _base_args(similar_max_length=5)
+    freq = proc._frequencies_from_similar(sentence, args)
+
+    assert list(freq.keys()) == [sentence[:5] + "…"]
+
+
+def test_similar_max_length_zero_disables_truncation(monkeypatch: pytest.MonkeyPatch) -> None:
+    import numpy as np
+
+    sentence = "これはとても長い文章のテストです"
+    vectors = {sentence: np.array([1.0, 0.0])}
+    _fake_embed(monkeypatch, vectors)
+
+    proc = CwcProcessor()
+    args = _base_args(similar_max_length=0)
+    freq = proc._frequencies_from_similar(sentence, args)
+
+    assert list(freq.keys()) == [sentence]
+
+
+def test_similar_truncation_collision_merges_frequencies(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import numpy as np
+
+    vectors = {
+        "同じ接頭辞だが別の文A": np.array([1.0, 0.0]),
+        "同じ接頭辞だが別の文B": np.array([0.0, 1.0]),
+    }
+    _fake_embed(monkeypatch, vectors)
+
+    proc = CwcProcessor()
+    args = _base_args(similar_threshold=-1.0, similar_max_length=6)
+    freq = proc._frequencies_from_similar(
+        "同じ接頭辞だが別の文A。同じ接頭辞だが別の文B", args
+    )
+
+    assert list(freq.keys()) == ["同じ接頭辞だ…"]
+    assert freq["同じ接頭辞だ…"] == 2
+
+
+def test_similar_and_semantic_are_exclusive(tmp_path: Path) -> None:
+    src = tmp_path / "memo.txt"
+    src.write_text("今日は天気が良い", encoding="utf-8")
+
+    proc = CwcProcessor()
+    args = _base_args(path=str(src), similar=True, semantic=True)
+    with pytest.raises(SystemExit):
+        proc.run(args)
+
+
+def test_similar_and_wakachi_are_exclusive(tmp_path: Path) -> None:
+    src = tmp_path / "memo.txt"
+    src.write_text("今日は天気が良い", encoding="utf-8")
+
+    proc = CwcProcessor()
+    args = _base_args(path=str(src), similar=True, wakachi=True)
+    with pytest.raises(SystemExit):
+        proc.run(args)
+
+
+def test_similar_and_hinshi_are_exclusive(tmp_path: Path) -> None:
+    src = tmp_path / "memo.txt"
+    src.write_text("今日は天気が良い", encoding="utf-8")
+
+    proc = CwcProcessor()
+    args = _base_args(path=str(src), similar=True, hinshi=["名詞"])
+    with pytest.raises(SystemExit):
+        proc.run(args)
+
+
+def test_similar_empty_input_returns_empty_dict(monkeypatch: pytest.MonkeyPatch) -> None:
+    proc = CwcProcessor()
+    args = _base_args()
+    freq = proc._frequencies_from_similar("", args)
+    assert freq == {}
+
+
+def test_embedding_module_does_not_import_onnxruntime_or_tokenizers_at_top_level() -> None:
+    import tools.common.embedding as mod
+
+    src = mod.__file__
+    assert src is not None
+    with open(src, encoding="utf-8") as f:
+        content = f.read()
+    top_level = content.split("def ")[0]
+    assert "import onnxruntime" not in top_level
+    assert "import tokenizers" not in top_level
+    assert "from tokenizers" not in top_level
+
+
+def test_similar_sentences_exceeding_limit_are_truncated_with_warning(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    import numpy as np
+
+    monkeypatch.setattr(cwc_module, "_SIMILAR_MAX_SENTENCES", 3)
+
+    vectors = {f"文{i}": np.array([float(i), 1.0]) for i in range(5)}
+    _fake_embed(monkeypatch, vectors)
+
+    proc = CwcProcessor()
+    args = _base_args(similar_threshold=-1.0)
+    text = "。".join(vectors.keys())
+    with caplog.at_level("WARNING"):
+        freq = proc._frequencies_from_similar(text, args)
+
+    assert sum(freq.values()) == 3
+    assert "上限" in caplog.text

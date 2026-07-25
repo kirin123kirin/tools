@@ -16,6 +16,8 @@ dependencies = [
     "pywin32>=306",
     "janome>=0.5",        # cwc -w / --hinshi 用、遅延インポート
     "wordcloud>=1.9",
+    "tokenizers>=0.15",   # cwc --similar 用、遅延インポート
+    "onnxruntime>=1.17",  # cwc --similar 用、遅延インポート（rembg経由でも入るが直接使うので明示）
 ]
 
 [project.optional-dependencies]

@@ -10,7 +10,9 @@ from pathlib import Path
 from wordcloud import STOPWORDS, WordCloud
 
 from tools.common.clipboard import load_text
+from tools.common.clustering import agglomerative_average_linkage
 from tools.common.config import load_default_config
+from tools.common.embedding import DEFAULT_MODEL_NAME, embed_sentences
 from tools.common.output import describe_output, save_result
 from tools.processing.base import Processor
 
@@ -21,6 +23,12 @@ _DEFAULT_FONT = Path(r"C:\Windows\Fonts\meiryo.ttc")
 # 文字クラス内では ] と - をエスケープする（] は先頭以外だとクラスの終端と解釈される）。
 _SPLIT_CHARS = "。（）「」『』【】〔〕［\\］｛｝〈〉《》()\\[\\]{}\\s"
 _SPLIT_PATTERN = re.compile(f"[{_SPLIT_CHARS}]+")
+
+# --similar 用の文分割。正規化後は全角!/?が半角になるため半角で指定する。
+_SENTENCE_SPLIT_PATTERN = re.compile(r"[。!?\s]+")
+
+# --similar の入力文数の上限。凝集型クラスタリングはO(n^2)の距離行列を使うため無制限にはしない。
+_SIMILAR_MAX_SENTENCES = 2000
 
 _HINSHI_CHOICES = (
     "名詞",
@@ -249,6 +257,28 @@ class CwcProcessor(Processor):
             help="デフォルトのストップワードを無効化する",
         )
         parser.add_argument("--font", default=None, help="使用するフォントファイルのパス")
+        parser.add_argument(
+            "--similar",
+            action="store_true",
+            help="集計単位を語ではなく文にし、埋め込みベクトルの類似度でクラスタリングする",
+        )
+        parser.add_argument(
+            "--similar-threshold",
+            type=float,
+            default=0.2,
+            help="--similar のクラスタをまとめる距離の閾値（コサイン距離、既定: 0.2）",
+        )
+        parser.add_argument(
+            "--similar-model",
+            default=DEFAULT_MODEL_NAME,
+            help="--similar で使用する埋め込みモデル名",
+        )
+        parser.add_argument(
+            "--similar-max-length",
+            type=int,
+            default=10,
+            help="--similar の代表文の表示文字数の上限（0で無制限、既定: 10）",
+        )
 
     def run(self, args: argparse.Namespace) -> int:
         self._validate_exclusive_options(args)
@@ -256,29 +286,16 @@ class CwcProcessor(Processor):
         loaded = load_text(args.path, encoding=args.encoding)
         text = _normalize(loaded.text)
 
-        use_wakachi = args.wakachi or args.hinshi is not None
-        if args.hinshi is not None and not args.wakachi:
-            logger.info("--hinshi 指定のため分かち書き経路を自動的に有効化します")
-
-        if use_wakachi:
-            words = self._tokens_from_wakachi(text, args)
+        if args.similar:
+            frequencies = self._frequencies_from_similar(text, args)
         else:
-            words = _split_default(text)
-            if args.semantic:
-                words = self._apply_synonyms(words, args)
+            frequencies = self._frequencies_from_words(text, args)
 
-        stopwords = _resolve_stopwords(args)
-        words = [w for w in words if w not in stopwords]
-
-        if not words:
+        if not frequencies:
             raise SystemExit(
-                "集計対象の単語が0件です。入力が空か、全ての単語がストップワードで除去された"
+                "集計対象が0件です。入力が空か、全ての単語がストップワードで除去された"
                 "可能性があります。--no-default-stopwords を試してください。"
             )
-
-        frequencies: dict[str, int] = {}
-        for word in words:
-            frequencies[word] = frequencies.get(word, 0) + 1
 
         font_path = Path(args.font) if args.font else _DEFAULT_FONT
         if not font_path.exists():
@@ -294,6 +311,78 @@ class CwcProcessor(Processor):
     def _validate_exclusive_options(self, args: argparse.Namespace) -> None:
         if args.semantic and (args.wakachi or args.hinshi is not None):
             raise SystemExit("--semantic は -w / --hinshi と同時に指定できません")
+        if args.similar and (args.semantic or args.wakachi or args.hinshi is not None):
+            raise SystemExit("--similar は --semantic / -w / --hinshi と同時に指定できません")
+
+    def _frequencies_from_words(self, text: str, args: argparse.Namespace) -> dict[str, int]:
+        use_wakachi = args.wakachi or args.hinshi is not None
+        if args.hinshi is not None and not args.wakachi:
+            logger.info("--hinshi 指定のため分かち書き経路を自動的に有効化します")
+
+        if use_wakachi:
+            words = self._tokens_from_wakachi(text, args)
+        else:
+            words = _split_default(text)
+            if args.semantic:
+                words = self._apply_synonyms(words, args)
+
+        stopwords = _resolve_stopwords(args)
+        words = [w for w in words if w not in stopwords]
+
+        frequencies: dict[str, int] = {}
+        for word in words:
+            frequencies[word] = frequencies.get(word, 0) + 1
+        return frequencies
+
+    def _frequencies_from_similar(self, text: str, args: argparse.Namespace) -> dict[str, int]:
+        sentences = [s for s in _SENTENCE_SPLIT_PATTERN.split(text) if s]
+        if not sentences:
+            return {}
+
+        if len(sentences) > _SIMILAR_MAX_SENTENCES:
+            logger.warning(
+                "--similar の入力文数が上限(%d)を超えたため、先頭%d件のみ使用します（全%d件）",
+                _SIMILAR_MAX_SENTENCES,
+                _SIMILAR_MAX_SENTENCES,
+                len(sentences),
+            )
+            sentences = sentences[:_SIMILAR_MAX_SENTENCES]
+
+        vectors = embed_sentences(sentences, model_name=args.similar_model)
+        distance_matrix = 1.0 - (vectors @ vectors.T)
+        labels = agglomerative_average_linkage(distance_matrix, args.similar_threshold)
+
+        clusters: dict[int, list[str]] = {}
+        for sentence, label in zip(sentences, labels, strict=True):
+            clusters.setdefault(int(label), []).append(sentence)
+
+        max_length = args.similar_max_length
+        frequencies: dict[str, int] = {}
+        for members in clusters.values():
+            counts: dict[str, int] = {}
+            for s in members:
+                counts[s] = counts.get(s, 0) + 1
+            best_count = max(counts.values())
+            candidates = [s for s, c in counts.items() if c == best_count]
+            representative = min(candidates, key=len)
+
+            display = representative
+            if max_length > 0 and len(display) > max_length:
+                display = display[:max_length] + "…"
+                logger.info(
+                    "代表文を切り詰めました: %s -> %s（元クラスタ件数=%d）",
+                    representative,
+                    display,
+                    len(members),
+                )
+
+            if display in frequencies:
+                logger.info(
+                    "切り詰め後の表示が別クラスタと衝突したため頻度を合算します: %s", display
+                )
+            frequencies[display] = frequencies.get(display, 0) + len(members)
+
+        return frequencies
 
     def _tokens_from_wakachi(self, text: str, args: argparse.Namespace) -> list[str]:
         user_dict = _resolve_user_dict(args)

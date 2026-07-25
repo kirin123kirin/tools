@@ -120,6 +120,10 @@ tools cwc C:\path\to\memo.txt --hinshi 名詞 動詞
 # 同義語辞書で表記ゆれを1語に寄せる（既定の区切り文字分割専用）
 tools cwc C:\path\to\memo.txt --semantic
 
+# 集計単位を文にし、埋め込みベクトルの類似度で似た文をまとめる
+# （アンケート自由記述など、表現違いの同趣旨回答をまとめたい場合向け）
+tools cwc C:\path\to\answers.txt --similar
+
 # 出力先を指定
 tools cwc C:\path\to\memo.txt -o C:\path\to\out.png
 ```
@@ -136,6 +140,12 @@ tools cwc C:\path\to\memo.txt -o C:\path\to\out.png
 不要です。日本語を分かち書きしたい場合は`-w`（Janome、純Python実装で外部辞書のインストール不要）
 を指定します。フォントは既定でWindows標準搭載のメイリオ（`C:\Windows\Fonts\meiryo.ttc`）を使うため、
 別途フォントの用意は不要です。
+
+`--similar`は集計単位を語ではなく文にし、埋め込みベクトルの類似度で似た文をまとめて集計します。
+**初回実行時にのみ**埋め込みモデル（ONNX形式、`Xenova/paraphrase-multilingual-MiniLM-L12-v2`の
+量子化版、約120MB）を `https://huggingface.co` からダウンロードします。IT部門でプロキシ/EDRの
+アローリスト登録が必要な場合は、このホストを登録してください。ダウンロードしたモデルは
+`%LOCALAPPDATA%\tools\models\` にキャッシュされ、2回目以降は再ダウンロードしません。
 
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
 （`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` など）。
