@@ -14,6 +14,8 @@ dependencies = [
     "opencv-python-headless>=4.9",
     "numpy>=1.26",
     "pywin32>=306",
+    "janome>=0.5",        # cwc -w / --hinshi 用、遅延インポート
+    "wordcloud>=1.9",
 ]
 
 [project.optional-dependencies]
@@ -22,6 +24,7 @@ dev = [
     "pytest-cov>=5",
     "ruff>=0.6",
     "mypy>=1.11",
+    "scikit-learn>=1.4",  # cwc --similar の自前クラスタリング実装の正しさ検証用
 ]
 
 [project.scripts]
@@ -31,9 +34,13 @@ tools = "tools.cli:main"
 touka = "tools.cli:run_as_subcommand"
 denoise = "tools.cli:run_as_subcommand"
 kukiri = "tools.cli:run_as_subcommand"
+cwc = "tools.cli:run_as_subcommand"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"tools.data" = ["*.dic", "*.tsv"]
 
 [tool.ruff]
 line-length = 100

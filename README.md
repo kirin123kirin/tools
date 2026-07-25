@@ -20,7 +20,8 @@ tools/
 │           ├── base.py             # Processor基底クラス
 │           ├── touka.py            # 画像背景透過ツール
 │           ├── denoise.py          # 画像ノイズ除去ツール（OpenCV Non-local Means）
-│           └── kukiri.py           # JPEG輪郭滲み除去・境界強調ツール（バイラテラル+アンシャープマスク）
+│           ├── kukiri.py           # JPEG輪郭滲み除去・境界強調ツール（バイラテラル+アンシャープマスク）
+│           └── cwc.py              # テキストからワードクラウド画像を生成するツール
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
 ├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象）
@@ -103,6 +104,24 @@ tools kukiri C:\path\to\illustration.jpg --smooth 90 --sharpen 0.8
 
 # 出力先を指定
 tools kukiri C:\path\to\illustration.jpg -o C:\path\to\out.png
+
+# テキストからワードクラウド画像を生成（ファイルパス指定）
+tools cwc C:\path\to\memo.txt
+
+# クリップボードのテキストから生成
+tools cwc
+
+# Janomeによる分かち書きで分割
+tools cwc C:\path\to\memo.txt -w
+
+# 名詞・動詞のみを集計（分かち書きを自動的に使用）
+tools cwc C:\path\to\memo.txt --hinshi 名詞 動詞
+
+# 同義語辞書で表記ゆれを1語に寄せる（既定の区切り文字分割専用）
+tools cwc C:\path\to\memo.txt --semantic
+
+# 出力先を指定
+tools cwc C:\path\to\memo.txt -o C:\path\to\out.png
 ```
 
 `touka` は初回実行時に背景除去モデル（U2Net, rembg）をインターネットからダウンロードします。
@@ -112,12 +131,18 @@ tools kukiri C:\path\to\illustration.jpg -o C:\path\to\out.png
 対象にしています。バイラテラルフィルタ（輪郭を保ったまま平滑化）→アンシャープマスク（輪郭強調）
 の順に処理し、フラットデザインのイラストなど「境界をくっきりさせたい」用途向けです。
 
+`cwc`はテキストを単語に分割して頻度を集計し、`wordcloud`ライブラリでワードクラウド画像を
+生成します。既定は句点・かっこ・空白類による単純な区切り文字分割で、外部モデルのダウンロードは
+不要です。日本語を分かち書きしたい場合は`-w`（Janome、純Python実装で外部辞書のインストール不要）
+を指定します。フォントは既定でWindows標準搭載のメイリオ（`C:\Windows\Fonts\meiryo.ttc`）を使うため、
+別途フォントの用意は不要です。
+
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
-（`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` など）。
+（`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 
-入力パターンごとに、出力の扱いが異なります。
+入力パターンごとに、出力の扱いが異なります（`cwc`は入力がテキストになりますが同じ規約に従います）。
 
 | 入力パターン | デフォルトの挙動 |
 |---|---|

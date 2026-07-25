@@ -10,11 +10,15 @@ import win32clipboard
 import win32con
 from PIL import Image, ImageGrab
 
-SourceKind = Literal["path", "clipboard_file", "clipboard_data"]
+SourceKind = Literal["path", "clipboard_file", "clipboard_data", "clipboard_text"]
 
 
 class ClipboardImageError(RuntimeError):
     """Raised when no usable image can be obtained from the clipboard."""
+
+
+class ClipboardTextError(RuntimeError):
+    """Raised when no usable text can be obtained from the clipboard."""
 
 
 @dataclass(frozen=True)
@@ -64,6 +68,85 @@ def load_image(path: str | Path | None) -> LoadedImage:
             source_kind="clipboard_file",
         )
     return LoadedImage(image=clip.convert("RGBA"), source_path=None, source_kind="clipboard_data")
+
+
+@dataclass(frozen=True)
+class LoadedText:
+    """Text plus where it came from. Mirrors `LoadedImage` for text-based commands."""
+
+    text: str
+    source_path: Path | None
+    source_kind: SourceKind
+
+
+def _normalize_newlines(text: str) -> str:
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def _read_text_file(path: Path, encoding: str | None) -> str:
+    if encoding is not None:
+        raw = path.read_bytes()
+        try:
+            return raw.decode(encoding)
+        except UnicodeDecodeError as exc:
+            raise ClipboardTextError(
+                f"指定されたエンコーディング {encoding!r} でファイルを読み込めません: {path}"
+            ) from exc
+
+    raw = path.read_bytes()
+    try:
+        return raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        try:
+            return raw.decode("cp932")
+        except UnicodeDecodeError as exc:
+            raise ClipboardTextError(
+                f"UTF-8/CP932のいずれでもファイルを読み込めません: {path}"
+            ) from exc
+
+
+def load_text(path: str | Path | None, encoding: str | None = None) -> LoadedText:
+    """Load text from a file path, or from the Windows clipboard if `path` is None.
+
+    Clipboard input covers two cases:
+    - plain text (e.g. copied from a text editor)
+    - a copied file object (e.g. Ctrl+C on a file in Explorer), read as text
+
+    `encoding` forces a specific codec (no fallback) when reading a file;
+    `None` tries UTF-8 (with BOM support) then falls back to CP932.
+    """
+    if path is not None:
+        resolved = Path(path)
+        text = _read_text_file(resolved, encoding)
+        return LoadedText(
+            text=_normalize_newlines(text), source_path=resolved, source_kind="path"
+        )
+
+    win32clipboard.OpenClipboard()
+    try:
+        has_files = win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_HDROP)
+        has_text = win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_UNICODETEXT)
+        if has_files:
+            files = win32clipboard.GetClipboardData(win32clipboard.CF_HDROP)
+        elif has_text:
+            clip_text = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
+        else:
+            raise ClipboardTextError("クリップボードにテキストがありません")
+    finally:
+        win32clipboard.CloseClipboard()
+
+    if has_files:
+        if not files:
+            raise ClipboardTextError("クリップボードにファイルがありません")
+        resolved = Path(files[0])
+        text = _read_text_file(resolved, encoding)
+        return LoadedText(
+            text=_normalize_newlines(text), source_path=resolved, source_kind="clipboard_file"
+        )
+
+    return LoadedText(
+        text=_normalize_newlines(clip_text), source_path=None, source_kind="clipboard_text"
+    )
 
 
 def copy_file_to_clipboard(path: Path) -> None:
