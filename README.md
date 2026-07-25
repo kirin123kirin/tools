@@ -77,7 +77,7 @@ pip install -e ".[dev]"
 
 ### pre-commitフックの導入（`doc/help.html`の自動更新）
 
-`doc/help.html`（全コマンドのヘルプ一覧、`help`/`tool-h.exe`が開くページ）は
+`doc/help.html`（全コマンドのヘルプ一覧、`help`/`toolh.exe`が開くページ）は
 コミット時に自動再生成されるようにしています。`.git/hooks/`はリポジトリに含まれないため、
 クローン後に一度だけ導入してください。
 
@@ -165,8 +165,8 @@ tools clipfmt
 
 # 全コマンドのヘルプ一覧（doc/help.html）をブラウザで開く
 tools help
-# 単体実行ファイルはtool-h.exe（他コマンドと違いhelp.exeという名前ではない）
-tool-h
+# 単体実行ファイルはtoolh.exe（他コマンドと違いhelp.exeという名前ではない）
+toolh
 ```
 
 `touka` は初回実行時に背景除去モデル（U2Net, rembg）をインターネットからダウンロードします。

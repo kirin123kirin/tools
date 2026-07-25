@@ -53,9 +53,9 @@ def main(argv: list[str] | None = None) -> int:
 
 
 _ENTRY_POINT_ALIASES = {
-    # tool-h.exe だけは他の1コマンド=1exe規則に沿わない特別なエントリーポイント名
-    # （help.exe は分かりにくいので tool-h とした）。
-    "tool-h": "help",
+    # toolh.exe だけは他の1コマンド=1exe規則に沿わない特別なエントリーポイント名
+    # （help.exe は分かりにくいので toolh とした）。
+    "toolh": "help",
 }
 
 
