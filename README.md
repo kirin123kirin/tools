@@ -28,7 +28,8 @@ tools/
 │           └── clipfmt.py          # クリップボードのMarkdown整形
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
-├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象）
+├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象。
+│                            # ただし gen_help.py と pre-commit は例外的にバージョン管理する）
 └── tmp/                    # 一時ファイル・実行結果ダンプなど（.gitignore対象）
 ```
 
@@ -73,6 +74,19 @@ python -m venv .venv
 .venv\Scripts\activate
 pip install -e ".[dev]"
 ```
+
+### pre-commitフックの導入（`doc/help.html`の自動更新）
+
+`doc/help.html`（全コマンドのヘルプ一覧、`help`/`tool-h.exe`が開くページ）は
+コミット時に自動再生成されるようにしています。`.git/hooks/`はリポジトリに含まれないため、
+クローン後に一度だけ導入してください。
+
+```powershell
+Copy-Item scripts\pre-commit .git\hooks\pre-commit
+```
+
+以降、`git commit`のたびに `python scripts/gen_help.py` が実行され、
+`doc/help.html`に変更があればコミットに自動で含まれます。
 
 ## 実行
 
@@ -148,6 +162,11 @@ tools clipview
 
 # クリップボードのMarkdownを整形（表の桁揃え、見出し統一、リスト記号統一など）
 tools clipfmt
+
+# 全コマンドのヘルプ一覧（doc/help.html）をブラウザで開く
+tools help
+# 単体実行ファイルはtool-h.exe（他コマンドと違いhelp.exeという名前ではない）
+tool-h
 ```
 
 `touka` は初回実行時に背景除去モデル（U2Net, rembg）をインターネットからダウンロードします。

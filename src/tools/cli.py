@@ -52,6 +52,13 @@ def main(argv: list[str] | None = None) -> int:
     return processor.run(args)
 
 
+_ENTRY_POINT_ALIASES = {
+    # tool-h.exe だけは他の1コマンド=1exe規則に沿わない特別なエントリーポイント名
+    # （help.exe は分かりにくいので tool-h とした）。
+    "tool-h": "help",
+}
+
+
 def run_as_subcommand() -> int:
     """Entry point for a per-command executable (e.g. `denoise.exe`).
 
@@ -61,6 +68,7 @@ def run_as_subcommand() -> int:
     pyproject.toml, all pointing to this same function.
     """
     command_name = PureWindowsPath(sys.argv[0]).stem
+    command_name = _ENTRY_POINT_ALIASES.get(command_name, command_name)
     return main([command_name, *sys.argv[1:]])
 
 

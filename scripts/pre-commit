@@ -1,0 +1,13 @@
+#!/bin/sh
+# doc/help.html を最新化し、変更があればコミット対象に含める。
+# インストール: cp scripts/pre-commit .git/hooks/pre-commit （実行権限は不要、Git for Windowsがsh経由で実行する）
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+python scripts/gen_help.py
+
+if ! git diff --quiet -- doc/help.html; then
+    git add doc/help.html
+fi

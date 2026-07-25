@@ -14,4 +14,6 @@ htmlcov/
 
 # scratch / verification files (not part of the package)
 tmp/
-scripts/
+scripts/*
+!scripts/gen_help.py
+!scripts/pre-commit

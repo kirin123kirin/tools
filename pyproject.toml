@@ -46,6 +46,9 @@ clipmd = "tools.cli:run_as_subcommand"
 mdtsv = "tools.cli:run_as_subcommand"
 clipview = "tools.cli:run_as_subcommand"
 clipfmt = "tools.cli:run_as_subcommand"
+# help コマンドの単体エントリーポイントのみ tool-h という別名にする
+# （run_as_subcommand内の_ENTRY_POINT_ALIASESでhelpにマッピングされる）。
+tool-h = "tools.cli:run_as_subcommand"
 
 [tool.setuptools.packages.find]
 where = ["src"]

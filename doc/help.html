@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>tools コマンドヘルプ</title>
+<style>
+:root { color-scheme: light dark; }
+body {
+  max-width: 50rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.6;
+  color: #222;
+  background: #fff;
+}
+h1 { font-size: 1.6rem; }
+h2 {
+  font-size: 1.2rem;
+  margin-top: 2rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.3rem;
+}
+.summary { color: #555; margin: 0.3rem 0 0.8rem; }
+pre {
+  background: #f5f5f5;
+  padding: 0.8rem;
+  overflow-x: auto;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.85rem;
+}
+nav ul { padding-left: 1.2rem; }
+nav a { text-decoration: none; }
+nav a:hover { text-decoration: underline; }
+@media (prefers-color-scheme: dark) {
+  body { color: #ddd; background: #1e1e1e; }
+  h2 { border-bottom-color: #555; }
+  .summary { color: #aaa; }
+  pre { background: #2a2a2a; }
+}
+</style>
+</head>
+<body>
+<h1>tools コマンド一覧</h1>
+<nav>
+<ul>
+<li><a href="#clipfmt">clipfmt</a> — クリップボードのMarkdownを整形する</li>
+<li><a href="#clipmd">clipmd</a> — クリップボードのMarkdownとリッチテキストを相互変換する</li>
+<li><a href="#clipview">clipview</a> — クリップボードのMarkdown/HTMLをブラウザでプレビューする</li>
+<li><a href="#cwc">cwc</a> — テキストからワードクラウド画像を生成する（ファイルパス／クリップボード入力対応）</li>
+<li><a href="#denoise">denoise</a> — 画像のノイズ除去（ファイルパス／クリップボード入力対応、OpenCV Non-local Means）</li>
+<li><a href="#help">help</a> — 全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く</li>
+<li><a href="#kukiri">kukiri</a> — JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）</li>
+<li><a href="#mdtsv">mdtsv</a> — クリップボードのMarkdownの表とTSVを相互変換する</li>
+<li><a href="#touka">touka</a> — 画像の背景を透過する（ファイルパス／クリップボード入力対応）</li>
+</ul>
+</nav>
+<section class="command">
+<h2 id="clipfmt">clipfmt</h2>
+<p class="summary">クリップボードのMarkdownを整形する</p>
+<pre>usage: clipfmt [-h] [--no-normalize-bullets]
+
+クリップボードのMarkdownを整形する
+
+options:
+  -h, --help            show this help message and exit
+  --no-normalize-bullets
+                        箇条書き記号(*/+)を-に統一する前処理を行わない
+</pre>
+</section>
+<section class="command">
+<h2 id="clipmd">clipmd</h2>
+<p class="summary">クリップボードのMarkdownとリッチテキストを相互変換する</p>
+<pre>usage: clipmd [-h] [--to-markdown | --to-rich]
+
+クリップボードのMarkdownとリッチテキストを相互変換する
+
+options:
+  -h, --help     show this help message and exit
+  --to-markdown  入力をHTMLとみなしMarkdownに変換する
+  --to-rich      入力をMarkdownとみなしリッチテキストに変換する
+</pre>
+</section>
+<section class="command">
+<h2 id="clipview">clipview</h2>
+<p class="summary">クリップボードのMarkdown/HTMLをブラウザでプレビューする</p>
+<pre>usage: clipview [-h] [--markdown | --html] [--no-open]
+
+クリップボードのMarkdown/HTMLをブラウザでプレビューする
+
+options:
+  -h, --help  show this help message and exit
+  --markdown  入力をMarkdownとして解釈する
+  --html      入力をHTMLとして解釈する
+  --no-open   ブラウザを開かず、パスの表示のみ行う
+</pre>
+</section>
+<section class="command">
+<h2 id="cwc">cwc</h2>
+<p class="summary">テキストからワードクラウド画像を生成する（ファイルパス／クリップボード入力対応）</p>
+<pre>usage: cwc [-h] [-o OUTPUT] [--encoding ENCODING] [-w]
+           [--hinshi HINSHI [HINSHI ...]] [--semantic]
+           [--synonym-dict SYNONYM_DICT] [--no-synonym-dict]
+           [--user-dict USER_DICT] [--no-user-dict] [--stopwords STOPWORDS]
+           [--stopwords-file STOPWORDS_FILE] [--no-default-stopwords]
+           [--font FONT] [--similar] [--similar-threshold SIMILAR_THRESHOLD]
+           [--similar-model SIMILAR_MODEL]
+           [--similar-max-length SIMILAR_MAX_LENGTH]
+           [path]
+
+テキストからワードクラウド画像を生成する（ファイルパス／クリップボード入力対応）
+
+positional arguments:
+  path                  テキストファイルパス。省略時はクリップボードのテキスト/コピーしたファイルを使用
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（省略時は自動生成、拡張子はpng）
+  --encoding ENCODING   入力ファイルのエンコーディングを明示指定（省略時はUTF-8→CP932の順に試す）
+  -w, --wakachi         Janomeによる分かち書きで分割する
+  --hinshi HINSHI [HINSHI ...]
+                        集計対象の品詞を指定（複数可、カンマ区切りも可）。指定可能: 名詞, 動詞, 形容詞, 副詞, 助詞,
+                        助動詞, 連体詞, 接続詞, 感動詞, 接頭詞, 記号, フィラー, その他
+  --semantic            同義語辞書で異表記を代表語に寄せる
+  --synonym-dict SYNONYM_DICT
+                        同義語辞書ファイルのパス
+  --no-synonym-dict     同義語辞書を一切使用しない
+  --user-dict USER_DICT
+                        Janomeユーザー辞書のパス
+  --no-user-dict        Janomeユーザー辞書を一切使用しない
+  --stopwords STOPWORDS
+                        追加するストップワード（カンマ区切り）
+  --stopwords-file STOPWORDS_FILE
+                        追加するストップワードのファイルパス
+  --no-default-stopwords
+                        デフォルトのストップワードを無効化する
+  --font FONT           使用するフォントファイルのパス
+  --similar             集計単位を語ではなく文にし、埋め込みベクトルの類似度でクラスタリングする
+  --similar-threshold SIMILAR_THRESHOLD
+                        --similar のクラスタをまとめる距離の閾値（コサイン距離、既定: 0.2）
+  --similar-model SIMILAR_MODEL
+                        --similar で使用する埋め込みモデル名
+  --similar-max-length SIMILAR_MAX_LENGTH
+                        --similar の代表文の表示文字数の上限（0で無制限、既定: 10）
+</pre>
+</section>
+<section class="command">
+<h2 id="denoise">denoise</h2>
+<p class="summary">画像のノイズ除去（ファイルパス／クリップボード入力対応、OpenCV Non-local Means）</p>
+<pre>usage: denoise [-h] [-o OUTPUT] [--strength STRENGTH] [path]
+
+画像のノイズ除去（ファイルパス／クリップボード入力対応、OpenCV Non-local Means）
+
+positional arguments:
+  path                  画像ファイルパス。省略時はクリップボードの画像/コピーしたファイルを使用
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（省略時は自動生成、拡張子はpng）
+  --strength STRENGTH   ノイズ除去強度 h（デフォルト: 10.0）。値を大きくするほどノイズは減るがディテールも失われる
+</pre>
+</section>
+<section class="command">
+<h2 id="help">help</h2>
+<p class="summary">全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く</p>
+<pre>usage: help [-h] [--no-open]
+
+全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く
+
+options:
+  -h, --help  show this help message and exit
+  --no-open   ブラウザを開かず、パスの表示のみ行う
+</pre>
+</section>
+<section class="command">
+<h2 id="kukiri">kukiri</h2>
+<p class="summary">JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）</p>
+<pre>usage: kukiri [-h] [-o OUTPUT] [--smooth SMOOTH] [--sharpen SHARPEN] [path]
+
+JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）
+
+positional arguments:
+  path                  画像ファイルパス。省略時はクリップボードの画像/コピーしたファイルを使用
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（省略時は自動生成、拡張子はpng）
+  --smooth SMOOTH       バイラテラルフィルタの強さ（デフォルト: 75.0）。大きいほど滲みは消えるが細部も失われる
+  --sharpen SHARPEN     アンシャープマスクの強さ（デフォルト: 0.5、0で無効）。大きいほど境界のコントラストが強調される
+</pre>
+</section>
+<section class="command">
+<h2 id="mdtsv">mdtsv</h2>
+<p class="summary">クリップボードのMarkdownの表とTSVを相互変換する</p>
+<pre>usage: mdtsv [-h] [--to-tsv | --to-table]
+
+クリップボードのMarkdownの表とTSVを相互変換する
+
+options:
+  -h, --help  show this help message and exit
+  --to-tsv    入力をMarkdownの表とみなしTSVに変換する
+  --to-table  入力をTSVとみなしMarkdownの表に変換する
+</pre>
+</section>
+<section class="command">
+<h2 id="touka">touka</h2>
+<p class="summary">画像の背景を透過する（ファイルパス／クリップボード入力対応）</p>
+<pre>usage: touka [-h] [-o OUTPUT] [path]
+
+画像の背景を透過する（ファイルパス／クリップボード入力対応）
+
+positional arguments:
+  path                  画像ファイルパス。省略時はクリップボードの画像/コピーしたファイルを使用
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（省略時は自動生成、拡張子はpng）
+</pre>
+</section>
+</body>
+</html>
