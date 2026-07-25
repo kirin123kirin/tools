@@ -181,3 +181,146 @@ def copy_image_to_clipboard(image: Image.Image) -> None:
         win32clipboard.SetClipboardData(win32con.CF_DIB, dib)
     finally:
         win32clipboard.CloseClipboard()
+
+
+def _cf_html_format() -> int:
+    """The CF_HTML format ID is not a fixed constant; it must be looked up at runtime."""
+    return int(win32clipboard.RegisterClipboardFormat("HTML Format"))
+
+
+def has_clipboard_html() -> bool:
+    win32clipboard.OpenClipboard()
+    try:
+        return bool(win32clipboard.IsClipboardFormatAvailable(_cf_html_format()))
+    finally:
+        win32clipboard.CloseClipboard()
+
+
+def has_clipboard_text() -> bool:
+    win32clipboard.OpenClipboard()
+    try:
+        return bool(win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_UNICODETEXT))
+    finally:
+        win32clipboard.CloseClipboard()
+
+
+def get_clipboard_text() -> str:
+    """Read CF_UNICODETEXT from the clipboard, raising if not available."""
+    win32clipboard.OpenClipboard()
+    try:
+        if not win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_UNICODETEXT):
+            raise ClipboardTextError("クリップボードにテキストがありません")
+        return str(win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT))
+    finally:
+        win32clipboard.CloseClipboard()
+
+
+def get_clipboard_html_fragment() -> str:
+    """Read CF_HTML from the clipboard and return just the fragment between
+    <!--StartFragment--> and <!--EndFragment-->, falling back to the header
+    byte offsets if the comment markers are missing or the offsets are stale.
+    """
+    win32clipboard.OpenClipboard()
+    try:
+        fmt = _cf_html_format()
+        if not win32clipboard.IsClipboardFormatAvailable(fmt):
+            raise ClipboardTextError("クリップボードにHTMLがありません")
+        raw = win32clipboard.GetClipboardData(fmt)
+    finally:
+        win32clipboard.CloseClipboard()
+
+    raw_bytes = raw if isinstance(raw, bytes) else str(raw).encode("utf-8")
+    text = raw_bytes.decode("utf-8", errors="replace")
+
+    start_marker = "<!--StartFragment-->"
+    end_marker = "<!--EndFragment-->"
+    start_idx = text.find(start_marker)
+    end_idx = text.find(end_marker)
+    if start_idx != -1 and end_idx != -1:
+        return text[start_idx + len(start_marker) : end_idx]
+
+    # コメントマーカーが見つからない場合、ヘッダーのバイトオフセットにフォールバックする
+    headers: dict[str, int] = {}
+    for line in text.split("\r\n"):
+        if not line or ":" not in line:
+            continue
+        key, _, value = line.partition(":")
+        if key in ("StartFragment", "EndFragment"):
+            try:
+                headers[key] = int(value)
+            except ValueError:
+                continue
+        if len(headers) == 2:
+            break
+
+    if "StartFragment" not in headers or "EndFragment" not in headers:
+        raise ClipboardTextError("CF_HTMLのヘッダーを解析できません")
+
+    return raw_bytes[headers["StartFragment"] : headers["EndFragment"]].decode(
+        "utf-8", errors="replace"
+    )
+
+
+def get_clipboard_html_raw() -> bytes:
+    """Read the raw CF_HTML payload (with its header) as bytes, for marker detection
+    (e.g. Excel's ProgId marker) that needs to see the whole payload, not just the fragment.
+    """
+    win32clipboard.OpenClipboard()
+    try:
+        fmt = _cf_html_format()
+        if not win32clipboard.IsClipboardFormatAvailable(fmt):
+            raise ClipboardTextError("クリップボードにHTMLがありません")
+        raw = win32clipboard.GetClipboardData(fmt)
+    finally:
+        win32clipboard.CloseClipboard()
+    return raw if isinstance(raw, bytes) else str(raw).encode("utf-8")
+
+
+def _build_cf_html(html_fragment: str) -> bytes:
+    """Wrap an HTML fragment in the CF_HTML header format (byte offsets, UTF-8)."""
+    header_template = (
+        "Version:0.9\r\n"
+        "StartHTML:{:010d}\r\n"
+        "EndHTML:{:010d}\r\n"
+        "StartFragment:{:010d}\r\n"
+        "EndFragment:{:010d}\r\n"
+    )
+    header_len = len(header_template.format(0, 0, 0, 0).encode("utf-8"))
+
+    prefix = "<html><body>\r\n<!--StartFragment-->"
+    suffix = "<!--EndFragment-->\r\n</body></html>"
+
+    start_html = header_len
+    start_fragment = start_html + len(prefix.encode("utf-8"))
+    end_fragment = start_fragment + len(html_fragment.encode("utf-8"))
+    end_html = end_fragment + len(suffix.encode("utf-8"))
+
+    header = header_template.format(start_html, end_html, start_fragment, end_fragment)
+    return (header + prefix + html_fragment + suffix).encode("utf-8")
+
+
+def copy_html_and_text_to_clipboard(html_fragment: str, plain_text: str) -> None:
+    """Put both CF_HTML and CF_UNICODETEXT on the clipboard in one session.
+
+    Rich-text-aware apps (Outlook/Word/Slack) read CF_HTML for styled paste;
+    plain-text-only apps fall back to CF_UNICODETEXT.
+    """
+    html_data = _build_cf_html(html_fragment)
+
+    win32clipboard.OpenClipboard()
+    try:
+        win32clipboard.EmptyClipboard()
+        win32clipboard.SetClipboardData(_cf_html_format(), html_data)
+        win32clipboard.SetClipboardData(win32con.CF_UNICODETEXT, plain_text)
+    finally:
+        win32clipboard.CloseClipboard()
+
+
+def copy_text_to_clipboard(text: str) -> None:
+    """Put plain text on the clipboard (CF_UNICODETEXT only)."""
+    win32clipboard.OpenClipboard()
+    try:
+        win32clipboard.EmptyClipboard()
+        win32clipboard.SetClipboardData(win32con.CF_UNICODETEXT, text)
+    finally:
+        win32clipboard.CloseClipboard()

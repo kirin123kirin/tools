@@ -18,6 +18,11 @@ dependencies = [
     "wordcloud>=1.9",
     "tokenizers>=0.15",   # cwc --similar 用、遅延インポート
     "onnxruntime>=1.17",  # cwc --similar 用、遅延インポート（rembg経由でも入るが直接使うので明示）
+    "markdown-it-py>=3",    # clipmd/clipview 用、遅延インポート
+    "markdownify>=0.13",    # clipmd/clipview 用、遅延インポート
+    "beautifulsoup4>=4.12", # clipmd のHTML前処理パス用、遅延インポート（markdownify経由で入るが直接使うので明示）
+    "mdformat>=0.7",         # clipfmt 用、遅延インポート
+    "mdformat-tables>=1",    # clipfmt 用、遅延インポート
 ]
 
 [project.optional-dependencies]
@@ -37,6 +42,10 @@ touka = "tools.cli:run_as_subcommand"
 denoise = "tools.cli:run_as_subcommand"
 kukiri = "tools.cli:run_as_subcommand"
 cwc = "tools.cli:run_as_subcommand"
+clipmd = "tools.cli:run_as_subcommand"
+mdtsv = "tools.cli:run_as_subcommand"
+clipview = "tools.cli:run_as_subcommand"
+clipfmt = "tools.cli:run_as_subcommand"
 
 [tool.setuptools.packages.find]
 where = ["src"]

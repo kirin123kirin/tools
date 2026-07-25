@@ -21,7 +21,11 @@ tools/
 │           ├── touka.py            # 画像背景透過ツール
 │           ├── denoise.py          # 画像ノイズ除去ツール（OpenCV Non-local Means）
 │           ├── kukiri.py           # JPEG輪郭滲み除去・境界強調ツール（バイラテラル+アンシャープマスク）
-│           └── cwc.py              # テキストからワードクラウド画像を生成するツール
+│           ├── cwc.py              # テキストからワードクラウド画像を生成するツール
+│           ├── clipmd.py           # クリップボードのMarkdown↔リッチテキスト変換
+│           ├── mdtsv.py            # クリップボードのMarkdownの表↔TSV変換
+│           ├── clipview.py         # クリップボードのMarkdown/HTMLをブラウザでプレビュー
+│           └── clipfmt.py          # クリップボードのMarkdown整形
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
 ├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象）
@@ -126,6 +130,24 @@ tools cwc C:\path\to\answers.txt --similar
 
 # 出力先を指定
 tools cwc C:\path\to\memo.txt -o C:\path\to\out.png
+
+# クリップボードのMarkdownとリッチテキストを相互変換（クリップボードの状態から自動判別）
+# - リッチテキストがコピーされていればMarkdownに変換
+# - Markdown（プレーンテキスト）がコピーされていればリッチテキストに変換
+tools clipmd
+
+# 変換方向を明示指定
+tools clipmd --to-markdown
+tools clipmd --to-rich
+
+# クリップボードのMarkdownの表とTSVを相互変換（Excelとのやり取り用）
+tools mdtsv
+
+# クリップボードのMarkdown/HTMLをブラウザでプレビュー
+tools clipview
+
+# クリップボードのMarkdownを整形（表の桁揃え、見出し統一、リスト記号統一など）
+tools clipfmt
 ```
 
 `touka` は初回実行時に背景除去モデル（U2Net, rembg）をインターネットからダウンロードします。
@@ -147,8 +169,24 @@ tools cwc C:\path\to\memo.txt -o C:\path\to\out.png
 アローリスト登録が必要な場合は、このホストを登録してください。ダウンロードしたモデルは
 `%LOCALAPPDATA%\tools\models\` にキャッシュされ、2回目以降は再ダウンロードしません。
 
+`clipmd`/`mdtsv`/`clipview`/`clipfmt`はクリップボードの内容をその場で変換・表示するツール群です。
+入力も出力もファイルではなくクリップボード経由（`clipview`のみプレビュー用に一時HTMLを生成）で、
+`tools <name>` を実行した瞬間にクリップボードの中身を読み書きします（バックグラウンド監視はしません）。
+役割の違いは以下の通りです。
+
+| コマンド | 役割 |
+|---|---|
+| `clipmd` | Markdown ↔ リッチテキスト の文書全体の形式変換 |
+| `mdtsv` | Markdownの表 ↔ TSV の表だけの変換（Excelとの橋渡し） |
+| `clipview` | Markdown/HTML をブラウザでプレビュー（クリップボードは変更しない） |
+| `clipfmt` | Markdown の整形（表の桁揃え、見出し・リスト記号の統一など） |
+
+`clipview`のみ、プレビュー用に `%TEMP%\tools_clipview_preview.html` を固定名で生成します
+（毎回上書きするためファイルは増殖しません）。
+
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
-（`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` など）。
+（`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` /
+`clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 
