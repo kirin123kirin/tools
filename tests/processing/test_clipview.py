@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from tools.common import browser_preview as browser_preview_module
 from tools.processing import clipview as clipview_module
 from tools.processing.clipview import ClipviewProcessor, wrap_preview_html
 
@@ -33,14 +34,14 @@ def clipboard_state(monkeypatch: pytest.MonkeyPatch) -> dict:
 
 @pytest.fixture
 def temp_preview_dir(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
-    monkeypatch.setattr(clipview_module.tempfile, "gettempdir", lambda: str(tmp_path))
+    monkeypatch.setattr(browser_preview_module.tempfile, "gettempdir", lambda: str(tmp_path))
     return tmp_path
 
 
 @pytest.fixture
 def no_browser(monkeypatch: pytest.MonkeyPatch) -> list:
     calls: list[str] = []
-    monkeypatch.setattr(clipview_module.webbrowser, "open", lambda url: calls.append(url))
+    monkeypatch.setattr(browser_preview_module.webbrowser, "open", lambda url: calls.append(url))
     return calls
 
 
@@ -171,7 +172,7 @@ def test_no_external_cdn_references_in_style() -> None:
 def test_browser_opened_by_default(clipboard_state, temp_preview_dir, monkeypatch) -> None:
     clipboard_state["text"] = "hi"
     calls = []
-    monkeypatch.setattr(clipview_module.webbrowser, "open", lambda url: calls.append(url))
+    monkeypatch.setattr(browser_preview_module.webbrowser, "open", lambda url: calls.append(url))
 
     proc = ClipviewProcessor()
     proc.run(_base_args(no_open=False))
@@ -198,7 +199,7 @@ def test_browser_url_has_cache_busting_query(
 ) -> None:
     clipboard_state["text"] = "hi"
     calls = []
-    monkeypatch.setattr(clipview_module.webbrowser, "open", lambda url: calls.append(url))
+    monkeypatch.setattr(browser_preview_module.webbrowser, "open", lambda url: calls.append(url))
 
     ClipviewProcessor().run(_base_args(no_open=False))
 
@@ -210,7 +211,7 @@ def test_two_runs_have_different_query_values(
 ) -> None:
     clipboard_state["text"] = "hi"
     calls = []
-    monkeypatch.setattr(clipview_module.webbrowser, "open", lambda url: calls.append(url))
+    monkeypatch.setattr(browser_preview_module.webbrowser, "open", lambda url: calls.append(url))
 
     ClipviewProcessor().run(_base_args(no_open=False))
     ClipviewProcessor().run(_base_args(no_open=False))

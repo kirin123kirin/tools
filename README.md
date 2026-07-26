@@ -27,6 +27,8 @@ tools/
 │           ├── clipview.py         # クリップボードのMarkdown/HTMLをブラウザでプレビュー
 │           ├── clipfmt.py          # クリップボードのMarkdown整形
 │           ├── vv.py               # 定型プロンプトをクリップボードにコピー
+│           ├── profiler.py         # 表形式データの列プロファイリング（欠損・一意性・主キー候補）
+│           ├── lsdir.py            # フォルダ配下をExcelで集計できる表形式で一覧化
 │           └── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
@@ -171,6 +173,34 @@ tools vv
 # 番号を指定して、そのプロンプトをクリップボードにコピー（あとはCtrl+Vで貼るだけ）
 tools vv 3
 
+# 表形式データ（CSV/TSV/Excel/JSON）の各列をプロファイル（ファイルパス指定）
+tools profiler C:\path\to\data.csv
+
+# クリップボードのTSV（Excelで範囲コピーしたものなど）をプロファイル
+tools profiler
+
+# 結果をExcelファイルに書き出す（欠損・重複が疑わしいセルを赤塗り）
+tools profiler C:\path\to\data.xlsx -o C:\path\to\profile.xlsx
+
+# 結果をブラウザでプレビュー
+tools profiler C:\path\to\data.csv --view
+
+# フォルダ配下をExcelで集計できる表形式で一覧化
+tools lsdir C:\path\to\folder
+
+# ファイルのみ／フォルダのみに絞り込む
+tools lsdir C:\path\to\folder --files-only
+tools lsdir C:\path\to\folder --dirs-only
+
+# フォルダ配下の合計サイズも計算する（全走査後に出力するため待ち時間が発生する）
+tools lsdir C:\path\to\folder --total-size
+
+# .lnkショートカットのリンク先も解決する
+tools lsdir C:\path\to\folder --resolve-link
+
+# 結果をExcelファイルに書き出す
+tools lsdir C:\path\to\folder -o C:\path\to\list.xlsx
+
 # 全コマンドのヘルプ一覧（doc/help.html）をブラウザで開く
 tools help
 # 単体実行ファイルはtoolh.exe（他コマンドと違いhelp.exeという名前ではない）
@@ -235,9 +265,29 @@ vv 1
 - 貼り付け（Ctrl+V）は利用者が行います。キー入力の自動送信は行いません
 - 改行はWindowsの慣習に合わせてCRLFに統一してクリップボードへ入れます
 
+### profiler（表形式データのプロファイリング）
+
+CSV/TSV/Excel/JSONの各列について、行数・欠損数・充填率・一意数・一意率・
+頻度上位・主キー候補らしさ（`key_score`、充填率と一意率の調和平均）を算出します。
+ファイルパスを指定しない場合はクリップボードのTSV（Excelで範囲コピーした内容など）を読みます。
+Excel入力を含むときのみ`sheet`列が追加されます。`--clip`でクリップボードへ、
+`--view`でブラウザプレビュー、`-o`でTSV/xlsxファイルへ出力できます
+（既定は標準出力）。
+
+### lsdir（フォルダ一覧のExcel向け表形式出力）
+
+指定フォルダ配下を再帰的に走査し、`source, type, name, fullpath, parent, ext,
+size, mtime, depth`の固定列で一覧化します。サイズは既定でKB（小数第2位）、
+`--unit b/kb/mb/gb`で切り替え可能です（1KB=1024）。`--total-size`は
+フォルダ配下の合計サイズも計算しますが、全走査完了後でないと出せないため
+オプトインです。`.lnk`ショートカットのリンク先は`--resolve-link`を指定した
+場合のみ解決します（`WScript.Shell`経由）。複数フォルダを指定して起点が
+重複する場合はフルパスで自動的に重複除去されます。
+
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
 （`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` /
-`clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` など）。
+`clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` /
+`profiler.exe` / `lsdir.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 

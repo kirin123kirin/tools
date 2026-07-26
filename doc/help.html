@@ -52,7 +52,9 @@ nav a:hover { text-decoration: underline; }
 <li><a href="#denoise">denoise</a> — 画像のノイズ除去（ファイルパス／クリップボード入力対応、OpenCV Non-local Means）</li>
 <li><a href="#help">help</a> — 全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く</li>
 <li><a href="#kukiri">kukiri</a> — JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）</li>
+<li><a href="#lsdir">lsdir</a> — フォルダ配下をExcelで集計できる表形式で一覧化する</li>
 <li><a href="#mdtsv">mdtsv</a> — クリップボードのMarkdownの表とTSVを相互変換する</li>
+<li><a href="#profiler">profiler</a> — 表形式データの各列をプロファイルする（欠損・一意性・頻度上位・主キー候補）</li>
 <li><a href="#touka">touka</a> — 画像の背景を透過する（ファイルパス／クリップボード入力対応）</li>
 <li><a href="#vv">vv</a> — 定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）</li>
 </ul>
@@ -195,6 +197,36 @@ options:
 </pre>
 </section>
 <section class="command">
+<h2 id="lsdir">lsdir</h2>
+<p class="summary">フォルダ配下をExcelで集計できる表形式で一覧化する</p>
+<pre>usage: lsdir [-h] [-o OUTPUT] [--clip] [--files-only] [--dirs-only]
+             [--exclude EXCLUDE [EXCLUDE ...]] [--include-temp] [--total-size]
+             [--unit {b,kb,mb,gb}] [--resolve-link] [--encoding ENCODING]
+             path [path ...]
+
+フォルダ配下をExcelで集計できる表形式で一覧化する
+
+positional arguments:
+  path                  対象フォルダ（複数・グロブ可）
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（.tsv / .xlsx）
+  --clip                結果をクリップボードにコピーする
+  --files-only          ファイルのみ出力する
+  --dirs-only           フォルダのみ出力する
+  --exclude EXCLUDE [EXCLUDE ...]
+                        除外するフォルダ名（既定: [&#x27;.git&#x27;, &#x27;.svn&#x27;, &#x27;node_modules&#x27;,
+                        &#x27;__pycache__&#x27;]）
+  --include-temp        &#x27;~$&#x27;で始まる一時ファイルも含める
+  --total-size          フォルダ配下の合計サイズを計算する（全走査後に出力するため待ち時間が発生する）
+  --unit {b,kb,mb,gb}   サイズの単位（既定: kb）
+  --resolve-link        .lnkのリンク先を解決する（WScript.Shell経由、大量にあると遅くなる）
+  --encoding ENCODING   出力エンコーディング
+</pre>
+</section>
+<section class="command">
 <h2 id="mdtsv">mdtsv</h2>
 <p class="summary">クリップボードのMarkdownの表とTSVを相互変換する</p>
 <pre>usage: mdtsv [-h] [--to-tsv | --to-table]
@@ -205,6 +237,35 @@ options:
   -h, --help  show this help message and exit
   --to-tsv    入力をMarkdownの表とみなしTSVに変換する
   --to-table  入力をTSVとみなしMarkdownの表に変換する
+</pre>
+</section>
+<section class="command">
+<h2 id="profiler">profiler</h2>
+<p class="summary">表形式データの各列をプロファイルする（欠損・一意性・頻度上位・主キー候補）</p>
+<pre>usage: profiler [-h] [-o OUTPUT] [--clip] [--view] [--sep SEP]
+                [--header HEADER] [--no-header] [--top TOP]
+                [--empty-values EMPTY_VALUES] [--no-default-empty-values]
+                [path ...]
+
+表形式データの各列をプロファイルする（欠損・一意性・頻度上位・主キー候補）
+
+positional arguments:
+  path                  対象ファイル（複数・グロブ可）。省略時はクリップボードのTSVを読む
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（.tsv / .xlsx）
+  --clip                結果をクリップボードにコピーする
+  --view                結果をブラウザでHTML表示する
+  --sep SEP             区切り文字（拡張子判定を上書き）
+  --header HEADER       ヘッダー行のインデックス（0始まり、既定0）
+  --no-header           ヘッダーなしとして扱う
+  --top TOP             頻度上位の表示件数（既定10、0で非表示）
+  --empty-values EMPTY_VALUES
+                        空とみなす値のカンマ区切りリスト（既定値を置き換える）
+  --no-default-empty-values
+                        既定の空値リストを無効化し、Noneと空文字だけを空とみなす
 </pre>
 </section>
 <section class="command">

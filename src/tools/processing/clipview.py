@@ -1,12 +1,9 @@
 from __future__ import annotations
 
 import argparse
-import itertools
 import logging
-import tempfile
-import webbrowser
-from pathlib import Path
 
+from tools.common.browser_preview import write_and_open
 from tools.common.clipboard import (
     get_clipboard_html_fragment,
     get_clipboard_text,
@@ -101,20 +98,12 @@ class ClipviewProcessor(Processor):
 
         html = wrap_preview_html(body_fragment)
 
-        preview_path = Path(tempfile.gettempdir()) / _PREVIEW_FILENAME
         try:
-            preview_path.write_text(html, encoding="utf-8")
-        except OSError as exc:
-            raise SystemExit(f"一時ファイルの書き込みに失敗しました: {preview_path}") from exc
+            preview_path = write_and_open(html, _PREVIEW_FILENAME, args.no_open)
+        except RuntimeError as exc:
+            raise SystemExit(str(exc)) from exc
 
-        logger.info("プレビューを書き出しました: %s", preview_path)
         print(preview_path)
-
-        if not args.no_open:
-            timestamp = _current_timestamp()
-            url = f"{preview_path.as_uri()}?v={timestamp}"
-            webbrowser.open(url)
-
         return 0
 
     def _resolve_body_fragment(self, args: argparse.Namespace) -> str:
@@ -141,15 +130,3 @@ class ClipviewProcessor(Processor):
             return markdown_to_html_fragment(get_clipboard_text())
 
         raise SystemExit("クリップボードにプレビューできる内容がありません")
-
-
-_query_counter = itertools.count()
-
-
-def _current_timestamp() -> str:
-    """Cache-busting query value: wall-clock time plus a per-process counter,
-    so consecutive calls within the same clock tick still differ.
-    """
-    import time
-
-    return f"{time.time_ns()}-{next(_query_counter)}"

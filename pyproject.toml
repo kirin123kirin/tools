@@ -23,6 +23,8 @@ dependencies = [
     "beautifulsoup4>=4.12", # clipmd のHTML前処理パス用、遅延インポート（markdownify経由で入るが直接使うので明示）
     "mdformat>=0.7",         # clipfmt 用、遅延インポート
     "mdformat-tables>=1",    # clipfmt 用、遅延インポート
+    "openpyxl>=3.1",         # profiler のExcel入力用、遅延インポート
+    "xlsxwriter>=3",         # profiler/lsdir のExcel出力用、遅延インポート
 ]
 
 [project.optional-dependencies]
@@ -47,6 +49,8 @@ mdtsv = "tools.cli:run_as_subcommand"
 clipview = "tools.cli:run_as_subcommand"
 clipfmt = "tools.cli:run_as_subcommand"
 vv = "tools.cli:run_as_subcommand"
+profiler = "tools.cli:run_as_subcommand"
+lsdir = "tools.cli:run_as_subcommand"
 # help コマンドの単体エントリーポイントのみ toolh という別名にする
 # （run_as_subcommand内の_ENTRY_POINT_ALIASESでhelpにマッピングされる）。
 toolh = "tools.cli:run_as_subcommand"
