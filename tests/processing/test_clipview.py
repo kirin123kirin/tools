@@ -9,7 +9,7 @@ from tools.processing.clipview import ClipviewProcessor, wrap_preview_html
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:
-    defaults = dict(markdown=False, html=False, no_open=True)
+    defaults = dict(markdown=False, html=False, svg=False, no_open=True)
     defaults.update(overrides)
     return argparse.Namespace(**defaults)
 
@@ -95,6 +95,106 @@ def test_html_flag_overrides_autodetect(clipboard_state, temp_preview_dir, no_br
 
     written = (temp_preview_dir / clipview_module._PREVIEW_FILENAME).read_text(encoding="utf-8")
     assert "explicit html" in written
+
+
+# --- SVG ---
+
+
+def test_svg_autodetected_and_written_as_is(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    svg = '<svg xmlns="http://www.w3.org/2000/svg"><circle r="5"/></svg>'
+    clipboard_state["text"] = svg
+
+    ClipviewProcessor().run(_base_args())
+
+    written = (temp_preview_dir / clipview_module._SVG_PREVIEW_FILENAME).read_text(
+        encoding="utf-8"
+    )
+    assert written == svg
+    # HTMLラップされていないこと（<html>/<body>タグが追加されていない）
+    assert "<html>" not in written
+
+
+def test_svg_leading_whitespace_still_detected(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    clipboard_state["text"] = "  \n<svg><rect/></svg>"
+
+    ClipviewProcessor().run(_base_args())
+
+    assert (temp_preview_dir / clipview_module._SVG_PREVIEW_FILENAME).exists()
+    assert not (temp_preview_dir / clipview_module._PREVIEW_FILENAME).exists()
+
+
+def test_non_svg_text_not_treated_as_svg(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    clipboard_state["text"] = "# Markdown heading"
+
+    ClipviewProcessor().run(_base_args())
+
+    assert not (temp_preview_dir / clipview_module._SVG_PREVIEW_FILENAME).exists()
+    assert (temp_preview_dir / clipview_module._PREVIEW_FILENAME).exists()
+
+
+def test_svg_flag_forces_svg_handling(clipboard_state, temp_preview_dir, no_browser) -> None:
+    clipboard_state["text"] = "<svg><rect/></svg>"
+
+    ClipviewProcessor().run(_base_args(svg=True))
+
+    assert (temp_preview_dir / clipview_module._SVG_PREVIEW_FILENAME).exists()
+
+
+def test_svg_flag_without_clipboard_text_raises(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    with pytest.raises(SystemExit):
+        ClipviewProcessor().run(_base_args(svg=True))
+
+
+def test_markdown_flag_bypasses_svg_autodetect(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    # --markdown指定時は<svgで始まっていてもMarkdownとして扱われる
+    clipboard_state["text"] = "<svg>looks like svg but forced markdown</svg>"
+
+    ClipviewProcessor().run(_base_args(markdown=True))
+
+    assert not (temp_preview_dir / clipview_module._SVG_PREVIEW_FILENAME).exists()
+    assert (temp_preview_dir / clipview_module._PREVIEW_FILENAME).exists()
+
+
+def test_svg_empty_result_raises(clipboard_state, temp_preview_dir, no_browser) -> None:
+    clipboard_state["text"] = "   "
+    with pytest.raises(SystemExit):
+        ClipviewProcessor().run(_base_args(svg=True))
+
+
+def test_svg_second_run_overwrites_same_file(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    clipboard_state["text"] = "<svg>first</svg>"
+    ClipviewProcessor().run(_base_args())
+    clipboard_state["text"] = "<svg>second</svg>"
+    ClipviewProcessor().run(_base_args())
+
+    files = list(temp_preview_dir.glob("*.svg"))
+    assert len(files) == 1
+    assert "second" in files[0].read_text(encoding="utf-8")
+
+
+def test_svg_browser_url_has_cache_busting_query(
+    clipboard_state, temp_preview_dir, monkeypatch
+) -> None:
+    clipboard_state["text"] = "<svg><rect/></svg>"
+    calls = []
+    monkeypatch.setattr(browser_preview_module.webbrowser, "open", lambda url: calls.append(url))
+
+    ClipviewProcessor().run(_base_args(no_open=False))
+
+    assert "?v=" in calls[0]
+    assert calls[0].endswith(".svg?v=" + calls[0].split("?v=")[1])
 
 
 # --- 出力 ---

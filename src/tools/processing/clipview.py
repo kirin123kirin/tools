@@ -16,6 +16,7 @@ from tools.processing.base import Processor
 logger = logging.getLogger(__name__)
 
 _PREVIEW_FILENAME = "tools_clipview_preview.html"
+_SVG_PREVIEW_FILENAME = "tools_clipview_preview.svg"
 
 _STYLE = """\
 :root { color-scheme: light dark; }
@@ -86,11 +87,23 @@ class ClipviewProcessor(Processor):
             "--markdown", action="store_true", help="入力をMarkdownとして解釈する"
         )
         group.add_argument("--html", action="store_true", help="入力をHTMLとして解釈する")
+        group.add_argument("--svg", action="store_true", help="入力をSVGとして解釈する")
         parser.add_argument(
             "--no-open", action="store_true", help="ブラウザを開かず、パスの表示のみ行う"
         )
 
     def run(self, args: argparse.Namespace) -> int:
+        svg_text = self._resolve_svg(args)
+        if svg_text is not None:
+            if not svg_text.strip():
+                raise SystemExit("変換結果が空です")
+            try:
+                preview_path = write_and_open(svg_text, _SVG_PREVIEW_FILENAME, args.no_open)
+            except RuntimeError as exc:
+                raise SystemExit(str(exc)) from exc
+            print(preview_path)
+            return 0
+
         body_fragment = self._resolve_body_fragment(args)
 
         if not body_fragment.strip():
@@ -105,6 +118,26 @@ class ClipviewProcessor(Processor):
 
         print(preview_path)
         return 0
+
+    def _resolve_svg(self, args: argparse.Namespace) -> str | None:
+        has_text = has_clipboard_text()
+
+        if args.svg:
+            if not has_text:
+                raise SystemExit("クリップボードにテキストがありません")
+            logger.info("--svg指定: SVGとして扱います")
+            return get_clipboard_text()
+
+        if args.markdown or args.html:
+            return None
+
+        if has_text:
+            text = get_clipboard_text()
+            if text.lstrip().startswith("<svg"):
+                logger.info("SVGコードを検出したため、そのままファイルにしてプレビューします")
+                return text
+
+        return None
 
     def _resolve_body_fragment(self, args: argparse.Namespace) -> str:
         has_html = has_clipboard_html()
