@@ -359,6 +359,17 @@ ruff check .
 mypy src
 ```
 
+## バージョン管理
+
+[Semantic Versioning](https://semver.org/lang/ja/)（`MAJOR.MINOR.PATCH`）を採用する。
+
+- バージョン番号は `pyproject.toml` の `version` で管理する
+- リリースする価値のある変更がまとまったら、以下を手動で行う
+  1. `pyproject.toml` の `version` を更新する
+  2. `CHANGELOG.md` に変更内容を追記する
+  3. コミット後、`git tag -a vX.Y.Z -m "..."` でタグを打つ
+- 変更履歴は [CHANGELOG.md](CHANGELOG.md) を参照
+
 ## ライセンス
 
 MIT License（[LICENSE](LICENSE)を参照）。
