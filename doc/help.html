@@ -56,8 +56,10 @@ nav a:hover { text-decoration: underline; }
 <li><a href="#lsdir">lsdir</a> — フォルダ配下をExcelで集計できる表形式で一覧化する</li>
 <li><a href="#mdtsv">mdtsv</a> — クリップボードのMarkdownの表とTSVを相互変換する</li>
 <li><a href="#mokuji">mokuji</a> — 全スライドのタイトルを一覧化してクリップボードにコピーする</li>
+<li><a href="#nagasa">nagasa</a> — 選択したシェイプの幅・高さを最大値に統一する</li>
 <li><a href="#outline">outline</a> — クリップボードのアウトラインからPowerPointにスライドを追加する</li>
 <li><a href="#profiler">profiler</a> — 表形式データの各列をプロファイルする（欠損・一意性・頻度上位・主キー候補）</li>
+<li><a href="#seiretsu">seiretsu</a> — 選択したシェイプを表に変換せず格子状の位置に整列する</li>
 <li><a href="#tbl">tbl</a> — PowerPointの表とシェイプ群を相互変換する（表分解/表合成/行分割）</li>
 <li><a href="#touka">touka</a> — 画像の背景を透過する（ファイルパス／クリップボード入力対応）</li>
 <li><a href="#vv">vv</a> — 定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）</li>
@@ -275,6 +277,17 @@ options:
 </pre>
 </section>
 <section class="command">
+<h2 id="nagasa">nagasa</h2>
+<p class="summary">選択したシェイプの幅・高さを最大値に統一する</p>
+<pre>usage: nagasa [-h]
+
+選択したシェイプの幅・高さを最大値に統一する
+
+options:
+  -h, --help  show this help message and exit
+</pre>
+</section>
+<section class="command">
 <h2 id="outline">outline</h2>
 <p class="summary">クリップボードのアウトラインからPowerPointにスライドを追加する</p>
 <pre>usage: outline [-h]
@@ -312,6 +325,17 @@ options:
                         空とみなす値のカンマ区切りリスト（既定値を置き換える）
   --no-default-empty-values
                         既定の空値リストを無効化し、Noneと空文字だけを空とみなす
+</pre>
+</section>
+<section class="command">
+<h2 id="seiretsu">seiretsu</h2>
+<p class="summary">選択したシェイプを表に変換せず格子状の位置に整列する</p>
+<pre>usage: seiretsu [-h]
+
+選択したシェイプを表に変換せず格子状の位置に整列する
+
+options:
+  -h, --help  show this help message and exit
 </pre>
 </section>
 <section class="command">

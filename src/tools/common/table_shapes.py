@@ -115,3 +115,43 @@ def _index_of_cluster(value: float, cluster_starts: list[float], tolerance: floa
             best_distance = distance
             best_index = i
     return best_index
+
+
+def column_and_row_sizes(
+    positions: list[GridPosition], n_rows: int, n_cols: int
+) -> tuple[list[float], list[float]]:
+    """Per-column max width and per-row max height, taken only from shapes
+    that actually landed in that column/row. A cell (row, col) can be a gap
+    (no shape there) and still get a nonzero size from other shapes sharing
+    its row or column; only a row/col with zero shapes anywhere in it would
+    read 0.0, which can't happen here since estimate_grid only ever
+    produces rows/columns backed by at least one real shape's coordinate.
+    """
+    col_width = [0.0] * n_cols
+    row_height = [0.0] * n_rows
+    for pos in positions:
+        col_width[pos.col] = max(col_width[pos.col], pos.shape.width)
+        row_height[pos.row] = max(row_height[pos.row], pos.shape.height)
+    return col_width, row_height
+
+
+def grid_centers(
+    col_width: list[float], row_height: list[float], overall_left: float, overall_top: float
+) -> tuple[list[float], list[float]]:
+    """Center x/y of each column/row, laid out with the cursor method
+    (no gap between cells -- sizes alone determine the pitch) starting at
+    the grid's own top-left corner.
+    """
+    center_x = []
+    cursor_x = overall_left
+    for width in col_width:
+        center_x.append(cursor_x + width / 2)
+        cursor_x += width
+
+    center_y = []
+    cursor_y = overall_top
+    for height in row_height:
+        center_y.append(cursor_y + height / 2)
+        cursor_y += height
+
+    return center_x, center_y
