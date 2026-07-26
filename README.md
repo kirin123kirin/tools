@@ -358,3 +358,14 @@ pytest
 ruff check .
 mypy src
 ```
+
+## ライセンス
+
+MIT License（[LICENSE](LICENSE)を参照）。
+
+依存ライブラリはMIT/BSD/Apache 2.0などの寛容型ライセンスのみで構成しており、
+本プロジェクトをMITとすること自体に支障はない。ただし`opencv-python-headless`・
+`janome`・`tokenizers`はApache 2.0であり、**exe化して配布する場合**は
+同梱ライブラリとしてその旨・著作権表示を配布物に添付することが望ましい
+（PyPI経由でインストールして使うだけの開発環境では、各パッケージの
+`dist-info`がライセンス表示を担うため追加対応は不要）。
