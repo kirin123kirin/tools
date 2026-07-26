@@ -5,6 +5,14 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-07-27
+
+### Added
+
+- `doc/help.html`の各コマンドに、入出力の変化を示すbefore/after図（SVG自前描画）を追加
+- `doc/help.html`の各コマンドに、単体実行ファイル名（`xxx.exe`）を明記
+  （`help`コマンドのみ`toolh.exe`という別名になるため目次・本文の両方に表示）
+
 ## [0.1.1] - 2026-07-27
 
 ### Added
@@ -41,6 +49,7 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/tools/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/kirin123kirin/tools/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/kirin123kirin/tools/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/kirin123kirin/tools/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/kirin123kirin/tools/releases/tag/v0.1.0
