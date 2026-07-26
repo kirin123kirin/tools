@@ -104,6 +104,31 @@ Python標準の `webbrowser.open()` を使う。
 
 凝ったデザインは目的ではないので、素朴で読みやすいスタイルにとどめる。
 
+### Mermaidブロックの検出とレンダリング（CDN経由、条件付き）
+
+Markdownの `` ```mermaid `` コードフェンスは、`markdown-it-py`では単なる
+コードブロックとしてレンダリングされ（`<pre><code class="language-mermaid">`）、
+そのままでは図として描画されない。図として描画するには、実行時に
+Mermaid.js（JavaScriptライブラリ）でそのコードを解釈させる必要がある。
+
+**`class="language-mermaid"` を含むコードブロックが本文に存在する場合のみ**、
+生成するプレビューHTMLに以下を追加する。
+
+- Mermaid.jsをCDN（`https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js`）
+  から読み込む `<script>` タグ
+- `<pre><code class="language-mermaid">` を Mermaid.js が要求する
+  `<div class="mermaid">` に変換してから `mermaid.initialize()` を呼ぶ
+  初期化スクリプト
+
+**Mermaidブロックが存在しない通常のMarkdown/HTMLプレビューでは、
+このCDN読み込みは一切追加されない。** 外部通信が発生するのは
+Mermaidブロックを扱うときに限られる。
+
+- 実機検証済み: Mermaidコードを含むMarkdownで`clipview`を実行し、
+  ブラウザ上でフローチャートが実際に図として描画されることを確認した
+- Mermaid検出時はその旨と読み込み先URLを `common/logging.py` 経由で
+  ログに出す（何が外部通信を発生させたかを利用者が分かるようにするため）
+
 ## エラー処理
 
 - クリップボードに `CF_HTML` も `CF_UNICODETEXT` もない場合: 明示してエラー終了
@@ -114,10 +139,15 @@ Python標準の `webbrowser.open()` を使う。
 ## セキュリティ方針との整合（CLAUDE.md）
 
 - クリップボードの読み取りは `win32clipboard` の公開APIのみ。実行時に1回だけ読む
-- **外部通信は発生しない**。CSS/JSは外部から読み込まず、すべてHTMLに埋め込む
-  （プレビュー対象のHTMLに外部リソースへの参照が含まれていた場合、
-  ブラウザがそれを読み込むことはあるが、それは元のHTMLに由来するものであり
-  このツールが通信を追加するわけではない）
+- **Mermaidブロックを含まない限り、外部通信は発生しない。** CSS/JSは外部から
+  読み込まず、すべてHTMLに埋め込む（プレビュー対象のHTMLに外部リソースへの
+  参照が含まれていた場合、ブラウザがそれを読み込むことはあるが、それは
+  元のHTMLに由来するものでありこのツールが通信を追加するわけではない）
+- **Mermaidブロックを検出した場合のみ**、CDN（`cdn.jsdelivr.net`）から
+  Mermaid.jsを読み込む。これは`touka`のモデルダウンロードと異なり
+  「初回のみ」ではなく**実行のたびに**発生する（Mermaidブロックがある限り）。
+  接続先ホスト（`cdn.jsdelivr.net`）をこの通り明記し、IT部門がプロキシ/EDRの
+  アローリストに登録できるようにする
 - 生成した一時ファイルのパスをログに出し、どこに何を書いたか分かるようにする
 - 一時ファイルは固定名で上書きするだけで、削除処理は行わない
   （消し忘れよりも、後から内容を確認できる方が有用）
@@ -152,6 +182,18 @@ Python標準の `webbrowser.open()` を使う。
 - `--markdown`/`--html`指定時は、`<svg`で始まるテキストでもSVGの
   自動判定より優先されること
 - `--svg`指定時にクリップボードにテキストがなければエラー終了すること
+
+### Mermaidブロックの検出
+
+- `` ```mermaid `` フェンスを含むMarkdownをプレビューすると、CDNの
+  Mermaid.js読み込みスクリプトが生成HTMLに含まれること
+- Mermaidブロックを**含まない**通常のMarkdown/HTMLでは、CDN読み込みが
+  一切含まれないこと（外部通信ゼロが既定の担保として重要）
+- `` ```mermaid `` 以外のコードフェンス（例: `` ```python ``）ではCDN読み込みが
+  発生しないこと
+- `CF_HTML`経由で入力された断片にMermaidブロックが含まれる場合も
+  同様に検出されること
+- Mermaid検出時にログへ記録されること
 
 ### 出力
 

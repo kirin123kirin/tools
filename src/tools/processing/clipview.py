@@ -18,6 +18,28 @@ logger = logging.getLogger(__name__)
 _PREVIEW_FILENAME = "tools_clipview_preview.html"
 _SVG_PREVIEW_FILENAME = "tools_clipview_preview.svg"
 
+# markdown-it-pyが```mermaidフェンスをレンダリングすると
+# <pre><code class="language-mermaid">...</code></pre> になる。
+# この文字列の有無だけを見て、Mermaidブロックの存在を検出する
+# （存在しない通常のMarkdown/HTMLプレビューでは外部通信を一切発生させないため）。
+_MERMAID_CLASS_MARKER = 'class="language-mermaid"'
+
+_MERMAID_CDN_URL = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"
+
+_MERMAID_SCRIPT = f"""\
+<script src="{_MERMAID_CDN_URL}"></script>
+<script>
+  document.querySelectorAll("pre code.language-mermaid").forEach((el) => {{
+    const pre = el.parentElement;
+    const div = document.createElement("div");
+    div.className = "mermaid";
+    div.textContent = el.textContent;
+    pre.replaceWith(div);
+  }});
+  mermaid.initialize({{ startOnLoad: true }});
+</script>
+"""
+
 _STYLE = """\
 :root { color-scheme: light dark; }
 body {
@@ -54,6 +76,7 @@ blockquote {
 
 
 def wrap_preview_html(body_fragment: str) -> str:
+    mermaid_script = _MERMAID_SCRIPT if _MERMAID_CLASS_MARKER in body_fragment else ""
     return f"""<!doctype html>
 <html>
 <head>
@@ -66,7 +89,7 @@ def wrap_preview_html(body_fragment: str) -> str:
 </head>
 <body>
 {body_fragment}
-</body>
+{mermaid_script}</body>
 </html>
 """
 
@@ -108,6 +131,12 @@ class ClipviewProcessor(Processor):
 
         if not body_fragment.strip():
             raise SystemExit("変換結果が空です")
+
+        if _MERMAID_CLASS_MARKER in body_fragment:
+            logger.info(
+                "Mermaidブロックを検出したため、CDN(%s)からmermaid.jsを読み込みます",
+                _MERMAID_CDN_URL,
+            )
 
         html = wrap_preview_html(body_fragment)
 

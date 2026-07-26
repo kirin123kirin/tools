@@ -197,6 +197,65 @@ def test_svg_browser_url_has_cache_busting_query(
     assert calls[0].endswith(".svg?v=" + calls[0].split("?v=")[1])
 
 
+# --- Mermaid ---
+
+
+def test_mermaid_block_triggers_cdn_script(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    clipboard_state["text"] = "# タイトル\n\n```mermaid\ngraph TD\n  A --> B\n```\n"
+
+    ClipviewProcessor().run(_base_args())
+
+    written = (temp_preview_dir / clipview_module._PREVIEW_FILENAME).read_text(encoding="utf-8")
+    assert clipview_module._MERMAID_CDN_URL in written
+    assert "mermaid.initialize" in written
+
+
+def test_no_mermaid_block_means_no_cdn_script(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    clipboard_state["text"] = "# タイトル\n\n普通のMarkdownです\n"
+
+    ClipviewProcessor().run(_base_args())
+
+    written = (temp_preview_dir / clipview_module._PREVIEW_FILENAME).read_text(encoding="utf-8")
+    assert clipview_module._MERMAID_CDN_URL not in written
+    assert "mermaid" not in written.lower()
+
+
+def test_other_code_fence_does_not_trigger_cdn_script(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    clipboard_state["text"] = "```python\nprint('hi')\n```\n"
+
+    ClipviewProcessor().run(_base_args())
+
+    written = (temp_preview_dir / clipview_module._PREVIEW_FILENAME).read_text(encoding="utf-8")
+    assert clipview_module._MERMAID_CDN_URL not in written
+
+
+def test_mermaid_via_html_flag_also_detected(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    clipboard_state["html"] = '<pre><code class="language-mermaid">graph TD</code></pre>'
+    clipboard_state["text"] = "irrelevant"
+
+    ClipviewProcessor().run(_base_args(html=True))
+
+    written = (temp_preview_dir / clipview_module._PREVIEW_FILENAME).read_text(encoding="utf-8")
+    assert clipview_module._MERMAID_CDN_URL in written
+
+
+def test_mermaid_detection_logged(clipboard_state, temp_preview_dir, no_browser, caplog) -> None:
+    clipboard_state["text"] = "```mermaid\ngraph TD\n```\n"
+
+    with caplog.at_level("INFO"):
+        ClipviewProcessor().run(_base_args())
+
+    assert "Mermaid" in caplog.text
+
+
 # --- 出力 ---
 
 
