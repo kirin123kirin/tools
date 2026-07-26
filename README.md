@@ -404,10 +404,14 @@ mypy src
 [Semantic Versioning](https://semver.org/lang/ja/)（`MAJOR.MINOR.PATCH`）を採用する。
 
 - バージョン番号は `pyproject.toml` の `version` で管理する
-- リリースする価値のある変更がまとまったら、以下を手動で行う
-  1. `pyproject.toml` の `version` を更新する
+- **コミットのたびにパッチ番号（`PATCH`）を+1する運用**とする
+  （例: `0.1.0` → `0.1.1`）。MINOR/MAJORの繰り上げは、破壊的変更や
+  まとまった機能追加の際に人間が明示的に指示した場合のみ行う
+- コミットのたびに以下を同時に行う
+  1. `pyproject.toml` の `version` のパッチ番号を+1する
   2. `CHANGELOG.md` に変更内容を追記する
   3. コミット後、`git tag -a vX.Y.Z -m "..."` でタグを打つ
+     （`pyproject.toml`のversionとgit tagは常に一致させる）
 - 変更履歴は [CHANGELOG.md](CHANGELOG.md) を参照
 
 ## ライセンス

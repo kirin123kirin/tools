@@ -5,6 +5,19 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-07-27
+
+### Added
+
+- `tbl` — PowerPointの表とシェイプ群を相互変換（表分解/表合成/行分割）
+- `seiretsu` — PowerPointのシェイプを表に変換せず格子状に整列
+- `nagasa` — PowerPointのシェイプの幅・高さを最大値に統一
+
+### Changed
+
+- コミットのたびにパッチバージョンを自動でインクリメントする運用を
+  `CLAUDE.md`・`README.md`に明記
+
 ## [0.1.0] - 2026-07-26
 
 初回バージョンタグ。以下のコマンドを実装済み。
@@ -28,5 +41,6 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/tools/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/kirin123kirin/tools/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/kirin123kirin/tools/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/kirin123kirin/tools/releases/tag/v0.1.0
