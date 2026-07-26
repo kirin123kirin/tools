@@ -187,11 +187,17 @@ cwc memo.txt --hinshi 名詞,形容詞     # カンマ区切りでも可
 - パッケージ内の `data/user.dic` を既定のユーザー辞書として同梱する
   （実体は `src/tools/data/user.dic`。パッケージデータとして配布物に含めるため、
   `pyproject.toml` に `[tool.setuptools.package-data]` の設定を追加する）。
-- 中身は Janome が読める CSV 形式（既定は ipadic 形式）。
+- **中身はJanomeのsimpledic形式（表層形,品詞,読み）に確定した。**
   `.dic` という拡張子だが中身はCSVである点が紛らわしいため、
-  **先頭にコメント行で形式（ipadic/simpledic）を明記する**。
-  なお Janome の `udic` が拡張子を見ずにCSVとして読めるかは実装時に実際に通して確認する
-  （読めない場合は `data/user.csv` に改名するか、`udic_type` の指定で対処する）。
+  先頭にコメント行で形式を明記している。実機検証で
+  `Tokenizer(udic=str(path), udic_type="simpledic")` が同梱の
+  `data/user.dic` を正しく読み込み、分かち書きできることを確認済み
+  （拡張子`.dic`のままで問題なく動作し、`.csv`への改名は不要だった）。
+- **`user_dict_type`のようなipadic/simpledicの切り替えオプションは設けない。**
+  `_split_wakachi()`は常に`udic_type="simpledic"`で呼び出す。
+  同梱辞書自体がsimpledic形式であり、利用者が追記する運用（固有名詞・
+  社内用語の追加）もsimpledic形式（表層形,品詞,読みの3列）で足りるため、
+  ipadic形式への対応は複雑さに見合わないと判断した
 - 初期状態では空、またはサンプル数行のみとし、利用者が追記して育てる想定。
 - 同梱辞書が存在しない場合の扱いは後述の「辞書が見つからない場合」に従う
   （配布形態によっては欠落しうる）。
@@ -206,8 +212,11 @@ cwc memo.txt --hinshi 名詞,形容詞     # カンマ区切りでも可
   ```toml
   [cwc]
   user_dict = "C:/Users/xxx/dict/mydict.csv"
-  user_dict_type = "ipadic"   # "ipadic" | "simpledic"（既定: "ipadic"）
   ```
+
+  （辞書形式は前述の通りsimpledic固定のため、設定ファイル側に
+  形式を指定する項目は持たない。`user_dict`で指定するファイルも
+  simpledic形式で用意する）
 
 - 設定ファイルが存在しない場合、`[cwc]` セクションがない場合は、
   同梱の既定辞書をそのまま使う（エラーにしない）。
@@ -358,8 +367,9 @@ cwc memo.txt --hinshi 名詞,形容詞     # カンマ区切りでも可
   （`d(k, i∪j) = (|i|·d(k,i) + |j|·d(k,j)) / (|i|+|j|)`）。
   素朴な実装より複雑になるため、数十行では収まらない前提で実装時間を見積もる。
 - `sklearn.cluster.AgglomerativeClustering`（`metric="cosine"`, `linkage="average"`）と
-  同じ結果になることを、実装時に小さな入力で突き合わせて確認する
-  （テスト専用の依存として `scikit-learn` を `dev` の optional-dependencies に加えるのは可）。
+  同じ結果になることを確認済み（`tests/common/test_clustering.py` の
+  `test_matches_sklearn_on_random_inputs`。`scikit-learn` は
+  `dev` の optional-dependencies としてテスト専用に追加している）。
 - 距離行列が O(n²) のメモリを使う点は sklearn を使う場合と同じ。
 
 #### オプション
@@ -372,7 +382,8 @@ cwc memo.txt --hinshi 名詞,形容詞     # カンマ区切りでも可
 | `--similar-max-length` | 10 | 代表文の表示文字数の上限（`0`で無制限）。超過分は`…`で切り詰め |
 
 閾値はコサイン**距離**で指定する（類似度0.8 ≒ 距離0.2）。
-実装時に実データで既定値を調整する。
+**既定値は0.2のまま実装で確定した**（実装後の調整は行っていない。
+利用者が体感に合わせて`--similar-threshold`で調整する運用とする）。
 
 #### 注意点・制約
 
@@ -380,8 +391,9 @@ cwc memo.txt --hinshi 名詞,形容詞     # カンマ区切りでも可
   （集計単位が語 vs 文で噛み合わないため、同時指定はエラー）。
 - ストップワードは適用しない（文単位のため、語のストップワードは意味を持たない）。
 - 文の数が多いと総当たりの類似度計算が重くなる（凝集型は O(n²) のメモリを使う）。
-  入力文数の上限を設け、超過時は警告ログを出して打ち切るか、
-  実装時に許容ラインを実測して決める。
+  **入力文数の上限は2000件に確定した**（`_SIMILAR_MAX_SENTENCES = 2000`）。
+  超過時は超過した旨を警告ログに出し、先頭2000件のみを対象に処理を続行する
+  （エラー終了はしない。O(n²)のメモリ使用量が現実的な範囲に収まる件数として設定）。
 - 結果が閾値とモデルに依存し、辞書引きほど説明的でない点は割り切る
   （どの文がどのクラスタにまとまったかはログに出して追えるようにする）。
 - 依存追加は `tokenizers` のみ（`onnxruntime` は既にあるが明示宣言する）。
