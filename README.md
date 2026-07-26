@@ -29,6 +29,9 @@ tools/
 │           ├── vv.py               # 定型プロンプトをクリップボードにコピー
 │           ├── profiler.py         # 表形式データの列プロファイリング（欠損・一意性・主キー候補）
 │           ├── lsdir.py            # フォルダ配下をExcelで集計できる表形式で一覧化
+│           ├── outline.py          # クリップボードのアウトラインからPowerPointにスライドを追加
+│           ├── ikko.py             # PowerPointのバラバラなテキストボックスを1つに合体
+│           ├── mokuji.py           # PowerPointの全スライドタイトルを一覧化してクリップボードへ
 │           └── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
@@ -201,6 +204,20 @@ tools lsdir C:\path\to\folder --resolve-link
 # 結果をExcelファイルに書き出す
 tools lsdir C:\path\to\folder -o C:\path\to\list.xlsx
 
+# クリップボードのアウトライン（Markdown見出し/タブ区切り/空行区切り）から
+# アクティブなPowerPointにスライドを追加する
+tools outline
+
+# PowerPointのスライド上でバラバラなテキストボックスを1つに合体する
+# （選択中ならその範囲のみ、未選択ならアクティブスライド全体が対象）
+tools ikko
+
+# 実際には変更せず、合体対象になる組み合わせだけを確認する
+tools ikko --dry-run
+
+# アクティブなPowerPointの全スライドタイトルを一覧化してクリップボードにコピーする
+tools mokuji
+
 # 全コマンドのヘルプ一覧（doc/help.html）をブラウザで開く
 tools help
 # 単体実行ファイルはtoolh.exe（他コマンドと違いhelp.exeという名前ではない）
@@ -284,10 +301,39 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 場合のみ解決します（`WScript.Shell`経由）。複数フォルダを指定して起点が
 重複する場合はフルパスで自動的に重複除去されます。
 
+### PowerPointをCOM操作するコマンド（outline / ikko / mokuji）
+
+いずれも実行中のPowerPointを対象にします（`pywin32`経由、`python-pptx`は
+「開いているファイル」を操作できないため使いません）。役割は以下の通りです。
+
+| コマンド | 役割 |
+|---|---|
+| `outline` | クリップボードのアウトラインからスライドを新規に追加する |
+| `ikko` | すでにあるスライド上のバラバラなテキストボックスを1つに合体する |
+| `mokuji` | 全スライドのタイトルを一覧化してクリップボードにコピーする |
+
+- `outline`はクリップボードのテキストを**Markdown見出し（`#`等）／タブ区切り
+  ／空行区切り**の3形式から自動判別し、抽出した項目ぶんのスライドを
+  アクティブなプレゼンテーションの末尾に追加します。PowerPointが
+  起動していない場合は新規に起動し、新規プレゼンテーションを作成して
+  続行します。目次スライドの生成は行いません（`mokuji`が担います）
+- `ikko`はSVGを「図形に変換」した際に1行ずつ分割されてしまった
+  テキストボックス群を、フォント・座標・行送りが揃った隣接シェイプの
+  かたまりとして検出し、1つのテキストボックス（複数段落）に合体します。
+  処理直前に必ずUndo境界を打つため、**Ctrl+Zひと押しで合体前の状態に
+  戻せます**。`--dry-run`で実際に変更せず対象を確認できます。
+  PowerPointが起動していない、またはプレゼンテーションが開かれていない
+  場合は新規起動せずエラーになります（既存のスライドを加工する
+  コマンドのため）
+- `mokuji`はタイトルプレースホルダーが空でも、スライド上で最も上にある
+  テキストを代用してタイトルを推定します。結果はタイトルのみを1行1件で
+  クリップボードにコピーします（番号は付きません）。`ikko`と同じく
+  PowerPointが起動していない場合はエラーになります
+
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
 （`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` /
 `clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` /
-`profiler.exe` / `lsdir.exe` など）。
+`profiler.exe` / `lsdir.exe` / `outline.exe` / `ikko.exe` / `mokuji.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 

@@ -51,9 +51,12 @@ nav a:hover { text-decoration: underline; }
 <li><a href="#cwc">cwc</a> — テキストからワードクラウド画像を生成する（ファイルパス／クリップボード入力対応）</li>
 <li><a href="#denoise">denoise</a> — 画像のノイズ除去（ファイルパス／クリップボード入力対応、OpenCV Non-local Means）</li>
 <li><a href="#help">help</a> — 全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く</li>
+<li><a href="#ikko">ikko</a> — スライド上のバラバラなテキストボックスを1つに合体する</li>
 <li><a href="#kukiri">kukiri</a> — JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）</li>
 <li><a href="#lsdir">lsdir</a> — フォルダ配下をExcelで集計できる表形式で一覧化する</li>
 <li><a href="#mdtsv">mdtsv</a> — クリップボードのMarkdownの表とTSVを相互変換する</li>
+<li><a href="#mokuji">mokuji</a> — 全スライドのタイトルを一覧化してクリップボードにコピーする</li>
+<li><a href="#outline">outline</a> — クリップボードのアウトラインからPowerPointにスライドを追加する</li>
 <li><a href="#profiler">profiler</a> — 表形式データの各列をプロファイルする（欠損・一意性・頻度上位・主キー候補）</li>
 <li><a href="#touka">touka</a> — 画像の背景を透過する（ファイルパス／クリップボード入力対応）</li>
 <li><a href="#vv">vv</a> — 定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）</li>
@@ -179,6 +182,25 @@ options:
 </pre>
 </section>
 <section class="command">
+<h2 id="ikko">ikko</h2>
+<p class="summary">スライド上のバラバラなテキストボックスを1つに合体する</p>
+<pre>usage: ikko [-h] [--dry-run] [--left-tolerance LEFT_TOLERANCE]
+            [--line-step-min LINE_STEP_MIN] [--line-step-max LINE_STEP_MAX]
+
+スライド上のバラバラなテキストボックスを1つに合体する
+
+options:
+  -h, --help            show this help message and exit
+  --dry-run             実際には変更せず、合体対象になるクラスタを表示するだけにする
+  --left-tolerance LEFT_TOLERANCE
+                        左端座標の許容誤差（ポイント、既定1.0）
+  --line-step-min LINE_STEP_MIN
+                        行送りの下限（フォントサイズ比、既定0.8）
+  --line-step-max LINE_STEP_MAX
+                        行送りの上限（フォントサイズ比、既定2.2）
+</pre>
+</section>
+<section class="command">
 <h2 id="kukiri">kukiri</h2>
 <p class="summary">JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）</p>
 <pre>usage: kukiri [-h] [-o OUTPUT] [--smooth SMOOTH] [--sharpen SHARPEN] [path]
@@ -237,6 +259,28 @@ options:
   -h, --help  show this help message and exit
   --to-tsv    入力をMarkdownの表とみなしTSVに変換する
   --to-table  入力をTSVとみなしMarkdownの表に変換する
+</pre>
+</section>
+<section class="command">
+<h2 id="mokuji">mokuji</h2>
+<p class="summary">全スライドのタイトルを一覧化してクリップボードにコピーする</p>
+<pre>usage: mokuji [-h]
+
+全スライドのタイトルを一覧化してクリップボードにコピーする
+
+options:
+  -h, --help  show this help message and exit
+</pre>
+</section>
+<section class="command">
+<h2 id="outline">outline</h2>
+<p class="summary">クリップボードのアウトラインからPowerPointにスライドを追加する</p>
+<pre>usage: outline [-h]
+
+クリップボードのアウトラインからPowerPointにスライドを追加する
+
+options:
+  -h, --help  show this help message and exit
 </pre>
 </section>
 <section class="command">

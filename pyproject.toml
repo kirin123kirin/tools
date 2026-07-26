@@ -51,6 +51,9 @@ clipfmt = "tools.cli:run_as_subcommand"
 vv = "tools.cli:run_as_subcommand"
 profiler = "tools.cli:run_as_subcommand"
 lsdir = "tools.cli:run_as_subcommand"
+outline = "tools.cli:run_as_subcommand"
+ikko = "tools.cli:run_as_subcommand"
+mokuji = "tools.cli:run_as_subcommand"
 # help コマンドの単体エントリーポイントのみ toolh という別名にする
 # （run_as_subcommand内の_ENTRY_POINT_ALIASESでhelpにマッピングされる）。
 toolh = "tools.cli:run_as_subcommand"
