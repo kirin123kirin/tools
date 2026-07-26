@@ -54,6 +54,7 @@ nav a:hover { text-decoration: underline; }
 <li><a href="#kukiri">kukiri</a> — JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）</li>
 <li><a href="#mdtsv">mdtsv</a> — クリップボードのMarkdownの表とTSVを相互変換する</li>
 <li><a href="#touka">touka</a> — 画像の背景を透過する（ファイルパス／クリップボード入力対応）</li>
+<li><a href="#vv">vv</a> — 定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）</li>
 </ul>
 </nav>
 <section class="command">
@@ -220,6 +221,20 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         出力先パス（省略時は自動生成、拡張子はpng）
+</pre>
+</section>
+<section class="command">
+<h2 id="vv">vv</h2>
+<p class="summary">定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）</p>
+<pre>usage: vv [-h] [number]
+
+定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）
+
+positional arguments:
+  number      コピーするプロンプトの番号。省略時は一覧を表示するだけ
+
+options:
+  -h, --help  show this help message and exit
 </pre>
 </section>
 </body>

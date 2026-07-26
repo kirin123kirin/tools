@@ -10,6 +10,12 @@ import win32clipboard
 import win32con
 from PIL import Image, ImageGrab
 
+from tools.common.textfile import (
+    TextFileError,
+    normalize_newlines,
+    read_text_with_fallback,
+)
+
 SourceKind = Literal["path", "clipboard_file", "clipboard_data", "clipboard_text"]
 
 
@@ -80,29 +86,15 @@ class LoadedText:
 
 
 def _normalize_newlines(text: str) -> str:
-    return text.replace("\r\n", "\n").replace("\r", "\n")
+    return normalize_newlines(text)
 
 
 def _read_text_file(path: Path, encoding: str | None) -> str:
-    if encoding is not None:
-        raw = path.read_bytes()
-        try:
-            return raw.decode(encoding)
-        except UnicodeDecodeError as exc:
-            raise ClipboardTextError(
-                f"指定されたエンコーディング {encoding!r} でファイルを読み込めません: {path}"
-            ) from exc
-
-    raw = path.read_bytes()
+    """Read a text file, re-raising as ClipboardTextError for this module's callers."""
     try:
-        return raw.decode("utf-8-sig")
-    except UnicodeDecodeError:
-        try:
-            return raw.decode("cp932")
-        except UnicodeDecodeError as exc:
-            raise ClipboardTextError(
-                f"UTF-8/CP932のいずれでもファイルを読み込めません: {path}"
-            ) from exc
+        return read_text_with_fallback(path, encoding)
+    except TextFileError as exc:
+        raise ClipboardTextError(str(exc)) from exc
 
 
 def load_text(path: str | Path | None, encoding: str | None = None) -> LoadedText:

@@ -25,7 +25,9 @@ tools/
 │           ├── clipmd.py           # クリップボードのMarkdown↔リッチテキスト変換
 │           ├── mdtsv.py            # クリップボードのMarkdownの表↔TSV変換
 │           ├── clipview.py         # クリップボードのMarkdown/HTMLをブラウザでプレビュー
-│           └── clipfmt.py          # クリップボードのMarkdown整形
+│           ├── clipfmt.py          # クリップボードのMarkdown整形
+│           ├── vv.py               # 定型プロンプトをクリップボードにコピー
+│           └── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
 ├── tests/                  # src/tools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
 ├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象。
@@ -163,6 +165,12 @@ tools clipview
 # クリップボードのMarkdownを整形（表の桁揃え、見出し統一、リスト記号統一など）
 tools clipfmt
 
+# 定型プロンプトの一覧を表示（クリップボードには何も入れない）
+tools vv
+
+# 番号を指定して、そのプロンプトをクリップボードにコピー（あとはCtrl+Vで貼るだけ）
+tools vv 3
+
 # 全コマンドのヘルプ一覧（doc/help.html）をブラウザで開く
 tools help
 # 単体実行ファイルはtoolh.exe（他コマンドと違いhelp.exeという名前ではない）
@@ -203,9 +211,33 @@ toolh
 `clipview`のみ、プレビュー用に `%TEMP%\tools_clipview_preview.html` を固定名で生成します
 （毎回上書きするためファイルは増殖しません）。
 
+### vv（定型プロンプトの呼び出し）
+
+よく使う長文プロンプトを、フォルダを開いて探して全選択コピーする手間なしに
+クリップボードへ入れるコマンドです。
+
+`%APPDATA%\tools\vv\` に **1ファイル1プロンプトの `.txt`** を置いておくと、
+ファイル名がそのままプロンプト名として一覧に出ます。
+
+```powershell
+# 一覧を見る（クリップボードには何も入らない）
+vv
+#  1: 01_企画書雛形              以下の要件で企画書のドラフトを作成してくだ...
+#  2: 02_謝罪メール              下記の状況について、取引先向けの謝罪メール...
+
+# 番号を指定して即コピー（一覧は出ない）→ あとは貼りたい場所で Ctrl+V
+vv 1
+```
+
+- 並び順はファイル名順です。よく使うものを上に出したい場合は
+  `01_` のような接頭辞をファイル名に付けてください
+  （日本語名はUnicode順のため五十音順にはなりません）
+- 貼り付け（Ctrl+V）は利用者が行います。キー入力の自動送信は行いません
+- 改行はWindowsの慣習に合わせてCRLFに統一してクリップボードへ入れます
+
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
 （`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` /
-`clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` など）。
+`clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 
