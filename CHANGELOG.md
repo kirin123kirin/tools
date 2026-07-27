@@ -5,6 +5,13 @@
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-07-27
+
+### Changed
+
+- GitHubリポジトリ名を`tools`から`workpytools`にリネーム
+  （`git remote`のURL、CHANGELOG内の比較リンクを追従）
+
 ## [0.1.3] - 2026-07-27
 
 ### Changed
@@ -59,8 +66,9 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/tools/compare/v0.1.3...HEAD
-[0.1.3]: https://github.com/kirin123kirin/tools/compare/v0.1.2...v0.1.3
-[0.1.2]: https://github.com/kirin123kirin/tools/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/kirin123kirin/tools/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/kirin123kirin/tools/releases/tag/v0.1.0
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/kirin123kirin/workpytools/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/kirin123kirin/workpytools/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/kirin123kirin/workpytools/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/kirin123kirin/workpytools/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/kirin123kirin/workpytools/releases/tag/v0.1.0
