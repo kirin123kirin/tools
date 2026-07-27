@@ -76,7 +76,11 @@ class UmekomiProcessor(Processor):
             raise SystemExit("対象を選択してから実行してください（2つ以上選択が必要です）")
 
         text_boxes = [s for s in shapes if getattr(s, "Type", None) == _MSO_TEXT_BOX]
-        hosts = [s for s in shapes if getattr(s, "Type", None) != _MSO_TEXT_BOX]
+        hosts = [
+            s
+            for s in shapes
+            if getattr(s, "Type", None) != _MSO_TEXT_BOX and getattr(s, "HasTextFrame", False)
+        ]
 
         pairs = self._match_text_boxes_to_hosts(text_boxes, hosts)
 
@@ -110,14 +114,30 @@ class UmekomiProcessor(Processor):
     def _match_text_boxes_to_hosts(
         self, text_boxes: list[object], hosts: list[object]
     ) -> list[tuple[object, list[_TextBoxInfo]]]:
+        # 1つのテキストボックスが複数hostの矩形と重なる場合、最も面積が
+        # 小さいhost（=より内側に配置された、より具体的な対象）に一意に
+        # 割り当てる。割り当てないと同じテキストボックスが2回埋め込まれた
+        # 上で二重に削除され、2回目でCOMエラーになる。
+        host_by_text_box: dict[int, object] = {}
+        for i, tb in enumerate(text_boxes):
+            candidates = [h for h in hosts if self._center_inside(tb, h)]
+            if not candidates:
+                continue
+            best = min(candidates, key=lambda h: h.Width * h.Height)  # type: ignore[attr-defined]
+            host_by_text_box[i] = best
+
+        grouped: dict[int, list[object]] = {}
+        for i, host in host_by_text_box.items():
+            grouped.setdefault(id(host), []).append(text_boxes[i])
+
         pairs: list[tuple[object, list[_TextBoxInfo]]] = []
         for host in hosts:
-            infos = []
-            for tb in text_boxes:
-                if self._center_inside(tb, host):
-                    info = self._to_text_box_info(tb)
-                    if info is not None:
-                        infos.append(info)
+            tbs = grouped.get(id(host))
+            if not tbs:
+                continue
+            infos = [
+                info for info in (self._to_text_box_info(tb) for tb in tbs) if info is not None
+            ]
             if infos:
                 infos.sort(key=lambda i: i.top)
                 pairs.append((host, infos))
@@ -163,9 +183,6 @@ class UmekomiProcessor(Processor):
                 print(f"  Top={info.top:.1f} Text={info.text!r}")
 
     def _embed(self, host: object, infos: list[_TextBoxInfo]) -> None:
-        if not getattr(host, "HasTextFrame", False):
-            host.TextFrame.WordWrap = True  # type: ignore[attr-defined]
-
         host_text_range = host.TextFrame.TextRange  # type: ignore[attr-defined]
         existing_text = host_text_range.Text
 

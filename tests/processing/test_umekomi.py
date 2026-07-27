@@ -148,6 +148,45 @@ def test_existing_host_text_appended_when_text_box_above_center(
     assert host.TextFrame.TextRange.Text == "overlay\rhost label"
 
 
+# --- 二重マッチの解消 ---
+
+
+def test_text_box_matching_both_hosts_assigned_to_smaller_one(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # big_hostとsmall_hostが重なっており、tbの中心はどちらの矩形にも入る
+    big_host = _make_shape(left=0, top=0, width=200, height=200, shape_type=_MSO_RECTANGLE, text="")
+    small_host = _make_shape(
+        left=50, top=50, width=60, height=60, shape_type=_MSO_RECTANGLE, text=""
+    )
+    tb = _make_shape(left=60, top=60, width=20, height=20, shape_type=_MSO_TEXT_BOX, text="hello")
+    app = _make_app_with_selection([big_host, small_host, tb])
+    _setup_running(monkeypatch, app)
+
+    result = UmekomiProcessor().run(_base_args())
+
+    assert result == 0
+    assert small_host.TextFrame.TextRange.Text == "hello"
+    assert big_host.TextFrame.TextRange.Text == ""
+    tb.Delete.assert_called_once()
+
+
+def test_host_without_text_frame_excluded_from_candidates(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    connector = _make_shape(
+        left=0, top=0, width=200, height=200, shape_type=_MSO_RECTANGLE, has_text_frame=False
+    )
+    tb = _make_shape(left=60, top=60, width=20, height=20, shape_type=_MSO_TEXT_BOX, text="hello")
+    app = _make_app_with_selection([connector, tb])
+    _setup_running(monkeypatch, app)
+
+    result = UmekomiProcessor().run(_base_args())
+
+    assert result == 0
+    tb.Delete.assert_not_called()
+
+
 # --- 書式の引き継ぎ ---
 
 

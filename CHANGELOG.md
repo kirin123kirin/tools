@@ -5,6 +5,16 @@
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-07-27
+
+### Fixed
+
+- `umekomi`: 1つのテキストボックスの中心が複数のshapeの矩形と重なる場合に
+  同じテキストボックスが2つのshapeへ二重に埋め込まれ、2回目の削除処理で
+  COMエラーになるバグを修正（面積が最も小さいshapeに一意に割り当てるよう変更）
+- `umekomi`: `HasTextFrame`が`False`のshape（コネクタ等）が埋め込み先候補に
+  含まれ、埋め込み処理中に例外になる可能性があったため、候補から除外するよう修正
+
 ## [0.1.5] - 2026-07-27
 
 ### Added
@@ -74,7 +84,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/kirin123kirin/workpytools/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/kirin123kirin/workpytools/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/kirin123kirin/workpytools/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/kirin123kirin/workpytools/compare/v0.1.2...v0.1.3
