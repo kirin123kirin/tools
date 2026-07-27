@@ -27,25 +27,66 @@ def standalone_entry_point_name(command_name: str) -> str:
 # help.htmlはコマンド名のアルファベット順ではなく、何を処理するコマンドかで
 # 固めて並べる（画像処理→テキスト集計→クリップボード処理→表形式データ→
 # PowerPoint操作→その他）。カテゴリ内の順序はこの一覧の記載順。
-# 新しい処理を processing/ に追加したら、ここにも追加すること
-# （未登録の場合は「その他」カテゴリの末尾に自動で入る）。
-_CATEGORIES: list[tuple[str, list[str]]] = [
-    ("画像処理", ["touka", "denoise", "kukiri"]),
-    ("テキスト集計", ["cwc"]),
-    ("クリップボード処理", ["clipmd", "mdtsv", "clipfmt", "clipview"]),
-    ("表形式データ", ["profiler", "lsdir"]),
+# 各コマンドの2つ目の要素は、左サイドバー表示専用の短い要約（10文字前後）。
+# proc.help（argparseのフル説明文）とは別に、サイドバーの行間を詰めるため
+# ここで書き起こす。新しい処理を processing/ に追加したら、ここにも
+# 追加すること（未登録の場合は「その他」カテゴリの末尾に自動で入り、
+# 短い要約はフルのsummaryにフォールバックする）。
+_CATEGORIES: list[tuple[str, list[tuple[str, str]]]] = [
+    (
+        "画像処理",
+        [
+            ("touka", "背景を透過"),
+            ("denoise", "ノイズ除去"),
+            ("kukiri", "輪郭くっきり"),
+        ],
+    ),
+    ("テキスト集計", [("cwc", "ワードクラウド生成")]),
+    (
+        "クリップボード処理",
+        [
+            ("clipmd", "Markdown⇔リッチテキスト"),
+            ("mdtsv", "Markdown表⇔TSV"),
+            ("clipfmt", "Markdown整形"),
+            ("clipview", "ブラウザでプレビュー"),
+        ],
+    ),
+    (
+        "表形式データ",
+        [
+            ("profiler", "列をプロファイル"),
+            ("lsdir", "フォルダ一覧をExcel化"),
+        ],
+    ),
     (
         "PowerPoint操作",
-        ["outline", "ikko", "mokuji", "tbl", "seiretsu", "nagasa", "umekomi"],
+        [
+            ("outline", "アウトラインからスライド追加"),
+            ("ikko", "テキストボックスを合体"),
+            ("mokuji", "スライドタイトル一覧"),
+            ("tbl", "表とシェイプを相互変換"),
+            ("seiretsu", "シェイプを格子状に整列"),
+            ("nagasa", "シェイプのサイズを統一"),
+            ("umekomi", "テキストボックスを埋め込み"),
+        ],
     ),
-    ("その他", ["vv", "help"]),
+    (
+        "その他",
+        [
+            ("vv", "定型プロンプトをコピー"),
+            ("help", "ヘルプ一覧を開く"),
+        ],
+    ),
 ]
 
 _CATEGORY_BY_COMMAND: dict[str, str] = {
-    name: category for category, names in _CATEGORIES for name in names
+    name: category for category, entries in _CATEGORIES for name, _ in entries
 }
 _ORDER_BY_COMMAND: dict[str, int] = {
-    name: i for _, names in _CATEGORIES for i, name in enumerate(names)
+    name: i for _, entries in _CATEGORIES for i, (name, _) in enumerate(entries)
+}
+_SHORT_SUMMARY_BY_COMMAND: dict[str, str] = {
+    name: short for _, entries in _CATEGORIES for name, short in entries
 }
 _CATEGORY_ORDER: dict[str, int] = {category: i for i, (category, _) in enumerate(_CATEGORIES)}
 _UNCATEGORIZED = "その他"
@@ -56,6 +97,12 @@ def command_category(command_name: str) -> str:
     yet listed in `_CATEGORIES` fall back to "その他" rather than raising,
     so a newly added processor doesn't break help generation."""
     return _CATEGORY_BY_COMMAND.get(command_name, _UNCATEGORIZED)
+
+
+def short_summary(command_name: str, fallback: str) -> str:
+    """The sidebar-only short summary for a command, or `fallback` (the
+    full argparse summary) if none is registered yet."""
+    return _SHORT_SUMMARY_BY_COMMAND.get(command_name, fallback)
 
 
 def _sort_key(command_name: str) -> tuple[int, int, str]:
@@ -456,6 +503,7 @@ class CommandHelp:
     full_help: str
     standalone_name: str
     category: str
+    toc_summary: str
 
 
 def collect_command_help() -> list[CommandHelp]:
@@ -475,6 +523,7 @@ def collect_command_help() -> list[CommandHelp]:
                 full_help=full_help,
                 standalone_name=standalone_entry_point_name(name),
                 category=command_category(name),
+                toc_summary=short_summary(name, proc.help),
             )
         )
 
@@ -523,7 +572,7 @@ def render_help_html(commands: list[CommandHelp]) -> str:
         toc_parts.append(
             "<li>"
             f'<a href="#{html_module.escape(c.name)}">{html_module.escape(c.name)}'
-            f'<span class="toc-summary">{html_module.escape(c.summary)}</span>'
+            f'<span class="toc-summary">{html_module.escape(c.toc_summary)}</span>'
             "</a>"
             "</li>"
         )
@@ -596,31 +645,35 @@ h3 {{
   padding-bottom: 0.3rem;
 }}
 nav ul {{ list-style: none; padding-left: 0; margin: 0; }}
-nav li.toc-category {{ margin-top: 1.2rem; }}
+nav li.toc-category {{ margin-top: 0.7rem; }}
 nav li.toc-category:first-child {{ margin-top: 0; }}
 .toc-category-label {{
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: #888;
 }}
-nav li.toc-category > ul {{ margin-top: 0.4rem; margin-bottom: 0.2rem; }}
+nav li.toc-category > ul {{ margin-top: 0.15rem; margin-bottom: 0; }}
 nav a {{
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
   text-decoration: none;
-  padding: 0.3rem 0.4rem;
+  padding: 0.08rem 0.4rem;
   border-radius: 4px;
   color: #222;
+  line-height: 1.35;
 }}
 nav a:hover {{ background: #eee; }}
 .toc-summary {{
-  display: block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #777;
   font-weight: normal;
-  white-space: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }}
 .summary {{ color: #555; margin: 0.3rem 0 0.8rem; }}
 .standalone {{

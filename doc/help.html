@@ -63,31 +63,35 @@ h3 {
   padding-bottom: 0.3rem;
 }
 nav ul { list-style: none; padding-left: 0; margin: 0; }
-nav li.toc-category { margin-top: 1.2rem; }
+nav li.toc-category { margin-top: 0.7rem; }
 nav li.toc-category:first-child { margin-top: 0; }
 .toc-category-label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: #888;
 }
-nav li.toc-category > ul { margin-top: 0.4rem; margin-bottom: 0.2rem; }
+nav li.toc-category > ul { margin-top: 0.15rem; margin-bottom: 0; }
 nav a {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
   text-decoration: none;
-  padding: 0.3rem 0.4rem;
+  padding: 0.08rem 0.4rem;
   border-radius: 4px;
   color: #222;
+  line-height: 1.35;
 }
 nav a:hover { background: #eee; }
 .toc-summary {
-  display: block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #777;
   font-weight: normal;
-  white-space: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .summary { color: #555; margin: 0.3rem 0 0.8rem; }
 .standalone {
@@ -156,35 +160,35 @@ pre {
 <h1>tools コマンド一覧</h1>
 <ul>
 <li class="toc-category"><span class="toc-category-label">画像処理</span><ul>
-<li><a href="#touka">touka<span class="toc-summary">画像の背景を透過する（ファイルパス／クリップボード入力対応）</span></a></li>
-<li><a href="#denoise">denoise<span class="toc-summary">画像のノイズ除去（ファイルパス／クリップボード入力対応、OpenCV Non-local Means）</span></a></li>
-<li><a href="#kukiri">kukiri<span class="toc-summary">JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）</span></a></li>
+<li><a href="#touka">touka<span class="toc-summary">背景を透過</span></a></li>
+<li><a href="#denoise">denoise<span class="toc-summary">ノイズ除去</span></a></li>
+<li><a href="#kukiri">kukiri<span class="toc-summary">輪郭くっきり</span></a></li>
 </ul></li>
 <li class="toc-category"><span class="toc-category-label">テキスト集計</span><ul>
-<li><a href="#cwc">cwc<span class="toc-summary">テキストからワードクラウド画像を生成する（ファイルパス／クリップボード入力対応）</span></a></li>
+<li><a href="#cwc">cwc<span class="toc-summary">ワードクラウド生成</span></a></li>
 </ul></li>
 <li class="toc-category"><span class="toc-category-label">クリップボード処理</span><ul>
-<li><a href="#clipmd">clipmd<span class="toc-summary">クリップボードのMarkdownとリッチテキストを相互変換する</span></a></li>
-<li><a href="#mdtsv">mdtsv<span class="toc-summary">クリップボードのMarkdownの表とTSVを相互変換する</span></a></li>
-<li><a href="#clipfmt">clipfmt<span class="toc-summary">クリップボードのMarkdownを整形する</span></a></li>
-<li><a href="#clipview">clipview<span class="toc-summary">クリップボードのMarkdown/HTMLをブラウザでプレビューする</span></a></li>
+<li><a href="#clipmd">clipmd<span class="toc-summary">Markdown⇔リッチテキスト</span></a></li>
+<li><a href="#mdtsv">mdtsv<span class="toc-summary">Markdown表⇔TSV</span></a></li>
+<li><a href="#clipfmt">clipfmt<span class="toc-summary">Markdown整形</span></a></li>
+<li><a href="#clipview">clipview<span class="toc-summary">ブラウザでプレビュー</span></a></li>
 </ul></li>
 <li class="toc-category"><span class="toc-category-label">表形式データ</span><ul>
-<li><a href="#profiler">profiler<span class="toc-summary">表形式データの各列をプロファイルする（欠損・一意性・頻度上位・主キー候補）</span></a></li>
-<li><a href="#lsdir">lsdir<span class="toc-summary">フォルダ配下をExcelで集計できる表形式で一覧化する</span></a></li>
+<li><a href="#profiler">profiler<span class="toc-summary">列をプロファイル</span></a></li>
+<li><a href="#lsdir">lsdir<span class="toc-summary">フォルダ一覧をExcel化</span></a></li>
 </ul></li>
 <li class="toc-category"><span class="toc-category-label">PowerPoint操作</span><ul>
-<li><a href="#outline">outline<span class="toc-summary">クリップボードのアウトラインからPowerPointにスライドを追加する</span></a></li>
-<li><a href="#ikko">ikko<span class="toc-summary">スライド上のバラバラなテキストボックスを1つに合体する</span></a></li>
-<li><a href="#mokuji">mokuji<span class="toc-summary">全スライドのタイトルを一覧化してクリップボードにコピーする</span></a></li>
-<li><a href="#tbl">tbl<span class="toc-summary">PowerPointの表とシェイプ群を相互変換する（表分解/表合成/行分割）</span></a></li>
-<li><a href="#seiretsu">seiretsu<span class="toc-summary">選択したシェイプを表に変換せず格子状の位置に整列する</span></a></li>
-<li><a href="#nagasa">nagasa<span class="toc-summary">選択したシェイプの幅・高さを最大値に統一する</span></a></li>
-<li><a href="#umekomi">umekomi<span class="toc-summary">shapeの上に重ねて配置されたテキストボックスをshapeに埋め込む</span></a></li>
+<li><a href="#outline">outline<span class="toc-summary">アウトラインからスライド追加</span></a></li>
+<li><a href="#ikko">ikko<span class="toc-summary">テキストボックスを合体</span></a></li>
+<li><a href="#mokuji">mokuji<span class="toc-summary">スライドタイトル一覧</span></a></li>
+<li><a href="#tbl">tbl<span class="toc-summary">表とシェイプを相互変換</span></a></li>
+<li><a href="#seiretsu">seiretsu<span class="toc-summary">シェイプを格子状に整列</span></a></li>
+<li><a href="#nagasa">nagasa<span class="toc-summary">シェイプのサイズを統一</span></a></li>
+<li><a href="#umekomi">umekomi<span class="toc-summary">テキストボックスを埋め込み</span></a></li>
 </ul></li>
 <li class="toc-category"><span class="toc-category-label">その他</span><ul>
-<li><a href="#vv">vv<span class="toc-summary">定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）</span></a></li>
-<li><a href="#help">help<span class="toc-summary">全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く</span></a></li>
+<li><a href="#vv">vv<span class="toc-summary">定型プロンプトをコピー</span></a></li>
+<li><a href="#help">help<span class="toc-summary">ヘルプ一覧を開く</span></a></li>
 </ul></li>
 </ul>
 </nav>

@@ -41,6 +41,16 @@ def test_collect_command_help_has_summary_and_full_help() -> None:
     assert "usage:" in touka.full_help
 
 
+def test_collect_command_help_has_short_toc_summary_for_every_command() -> None:
+    # サイドバーの行間を詰めるため、全コマンドに短い専用要約が
+    # 登録されていること（未登録ならフルsummaryにフォールバックするが、
+    # それだと長すぎて行間を詰める意味が薄れるため、明示登録を必須にする）
+    commands = collect_command_help()
+    for cmd in commands:
+        assert cmd.toc_summary
+        assert len(cmd.toc_summary) < len(cmd.summary) or cmd.toc_summary == cmd.summary
+
+
 def test_render_help_html_includes_all_commands() -> None:
     commands = collect_command_help()
     html = render_help_html(commands)
@@ -141,12 +151,12 @@ def test_toc_command_name_not_wrapped_in_category_uppercase_element() -> None:
 
 
 def test_rendered_html_toc_omits_exe_name_shows_only_summary() -> None:
-    # TOCはサイドバー表示のためコマンド名と要約のみとし、exe名は
-    # 本文側（<section>内）でのみ表示する
+    # TOCはサイドバー表示のためコマンド名と短い要約のみとし、exe名や
+    # フルの説明文は本文側（<section>内）でのみ表示する
     commands = collect_command_help()
     html = render_help_html(commands)
     nav_section = html.split("<nav ")[1].split("</nav>")[0]
     assert "toolh.exe" not in nav_section
     for cmd in commands:
         assert f'href="#{cmd.name}"' in nav_section
-        assert cmd.summary in nav_section
+        assert cmd.toc_summary in nav_section

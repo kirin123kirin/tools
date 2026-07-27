@@ -5,6 +5,15 @@
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-07-28
+
+### Changed
+
+- `doc/help.html`のサイドバーの行間を詰め、コマンド名と要約を1行に
+  横並び表示するように変更
+- サイドバーの説明文を、各コマンドのフル説明文ではなく専用の短い要約
+  （10文字前後）に変更し、はみ出す場合は末尾を省略表示にした
+
 ## [0.1.9] - 2026-07-27
 
 ### Fixed
@@ -117,7 +126,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.10...HEAD
+[0.1.10]: https://github.com/kirin123kirin/workpytools/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/kirin123kirin/workpytools/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/kirin123kirin/workpytools/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/kirin123kirin/workpytools/compare/v0.1.6...v0.1.7
