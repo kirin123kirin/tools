@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from tools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
-from tools.processing import tbl as tbl_module
-from tools.processing.tbl import TblProcessor
+from workpytools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
+from workpytools.processing import tbl as tbl_module
+from workpytools.processing.tbl import TblProcessor
 
 _SELECTION_NONE = 0
 _SELECTION_SHAPES = 2

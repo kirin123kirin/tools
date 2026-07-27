@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from tools.common.help_gen import collect_command_help, render_help_html  # noqa: E402
+from workpytools.common.help_gen import collect_command_help, render_help_html  # noqa: E402
 
 _OUTPUT_PATH = Path(__file__).resolve().parent.parent / "doc" / "help.html"
 

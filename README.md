@@ -1,4 +1,4 @@
-# tools
+# workpytools
 
 さまざまな処理をコマンドとして追加していくためのPythonプロジェクト。
 
@@ -7,10 +7,10 @@
 ## 構成
 
 ```
-tools/
+workpytools/
 ├── pyproject.toml          # 依存関係・lint(ruff)・型チェック(mypy)・pytest設定
 ├── src/
-│   └── tools/
+│   └── workpytools/
 │       ├── cli.py          # エントリポイント。processing/配下を自動探索してサブコマンド化
 │       ├── common/         # 処理間で使い回す共通機能
 │       │   ├── logging.py
@@ -36,7 +36,7 @@ tools/
 │           ├── seiretsu.py         # PowerPointのシェイプを表に変換せず格子状に整列
 │           ├── nagasa.py           # PowerPointのシェイプの幅・高さを最大値に統一
 │           └── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
-├── tests/                  # src/tools と同じ階層構造でテストを配置
+├── tests/                  # src/workpytools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
 ├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象。
 │                            # ただし gen_help.py と pre-commit は例外的にバージョン管理する）
@@ -45,24 +45,24 @@ tools/
 
 ## 新しい処理の追加方法
 
-1. `src/tools/processing/` に新しいモジュールを作成する
+1. `src/workpytools/processing/` に新しいモジュールを作成する
 2. `Processor` を継承したクラスを定義し、`name`（サブコマンド名）と
    `add_arguments` / `run` を実装する（`touka.py` や `denoise.py` を参照）
 3. それだけで`tools <name>`としてCLIに自動登録される（`cli.py` の編集は不要）
 4. **単体実行用のエントリーポイントも追加する**: `pyproject.toml` の
    `[project.scripts]` に `name`（`Processor.name`と同じ文字列）を
-   `tools.cli:run_as_subcommand` として登録する。これにより
+   `workpytools.cli:run_as_subcommand` として登録する。これにより
    `pip install -e .` 後、`tools <name> ...` に加えて `<name> ...`
    （Windowsでは `<name>.exe ...`）としても直接実行できるようになる。
 
 ```toml
 [project.scripts]
-my-process = "tools.cli:run_as_subcommand"
+my-process = "workpytools.cli:run_as_subcommand"
 ```
 
 ```python
-# src/tools/processing/my_process.py
-from tools.processing.base import Processor
+# src/workpytools/processing/my_process.py
+from workpytools.processing.base import Processor
 
 
 class MyProcess(Processor):
@@ -256,7 +256,7 @@ toolh
 **初回実行時にのみ**埋め込みモデル（ONNX形式、`Xenova/paraphrase-multilingual-MiniLM-L12-v2`の
 量子化版、約120MB）を `https://huggingface.co` からダウンロードします。IT部門でプロキシ/EDRの
 アローリスト登録が必要な場合は、このホストを登録してください。ダウンロードしたモデルは
-`%LOCALAPPDATA%\tools\models\` にキャッシュされ、2回目以降は再ダウンロードしません。
+`%LOCALAPPDATA%\workpytools\models\` にキャッシュされ、2回目以降は再ダウンロードしません。
 
 `clipmd`/`mdtsv`/`clipview`/`clipfmt`はクリップボードの内容をその場で変換・表示するツール群です。
 入力も出力もファイルではなくクリップボード経由（`clipview`のみプレビュー用に一時HTMLを生成）で、
@@ -270,7 +270,7 @@ toolh
 | `clipview` | Markdown/HTML をブラウザでプレビュー（クリップボードは変更しない） |
 | `clipfmt` | Markdown の整形（表の桁揃え、見出し・リスト記号の統一など） |
 
-`clipview`のみ、プレビュー用に `%TEMP%\tools_clipview_preview.html` を固定名で生成します
+`clipview`のみ、プレビュー用に `%TEMP%\workpytools_clipview_preview.html` を固定名で生成します
 （毎回上書きするためファイルは増殖しません）。
 
 ### vv（定型プロンプトの呼び出し）
@@ -278,7 +278,7 @@ toolh
 よく使う長文プロンプトを、フォルダを開いて探して全選択コピーする手間なしに
 クリップボードへ入れるコマンドです。
 
-`%APPDATA%\tools\vv\` に **1ファイル1プロンプトの `.txt`** を置いておくと、
+`%APPDATA%\workpytools\vv\` に **1ファイル1プロンプトの `.txt`** を置いておくと、
 ファイル名がそのままプロンプト名として一覧に出ます。
 
 ```powershell

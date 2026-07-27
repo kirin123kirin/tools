@@ -5,8 +5,8 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from tools.processing import denoise as denoise_module
-from tools.processing.denoise import DenoiseProcessor
+from workpytools.processing import denoise as denoise_module
+from workpytools.processing.denoise import DenoiseProcessor
 
 
 def _fake_fast_nl_means_denoising_colored(
@@ -55,7 +55,7 @@ def test_run_from_clipboard_image_copies_data_no_file(
 ) -> None:
     clip_image = Image.new("RGB", (5, 5), color="white")
     monkeypatch.setattr(
-        "tools.common.clipboard.ImageGrab.grabclipboard", lambda: clip_image
+        "workpytools.common.clipboard.ImageGrab.grabclipboard", lambda: clip_image
     )
     monkeypatch.setattr(
         denoise_module.cv2,
@@ -65,7 +65,7 @@ def test_run_from_clipboard_image_copies_data_no_file(
     monkeypatch.chdir(tmp_path)
     copied = []
     monkeypatch.setattr(
-        "tools.common.output.copy_image_to_clipboard", lambda img: copied.append(img)
+        "workpytools.common.output.copy_image_to_clipboard", lambda img: copied.append(img)
     )
 
     proc = DenoiseProcessor()
@@ -84,17 +84,17 @@ def test_run_from_clipboard_file_object_saves_to_tmpdir_and_copies_file(
     tmpdir = tmp_path / "tmp"
     tmpdir.mkdir()
     monkeypatch.setattr(
-        "tools.common.clipboard.ImageGrab.grabclipboard", lambda: [str(copied_src)]
+        "workpytools.common.clipboard.ImageGrab.grabclipboard", lambda: [str(copied_src)]
     )
     monkeypatch.setattr(
         denoise_module.cv2,
         "fastNlMeansDenoisingColored",
         _fake_fast_nl_means_denoising_colored,
     )
-    monkeypatch.setattr("tools.common.output.tempfile.gettempdir", lambda: str(tmpdir))
+    monkeypatch.setattr("workpytools.common.output.tempfile.gettempdir", lambda: str(tmpdir))
     clipboard_calls = []
     monkeypatch.setattr(
-        "tools.common.output.copy_file_to_clipboard", lambda p: clipboard_calls.append(p)
+        "workpytools.common.output.copy_file_to_clipboard", lambda p: clipboard_calls.append(p)
     )
 
     proc = DenoiseProcessor()

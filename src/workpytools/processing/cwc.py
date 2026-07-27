@@ -9,12 +9,12 @@ from pathlib import Path
 
 from wordcloud import STOPWORDS, WordCloud
 
-from tools.common.clipboard import load_text
-from tools.common.clustering import agglomerative_average_linkage
-from tools.common.config import load_default_config
-from tools.common.embedding import DEFAULT_MODEL_NAME, embed_sentences
-from tools.common.output import describe_output, save_result
-from tools.processing.base import Processor
+from workpytools.common.clipboard import load_text
+from workpytools.common.clustering import agglomerative_average_linkage
+from workpytools.common.config import load_default_config
+from workpytools.common.embedding import DEFAULT_MODEL_NAME, embed_sentences
+from workpytools.common.output import describe_output, save_result
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ def _resolve_user_dict(args: argparse.Namespace) -> Path | None:
         return None
 
     candidate: Path | None = None
-    with resources.as_file(resources.files("tools.data") / "user.dic") as bundled:
+    with resources.as_file(resources.files("workpytools.data") / "user.dic") as bundled:
         if bundled.exists():
             candidate = bundled
 
@@ -143,7 +143,7 @@ def _resolve_synonym_dict(args: argparse.Namespace) -> Path | None:
         return None
 
     candidate: Path | None = None
-    with resources.as_file(resources.files("tools.data") / "synonym.tsv") as bundled:
+    with resources.as_file(resources.files("workpytools.data") / "synonym.tsv") as bundled:
         if bundled.exists():
             candidate = bundled
 

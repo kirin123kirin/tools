@@ -4,15 +4,15 @@ import argparse
 import logging
 import re
 
-from tools.common.clipboard import copy_text_to_clipboard
-from tools.common.powerpoint import (
+from workpytools.common.clipboard import copy_text_to_clipboard
+from workpytools.common.powerpoint import (
     NoActivePresentationError,
     PowerPointNotRunningError,
     get_active_presentation,
     get_running_powerpoint,
 )
-from tools.common.textfile import to_crlf
-from tools.processing.base import Processor
+from workpytools.common.textfile import to_crlf
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 

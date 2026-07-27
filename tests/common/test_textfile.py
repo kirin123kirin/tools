@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from tools.common.textfile import (
+from workpytools.common.textfile import (
     TextFileError,
     display_width,
     normalize_newlines,

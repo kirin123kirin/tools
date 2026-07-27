@@ -4,8 +4,8 @@ import argparse
 import logging
 import re
 
-from tools.common.clipboard import copy_text_to_clipboard, get_clipboard_text
-from tools.processing.base import Processor
+from workpytools.common.clipboard import copy_text_to_clipboard, get_clipboard_text
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 

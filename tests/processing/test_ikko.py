@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from tools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
-from tools.processing import ikko as ikko_module
-from tools.processing.ikko import IkkoProcessor
+from workpytools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
+from workpytools.processing import ikko as ikko_module
+from workpytools.processing.ikko import IkkoProcessor
 
 _SELECTION_NONE = 0
 _SELECTION_SHAPES = 2

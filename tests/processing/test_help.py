@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from tools.processing import help as help_module
-from tools.processing.help import HelpProcessor
+from workpytools.processing import help as help_module
+from workpytools.processing.help import HelpProcessor
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:

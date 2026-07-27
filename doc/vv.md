@@ -29,11 +29,11 @@ Ctrl+Vでドンと貼り付けられる状態になること。
 
 ## プロンプトの保存場所
 
-`%APPDATA%\tools\vv\` フォルダ配下に、**1ファイル1プロンプトの `.txt` ファイル**として置く。
+`%APPDATA%\workpytools\vv\` フォルダ配下に、**1ファイル1プロンプトの `.txt` ファイル**として置く。
 
 - 既存の `common/config.py` の `default_config_path()`
-  （`%APPDATA%\tools\config.toml`）と同じ置き場所の流儀に揃え、
-  `common/config.py` に `vv_prompts_dir() -> Path`（`%APPDATA%\tools\vv\`）を追加する。
+  （`%APPDATA%\workpytools\config.toml`）と同じ置き場所の流儀に揃え、
+  `common/config.py` に `vv_prompts_dir() -> Path`（`%APPDATA%\workpytools\vv\`）を追加する。
 - ファイル名がそのままプロンプト名として一覧に表示される（拡張子 `.txt` は表示上省く）。
 - フォルダが存在しない場合は空の一覧として扱う（自動作成はしない。
   最初の1つは利用者が手で置く）。
@@ -157,7 +157,7 @@ len()で揃えた場合:
 ## エラー処理
 
 - プロンプトフォルダが存在しない、または中に `.txt` が1つもない場合:
-  「プロンプトが登録されていません。`%APPDATA%\tools\vv\` に .txt を置いてください」
+  「プロンプトが登録されていません。`%APPDATA%\workpytools\vv\` に .txt を置いてください」
   と表示してエラー終了する（`vv`・`vv <番号>` どちらでも同じ扱い）。
 - **番号が範囲外の場合**: `0` や負数も含めて、有効範囲を示す同じエラーで終了する
   （例: `番号は 1〜12 の範囲で指定してください`）。1始まりであることが

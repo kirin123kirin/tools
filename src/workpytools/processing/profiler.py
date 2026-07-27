@@ -4,8 +4,8 @@ import argparse
 import logging
 from pathlib import Path
 
-from tools.common.clipboard import copy_text_to_clipboard, get_clipboard_text
-from tools.common.tabular import (
+from workpytools.common.clipboard import copy_text_to_clipboard, get_clipboard_text
+from workpytools.common.tabular import (
     DEFAULT_EMPTY_VALUES,
     ColumnProfile,
     Table,
@@ -14,7 +14,7 @@ from tools.common.tabular import (
     profile_columns,
     read_csv_like,
 )
-from tools.processing.base import Processor
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 
@@ -223,10 +223,10 @@ class ProfilerProcessor(Processor):
             worksheet.autofilter(0, 0, len(rows) - 1, len(header) - 1)
 
     def _view_in_browser(self, rows: list[list[str]]) -> None:
-        from tools.common.browser_preview import write_and_open
+        from workpytools.common.browser_preview import write_and_open
 
         html = _render_html_table(rows)
-        write_and_open(html, "tools_profiler_preview.html", no_open=False)
+        write_and_open(html, "workpytools_profiler_preview.html", no_open=False)
 
 
 def _render_html_table(rows: list[list[str]]) -> str:

@@ -3,20 +3,20 @@ from __future__ import annotations
 import argparse
 import logging
 
-from tools.common.powerpoint import (
+from workpytools.common.powerpoint import (
     NoActivePresentationError,
     PowerPointNotRunningError,
     get_active_presentation,
     get_running_powerpoint,
 )
-from tools.common.shape_cluster import (
+from workpytools.common.shape_cluster import (
     LEFT_TOLERANCE,
     LINE_STEP_MAX_RATIO,
     LINE_STEP_MIN_RATIO,
     ShapeInfo,
     cluster_shapes,
 )
-from tools.processing.base import Processor
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 

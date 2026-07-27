@@ -2,8 +2,8 @@ import argparse
 
 import pytest
 
-from tools.processing import clipfmt as clipfmt_module
-from tools.processing.clipfmt import (
+from workpytools.processing import clipfmt as clipfmt_module
+from workpytools.processing.clipfmt import (
     ClipfmtProcessor,
     format_markdown,
     normalize_bullet_markers,

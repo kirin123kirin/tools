@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from tools.common.clipboard import LoadedImage
-from tools.common.output import save_result
+from workpytools.common.clipboard import LoadedImage
+from workpytools.common.output import save_result
 
 
 def _image() -> Image.Image:
@@ -41,9 +41,9 @@ def test_clipboard_file_input_saves_to_tmpdir_and_copies_file(
 
     calls: list[Path] = []
     monkeypatch.setattr(
-        "tools.common.output.copy_file_to_clipboard", lambda p: calls.append(p)
+        "workpytools.common.output.copy_file_to_clipboard", lambda p: calls.append(p)
     )
-    monkeypatch.setattr("tools.common.output.tempfile.gettempdir", lambda: str(tmp_path))
+    monkeypatch.setattr("workpytools.common.output.tempfile.gettempdir", lambda: str(tmp_path))
 
     result_path = save_result(loaded, _image(), "touka", None)
 
@@ -59,7 +59,7 @@ def test_clipboard_data_input_writes_no_file_and_copies_image(
 
     calls: list[Image.Image] = []
     monkeypatch.setattr(
-        "tools.common.output.copy_image_to_clipboard", lambda img: calls.append(img)
+        "workpytools.common.output.copy_image_to_clipboard", lambda img: calls.append(img)
     )
 
     result_path = save_result(loaded, _image(), "touka", None)

@@ -1,4 +1,4 @@
-from tools.common.help_gen import (
+from workpytools.common.help_gen import (
     _DIAGRAMS,
     collect_command_help,
     render_help_html,

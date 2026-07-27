@@ -10,7 +10,7 @@ import win32clipboard
 import win32con
 from PIL import Image, ImageGrab
 
-from tools.common.textfile import (
+from workpytools.common.textfile import (
     TextFileError,
     normalize_newlines,
     read_text_with_fallback,

@@ -1,4 +1,4 @@
-from tools.common.outline_parse import OutlineItem, parse_outline
+from workpytools.common.outline_parse import OutlineItem, parse_outline
 
 # --- Markdown見出し記法 ---
 

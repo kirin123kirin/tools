@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from tools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
-from tools.processing import mokuji as mokuji_module
-from tools.processing.mokuji import MokujiProcessor
+from workpytools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
+from workpytools.processing import mokuji as mokuji_module
+from workpytools.processing.mokuji import MokujiProcessor
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:

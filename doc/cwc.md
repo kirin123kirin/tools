@@ -179,13 +179,13 @@ cwc memo.txt --hinshi 名詞,形容詞     # カンマ区切りでも可
 辞書の解決順は以下の3段階で、**下にあるものが上を上書きする**。
 
 1. 同梱の既定辞書 `data/user.dic`
-2. 設定ファイル `%APPDATA%\tools\config.toml` の `[cwc] user_dict`
+2. 設定ファイル `%APPDATA%\workpytools\config.toml` の `[cwc] user_dict`
 3. コマンドライン `--user-dict`
 
 ##### 1. 既定のユーザー辞書（同梱）
 
 - パッケージ内の `data/user.dic` を既定のユーザー辞書として同梱する
-  （実体は `src/tools/data/user.dic`。パッケージデータとして配布物に含めるため、
+  （実体は `src/workpytools/data/user.dic`。パッケージデータとして配布物に含めるため、
   `pyproject.toml` に `[tool.setuptools.package-data]` の設定を追加する）。
 - **中身はJanomeのsimpledic形式（表層形,品詞,読み）に確定した。**
   `.dic` という拡張子だが中身はCSVである点が紛らわしいため、
@@ -204,7 +204,7 @@ cwc memo.txt --hinshi 名詞,形容詞     # カンマ区切りでも可
 
 ##### 2. 設定ファイルによる上書き
 
-- 設定ファイルの既定位置は `%APPDATA%\tools\config.toml`
+- 設定ファイルの既定位置は `%APPDATA%\workpytools\config.toml`
   （`common/config.py` には現状「既定位置を決める仕組み」がないため、
   `default_config_path()` のような関数を追加する）。
 - 記述例:
@@ -247,7 +247,7 @@ cwc memo.txt --hinshi 名詞,形容詞     # カンマ区切りでも可
 （`特に無し` `無し` のような漢字表記は前段の正規化で `なし` 系に寄るため、
 辞書には正規化後の表記だけを書けばよい。）
 
-- 辞書ファイルは同梱の `data/synonym.tsv`（実体は `src/tools/data/synonym.tsv`）。
+- 辞書ファイルは同梱の `data/synonym.tsv`（実体は `src/workpytools/data/synonym.tsv`）。
   ユーザー辞書と同じくパッケージデータとして配布物に含める。
 - 形式はTSV。1行1グループで、**先頭カラムが代表語、以降が異表記**とする。
   行頭 `#` はコメント。
@@ -349,7 +349,7 @@ cwc memo.txt --hinshi 名詞,形容詞     # カンマ区切りでも可
   **URLを設計・コード上に固定値として持つ**（どこへ繋ぐかがコードから一目で分かる形にする）。
 - CLAUDE.mdの方針に従い、接続先ホスト（`huggingface.co`）と取得するファイルを
   READMEに明記し、IT部門がプロキシ/EDRのアローリストに登録できるようにする。
-- キャッシュ先は `%LOCALAPPDATA%\tools\models\<モデル名>\` とし、READMEに記載する。
+- キャッシュ先は `%LOCALAPPDATA%\workpytools\models\<モデル名>\` とし、READMEに記載する。
   2回目以降はダウンロードしない。
 - ダウンロード開始時・完了時にログを出す（何MB取得したかが分かる形にする）。
 - ダウンロードに失敗した場合は、接続先URLを含めたエラーメッセージで終了する

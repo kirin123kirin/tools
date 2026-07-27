@@ -3,8 +3,8 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tools"
-version = "0.1.2"
+name = "workpytools"
+version = "0.1.3"
 description = "Collection of Python processing utilities"
 requires-python = ">=3.11"
 readme = "README.md"
@@ -38,35 +38,35 @@ dev = [
 ]
 
 [project.scripts]
-tools = "tools.cli:main"
+tools = "workpytools.cli:main"
 # サブコマンドごとの単体エントリーポイント（例: `denoise.exe`）。
 # 新しい処理を processing/ に追加したら、ここにも同名のエントリーを追加すること。
-touka = "tools.cli:run_as_subcommand"
-denoise = "tools.cli:run_as_subcommand"
-kukiri = "tools.cli:run_as_subcommand"
-cwc = "tools.cli:run_as_subcommand"
-clipmd = "tools.cli:run_as_subcommand"
-mdtsv = "tools.cli:run_as_subcommand"
-clipview = "tools.cli:run_as_subcommand"
-clipfmt = "tools.cli:run_as_subcommand"
-vv = "tools.cli:run_as_subcommand"
-profiler = "tools.cli:run_as_subcommand"
-lsdir = "tools.cli:run_as_subcommand"
-outline = "tools.cli:run_as_subcommand"
-ikko = "tools.cli:run_as_subcommand"
-mokuji = "tools.cli:run_as_subcommand"
-tbl = "tools.cli:run_as_subcommand"
-seiretsu = "tools.cli:run_as_subcommand"
-nagasa = "tools.cli:run_as_subcommand"
+touka = "workpytools.cli:run_as_subcommand"
+denoise = "workpytools.cli:run_as_subcommand"
+kukiri = "workpytools.cli:run_as_subcommand"
+cwc = "workpytools.cli:run_as_subcommand"
+clipmd = "workpytools.cli:run_as_subcommand"
+mdtsv = "workpytools.cli:run_as_subcommand"
+clipview = "workpytools.cli:run_as_subcommand"
+clipfmt = "workpytools.cli:run_as_subcommand"
+vv = "workpytools.cli:run_as_subcommand"
+profiler = "workpytools.cli:run_as_subcommand"
+lsdir = "workpytools.cli:run_as_subcommand"
+outline = "workpytools.cli:run_as_subcommand"
+ikko = "workpytools.cli:run_as_subcommand"
+mokuji = "workpytools.cli:run_as_subcommand"
+tbl = "workpytools.cli:run_as_subcommand"
+seiretsu = "workpytools.cli:run_as_subcommand"
+nagasa = "workpytools.cli:run_as_subcommand"
 # help コマンドの単体エントリーポイントのみ toolh という別名にする
 # （run_as_subcommand内の_ENTRY_POINT_ALIASESでhelpにマッピングされる）。
-toolh = "tools.cli:run_as_subcommand"
+toolh = "workpytools.cli:run_as_subcommand"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-"tools.data" = ["*.dic", "*.tsv"]
+"workpytools.data" = ["*.dic", "*.tsv"]
 
 [tool.ruff]
 line-length = 100

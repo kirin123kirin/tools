@@ -17,22 +17,22 @@ class ConfigLocationError(RuntimeError):
 
 
 def _appdata_dir() -> Path:
-    """%APPDATA%\\tools, with a clear error instead of a bare KeyError."""
+    """%APPDATA%\\workpytools, with a clear error instead of a bare KeyError."""
     appdata = os.environ.get("APPDATA")
     if not appdata:
         raise ConfigLocationError(
             "環境変数 APPDATA が設定されていないため、設定の保存先を決定できません"
         )
-    return Path(appdata) / "tools"
+    return Path(appdata) / "workpytools"
 
 
 def default_config_path() -> Path:
-    """Default location of the shared tools config file: %APPDATA%\\tools\\config.toml."""
+    """Default location of the shared config file: %APPDATA%\\workpytools\\config.toml."""
     return _appdata_dir() / "config.toml"
 
 
 def vv_prompts_dir() -> Path:
-    """Folder holding one .txt per saved prompt: %APPDATA%\\tools\\vv\\."""
+    """Folder holding one .txt per saved prompt: %APPDATA%\\workpytools\\vv\\."""
     return _appdata_dir() / "vv"
 
 

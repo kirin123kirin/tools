@@ -7,13 +7,13 @@ import pkgutil
 import sys
 from pathlib import PureWindowsPath
 
-from tools import processing
-from tools.common.logging import setup_logging
-from tools.processing.base import Processor
+from workpytools import processing
+from workpytools.common.logging import setup_logging
+from workpytools.processing.base import Processor
 
 
 def _discover_processors() -> dict[str, Processor]:
-    """Import every module under `tools.processing` and collect Processor subclasses."""
+    """Import every module under `workpytools.processing` and collect Processor subclasses."""
     processors: dict[str, Processor] = {}
     for module_info in pkgutil.iter_modules(processing.__path__, prefix=f"{processing.__name__}."):
         if module_info.name.endswith(".base"):

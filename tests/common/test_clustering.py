@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from tools.common.clustering import agglomerative_average_linkage
+from workpytools.common.clustering import agglomerative_average_linkage
 
 
 def _normalize_labels(labels: list[int]) -> list[int]:

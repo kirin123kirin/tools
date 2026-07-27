@@ -27,7 +27,7 @@ class ModelDownloadError(RuntimeError):
 
 
 def _model_cache_dir(model_name: str) -> Path:
-    return Path(os.environ["LOCALAPPDATA"]) / "tools" / "models" / model_name
+    return Path(os.environ["LOCALAPPDATA"]) / "workpytools" / "models" / model_name
 
 
 def ensure_model(model_name: str = DEFAULT_MODEL_NAME) -> Path:

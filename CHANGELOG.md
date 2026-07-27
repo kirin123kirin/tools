@@ -5,6 +5,16 @@
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-07-27
+
+### Changed
+
+- PyPI公開に向けて、パッケージ名・インポート名を`tools`から`workpytools`に変更
+  （`src/tools/` → `src/workpytools/`、`import tools` → `import workpytools`）
+- 設定ファイル・キャッシュ・プレビューファイルの保存先を`%APPDATA%\workpytools\`・
+  `%LOCALAPPDATA%\workpytools\`・`%TEMP%\workpytools_*`に変更
+  （旧`%APPDATA%\tools\`等からのデータ移行は行わない）
+
 ## [0.1.2] - 2026-07-27
 
 ### Added
@@ -49,7 +59,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/tools/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/kirin123kirin/tools/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/kirin123kirin/tools/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/kirin123kirin/tools/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/kirin123kirin/tools/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/kirin123kirin/tools/releases/tag/v0.1.0

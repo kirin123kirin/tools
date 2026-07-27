@@ -2,8 +2,12 @@ import argparse
 
 import pytest
 
-from tools.processing import mdtsv as mdtsv_module
-from tools.processing.mdtsv import MdtsvProcessor, markdown_table_to_tsv, tsv_to_markdown_table
+from workpytools.processing import mdtsv as mdtsv_module
+from workpytools.processing.mdtsv import (
+    MdtsvProcessor,
+    markdown_table_to_tsv,
+    tsv_to_markdown_table,
+)
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:
@@ -217,7 +221,7 @@ def test_empty_result_raises(clipboard_state) -> None:
     clipboard_state["text"] = "|  |  |\n|---|---|\n|  |  |\n"
     # 空セルのみの表 -> TSVにしても内容自体は空文字にはならない想定だが、
     # 完全に空白のみのケースを直接検証する
-    from tools.processing.mdtsv import markdown_table_to_tsv
+    from workpytools.processing.mdtsv import markdown_table_to_tsv
 
     result = markdown_table_to_tsv("|  |\n|---|\n|  |\n")
     assert result is not None

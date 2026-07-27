@@ -5,9 +5,9 @@ import logging
 import os
 from pathlib import Path
 
-from tools.common.clipboard import copy_text_to_clipboard
-from tools.common.walk import Entry, compute_total_sizes, dedupe_by_fullpath, walk
-from tools.processing.base import Processor
+from workpytools.common.clipboard import copy_text_to_clipboard
+from workpytools.common.walk import Entry, compute_total_sizes, dedupe_by_fullpath, walk
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 

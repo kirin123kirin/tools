@@ -51,10 +51,10 @@ Markdown → HTML の変換は `clipmd` と同じ `markdown-it-py`（`enable("ta
 
 ### ファイルの置き場所
 
-`%TEMP%\tools_clipview_preview.html` に**固定名で上書き**する。
+`%TEMP%\workpytools_clipview_preview.html` に**固定名で上書き**する。
 毎回新規ファイルを作るとゴミが溜まり続けるため、固定名にする。
 
-SVGの場合は同じ考え方で `%TEMP%\tools_clipview_preview.svg` に固定名で
+SVGの場合は同じ考え方で `%TEMP%\workpytools_clipview_preview.svg` に固定名で
 上書きする（拡張子だけが異なる別ファイル。HTMLプレビューと共存できる）。
 
 ### キャッシュ対策
@@ -65,7 +65,7 @@ SVGの場合は同じ考え方で `%TEMP%\tools_clipview_preview.svg` に固定�
 そこで**開くURLにキャッシュバスターのクエリを付ける**。
 
 ```text
-file:///C:/Users/.../Temp/tools_clipview_preview.html?v=<タイムスタンプ>
+file:///C:/Users/.../Temp/workpytools_clipview_preview.html?v=<タイムスタンプ>
 ```
 
 - ブラウザはクエリが異なると別リソースと見なすため、確実に最新内容が読み込まれる

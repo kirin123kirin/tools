@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import logging
 
-from tools.common.clipboard import (
+from workpytools.common.clipboard import (
     copy_html_and_text_to_clipboard,
     copy_text_to_clipboard,
     get_clipboard_html_fragment,
@@ -11,8 +11,8 @@ from tools.common.clipboard import (
     has_clipboard_html,
     has_clipboard_text,
 )
-from tools.common.markdown_html import markdown_to_html_fragment
-from tools.processing.base import Processor
+from workpytools.common.markdown_html import markdown_to_html_fragment
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 

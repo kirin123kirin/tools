@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from tools.common.clipboard import (
+from workpytools.common.clipboard import (
     ClipboardImageError,
     ClipboardTextError,
     copy_file_to_clipboard,
@@ -27,7 +27,7 @@ def test_load_image_from_path(tmp_path: Path) -> None:
 
 def test_load_image_from_clipboard_image_data(monkeypatch: pytest.MonkeyPatch) -> None:
     clip_image = Image.new("RGB", (3, 3), color="blue")
-    monkeypatch.setattr("tools.common.clipboard.ImageGrab.grabclipboard", lambda: clip_image)
+    monkeypatch.setattr("workpytools.common.clipboard.ImageGrab.grabclipboard", lambda: clip_image)
 
     result = load_image(None)
 
@@ -43,7 +43,7 @@ def test_load_image_from_clipboard_file_object(
     img_path = tmp_path / "copied.png"
     Image.new("RGB", (4, 4), color="green").save(img_path)
     monkeypatch.setattr(
-        "tools.common.clipboard.ImageGrab.grabclipboard", lambda: [str(img_path)]
+        "workpytools.common.clipboard.ImageGrab.grabclipboard", lambda: [str(img_path)]
     )
 
     result = load_image(None)
@@ -54,7 +54,7 @@ def test_load_image_from_clipboard_file_object(
 
 
 def test_load_image_from_empty_clipboard(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("tools.common.clipboard.ImageGrab.grabclipboard", lambda: None)
+    monkeypatch.setattr("workpytools.common.clipboard.ImageGrab.grabclipboard", lambda: None)
 
     with pytest.raises(ClipboardImageError):
         load_image(None)
@@ -64,11 +64,11 @@ def test_copy_file_to_clipboard_sets_cf_hdrop(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     calls: list[tuple[int, bytes]] = []
-    monkeypatch.setattr("tools.common.clipboard.win32clipboard.OpenClipboard", lambda: None)
-    monkeypatch.setattr("tools.common.clipboard.win32clipboard.EmptyClipboard", lambda: None)
-    monkeypatch.setattr("tools.common.clipboard.win32clipboard.CloseClipboard", lambda: None)
+    monkeypatch.setattr("workpytools.common.clipboard.win32clipboard.OpenClipboard", lambda: None)
+    monkeypatch.setattr("workpytools.common.clipboard.win32clipboard.EmptyClipboard", lambda: None)
+    monkeypatch.setattr("workpytools.common.clipboard.win32clipboard.CloseClipboard", lambda: None)
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.SetClipboardData",
+        "workpytools.common.clipboard.win32clipboard.SetClipboardData",
         lambda fmt, data: calls.append((fmt, data)),
     )
 
@@ -86,11 +86,11 @@ def test_copy_file_to_clipboard_sets_cf_hdrop(
 
 def test_copy_image_to_clipboard_sets_cf_dib(monkeypatch: pytest.MonkeyPatch) -> None:
     calls: list[tuple[int, bytes]] = []
-    monkeypatch.setattr("tools.common.clipboard.win32clipboard.OpenClipboard", lambda: None)
-    monkeypatch.setattr("tools.common.clipboard.win32clipboard.EmptyClipboard", lambda: None)
-    monkeypatch.setattr("tools.common.clipboard.win32clipboard.CloseClipboard", lambda: None)
+    monkeypatch.setattr("workpytools.common.clipboard.win32clipboard.OpenClipboard", lambda: None)
+    monkeypatch.setattr("workpytools.common.clipboard.win32clipboard.EmptyClipboard", lambda: None)
+    monkeypatch.setattr("workpytools.common.clipboard.win32clipboard.CloseClipboard", lambda: None)
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.SetClipboardData",
+        "workpytools.common.clipboard.win32clipboard.SetClipboardData",
         lambda fmt, data: calls.append((fmt, data)),
     )
 
@@ -153,10 +153,10 @@ def test_load_text_with_wrong_explicit_encoding_raises(tmp_path: Path) -> None:
 
 def test_load_text_from_clipboard_plain_text(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.OpenClipboard", lambda: None
+        "workpytools.common.clipboard.win32clipboard.OpenClipboard", lambda: None
     )
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.CloseClipboard", lambda: None
+        "workpytools.common.clipboard.win32clipboard.CloseClipboard", lambda: None
     )
 
     def fake_is_available(fmt: int) -> bool:
@@ -165,11 +165,11 @@ def test_load_text_from_clipboard_plain_text(monkeypatch: pytest.MonkeyPatch) ->
         return fmt == wc.CF_UNICODETEXT
 
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.IsClipboardFormatAvailable",
+        "workpytools.common.clipboard.win32clipboard.IsClipboardFormatAvailable",
         fake_is_available,
     )
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.GetClipboardData",
+        "workpytools.common.clipboard.win32clipboard.GetClipboardData",
         lambda fmt: "クリップボードのテキスト\r\n続き",
     )
 
@@ -187,10 +187,10 @@ def test_load_text_from_clipboard_file_object(
     path.write_text("コピーされたファイル", encoding="utf-8")
 
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.OpenClipboard", lambda: None
+        "workpytools.common.clipboard.win32clipboard.OpenClipboard", lambda: None
     )
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.CloseClipboard", lambda: None
+        "workpytools.common.clipboard.win32clipboard.CloseClipboard", lambda: None
     )
 
     def fake_is_available(fmt: int) -> bool:
@@ -199,11 +199,11 @@ def test_load_text_from_clipboard_file_object(
         return fmt == wc.CF_HDROP
 
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.IsClipboardFormatAvailable",
+        "workpytools.common.clipboard.win32clipboard.IsClipboardFormatAvailable",
         fake_is_available,
     )
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.GetClipboardData",
+        "workpytools.common.clipboard.win32clipboard.GetClipboardData",
         lambda fmt: [str(path)],
     )
 
@@ -216,13 +216,13 @@ def test_load_text_from_clipboard_file_object(
 
 def test_load_text_from_empty_clipboard_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.OpenClipboard", lambda: None
+        "workpytools.common.clipboard.win32clipboard.OpenClipboard", lambda: None
     )
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.CloseClipboard", lambda: None
+        "workpytools.common.clipboard.win32clipboard.CloseClipboard", lambda: None
     )
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.IsClipboardFormatAvailable",
+        "workpytools.common.clipboard.win32clipboard.IsClipboardFormatAvailable",
         lambda fmt: False,
     )
 

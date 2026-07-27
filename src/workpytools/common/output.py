@@ -6,7 +6,7 @@ from typing import Protocol
 
 from PIL import Image
 
-from tools.common.clipboard import SourceKind, copy_file_to_clipboard, copy_image_to_clipboard
+from workpytools.common.clipboard import SourceKind, copy_file_to_clipboard, copy_image_to_clipboard
 
 
 class HasSource(Protocol):

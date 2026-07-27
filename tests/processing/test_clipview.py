@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from tools.common import browser_preview as browser_preview_module
-from tools.processing import clipview as clipview_module
-from tools.processing.clipview import ClipviewProcessor, wrap_preview_html
+from workpytools.common import browser_preview as browser_preview_module
+from workpytools.processing import clipview as clipview_module
+from workpytools.processing.clipview import ClipviewProcessor, wrap_preview_html
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:
@@ -23,7 +23,7 @@ def clipboard_state(monkeypatch: pytest.MonkeyPatch) -> dict:
 
     def fake_get_html():
         if state["html"] is None:
-            from tools.common.clipboard import ClipboardTextError
+            from workpytools.common.clipboard import ClipboardTextError
 
             raise ClipboardTextError("no html")
         return state["html"]

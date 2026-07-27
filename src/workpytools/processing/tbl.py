@@ -3,13 +3,13 @@ from __future__ import annotations
 import argparse
 import logging
 
-from tools.common.powerpoint import (
+from workpytools.common.powerpoint import (
     NoActivePresentationError,
     PowerPointNotRunningError,
     get_active_presentation,
     get_running_powerpoint,
 )
-from tools.common.table_shapes import (
+from workpytools.common.table_shapes import (
     GAP_RATIO,
     GRID_TOLERANCE,
     DuplicateGridPositionError,
@@ -17,7 +17,7 @@ from tools.common.table_shapes import (
     compute_spaced_positions,
     estimate_grid,
 )
-from tools.processing.base import Processor
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 

@@ -3,15 +3,15 @@ from __future__ import annotations
 import argparse
 import logging
 
-from tools.common.clipboard import ClipboardTextError, get_clipboard_text
-from tools.common.outline_parse import OutlineItem, parse_outline
-from tools.common.powerpoint import (
+from workpytools.common.clipboard import ClipboardTextError, get_clipboard_text
+from workpytools.common.outline_parse import OutlineItem, parse_outline
+from workpytools.common.powerpoint import (
     NoActivePresentationError,
     PowerPointNotRunningError,
     get_active_presentation,
     get_running_powerpoint,
 )
-from tools.processing.base import Processor
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 

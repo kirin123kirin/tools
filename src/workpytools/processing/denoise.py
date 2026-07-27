@@ -7,9 +7,9 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from tools.common.clipboard import load_image
-from tools.common.output import describe_output, save_result
-from tools.processing.base import Processor
+from workpytools.common.clipboard import load_image
+from workpytools.common.output import describe_output, save_result
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 

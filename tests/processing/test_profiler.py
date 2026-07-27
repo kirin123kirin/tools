@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from tools.processing import profiler as profiler_module
-from tools.processing.profiler import ProfilerProcessor
+from workpytools.processing import profiler as profiler_module
+from workpytools.processing.profiler import ProfilerProcessor
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:
@@ -283,10 +283,10 @@ def test_view_option_writes_html_and_opens_browser(
 
     calls = []
     monkeypatch.setattr(
-        "tools.common.browser_preview.tempfile.gettempdir", lambda: str(tmp_path)
+        "workpytools.common.browser_preview.tempfile.gettempdir", lambda: str(tmp_path)
     )
     monkeypatch.setattr(
-        "tools.common.browser_preview.webbrowser.open", lambda url: calls.append(url)
+        "workpytools.common.browser_preview.webbrowser.open", lambda url: calls.append(url)
     )
 
     ProfilerProcessor().run(_base_args(path=[str(src)], view=True))

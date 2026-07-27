@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from itertools import zip_longest
 from pathlib import Path
 
-from tools.common.textfile import read_text_with_fallback
+from workpytools.common.textfile import read_text_with_fallback
 
 DEFAULT_EMPTY_VALUES = frozenset(
     {None, "", "N/A", "NULL", "null", "None", "none", "-", "NaN"}

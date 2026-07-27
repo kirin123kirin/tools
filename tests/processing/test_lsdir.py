@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from tools.processing import lsdir as lsdir_module
-from tools.processing.lsdir import LsdirProcessor
+from workpytools.processing import lsdir as lsdir_module
+from workpytools.processing.lsdir import LsdirProcessor
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:

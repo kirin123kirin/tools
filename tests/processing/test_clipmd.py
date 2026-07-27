@@ -2,8 +2,8 @@ import argparse
 
 import pytest
 
-from tools.processing import clipmd as clipmd_module
-from tools.processing.clipmd import ClipmdProcessor, html_to_markdown
+from workpytools.processing import clipmd as clipmd_module
+from workpytools.processing.clipmd import ClipmdProcessor, html_to_markdown
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:
@@ -22,7 +22,7 @@ def clipboard_state(monkeypatch: pytest.MonkeyPatch) -> dict:
 
     def fake_get_html():
         if state["html"] is None:
-            from tools.common.clipboard import ClipboardTextError
+            from workpytools.common.clipboard import ClipboardTextError
 
             raise ClipboardTextError("no html")
         return state["html"]

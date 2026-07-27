@@ -5,7 +5,7 @@ import logging
 import webbrowser
 from pathlib import Path
 
-from tools.processing.base import Processor
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 

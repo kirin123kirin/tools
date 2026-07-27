@@ -3,10 +3,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from tools.common.clipboard import ClipboardTextError
-from tools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
-from tools.processing import outline as outline_module
-from tools.processing.outline import OutlineProcessor
+from workpytools.common.clipboard import ClipboardTextError
+from workpytools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
+from workpytools.processing import outline as outline_module
+from workpytools.processing.outline import OutlineProcessor
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:

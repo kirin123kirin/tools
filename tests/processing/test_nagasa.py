@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from tools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
-from tools.processing import nagasa as nagasa_module
-from tools.processing.nagasa import NagasaProcessor
+from workpytools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
+from workpytools.processing import nagasa as nagasa_module
+from workpytools.processing.nagasa import NagasaProcessor
 
 _SELECTION_NONE = 0
 _SELECTION_SHAPES = 2

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from tools.common.tabular import (
+from workpytools.common.tabular import (
     Table,
     format_top,
     is_empty,
@@ -40,7 +40,7 @@ def test_none_stays_none() -> None:
 
 
 def test_default_empty_values_detected() -> None:
-    from tools.common.tabular import DEFAULT_EMPTY_VALUES
+    from workpytools.common.tabular import DEFAULT_EMPTY_VALUES
 
     assert is_empty("", DEFAULT_EMPTY_VALUES)
     assert is_empty("N/A", DEFAULT_EMPTY_VALUES)

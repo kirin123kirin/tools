@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from tools.common.textfile import display_width
-from tools.processing import vv as vv_module
-from tools.processing.vv import VvProcessor, format_prompt_list, list_prompts
+from workpytools.common.textfile import display_width
+from workpytools.processing import vv as vv_module
+from workpytools.processing.vv import VvProcessor, format_prompt_list, list_prompts
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:
@@ -146,7 +146,7 @@ def test_preview_column_aligned_with_mixed_width_names(
 
 
 def test_truncation_uses_display_width_not_char_count() -> None:
-    from tools.common.textfile import truncate_to_width
+    from workpytools.common.textfile import truncate_to_width
 
     fullwidth = truncate_to_width("あ" * 50, 20)
     halfwidth = truncate_to_width("a" * 50, 20)
@@ -289,7 +289,7 @@ def test_cp932_file_read_via_fallback(prompts_dir, clipboard_writes) -> None:
 
 
 def test_missing_appdata_raises_readable_error(monkeypatch: pytest.MonkeyPatch) -> None:
-    from tools.common.config import ConfigLocationError
+    from workpytools.common.config import ConfigLocationError
 
     def raise_error():
         raise ConfigLocationError("環境変数 APPDATA が設定されていません")

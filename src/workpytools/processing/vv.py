@@ -5,9 +5,9 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools.common.clipboard import copy_text_to_clipboard
-from tools.common.config import ConfigLocationError, vv_prompts_dir
-from tools.common.textfile import (
+from workpytools.common.clipboard import copy_text_to_clipboard
+from workpytools.common.config import ConfigLocationError, vv_prompts_dir
+from workpytools.common.textfile import (
     TextFileError,
     display_width,
     pad_to_width,
@@ -15,7 +15,7 @@ from tools.common.textfile import (
     to_crlf,
     truncate_to_width,
 )
-from tools.processing.base import Processor
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 

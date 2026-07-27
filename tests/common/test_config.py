@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from tools.common.config import (
+from workpytools.common.config import (
     ConfigLocationError,
     default_config_path,
     load_default_config,
@@ -12,12 +12,12 @@ from tools.common.config import (
 
 def test_default_config_path_under_appdata(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("APPDATA", r"C:\fake\AppData\Roaming")
-    assert default_config_path() == Path(r"C:\fake\AppData\Roaming\tools\config.toml")
+    assert default_config_path() == Path(r"C:\fake\AppData\Roaming\workpytools\config.toml")
 
 
 def test_vv_prompts_dir_under_appdata(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("APPDATA", r"C:\fake\AppData\Roaming")
-    assert vv_prompts_dir() == Path(r"C:\fake\AppData\Roaming\tools\vv")
+    assert vv_prompts_dir() == Path(r"C:\fake\AppData\Roaming\workpytools\vv")
 
 
 def test_missing_appdata_raises_config_location_error(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -48,7 +48,7 @@ def test_load_default_config_reads_toml(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     monkeypatch.setenv("APPDATA", str(tmp_path))
-    config_dir = tmp_path / "tools"
+    config_dir = tmp_path / "workpytools"
     config_dir.mkdir()
     (config_dir / "config.toml").write_text('[cwc]\nuser_dict = "x.csv"\n', encoding="utf-8")
 

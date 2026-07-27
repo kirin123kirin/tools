@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from tools.common.walk import Entry, compute_total_sizes, dedupe_by_fullpath, walk
+from workpytools.common.walk import Entry, compute_total_sizes, dedupe_by_fullpath, walk
 
 
 def _make_tree(tmp_path: Path) -> Path:
@@ -106,7 +106,7 @@ def test_walk_inaccessible_dir_is_skipped_with_warning(
         raise PermissionError("denied")
 
     (root / "blocked").mkdir()
-    monkeypatch.setattr("tools.common.walk.os.scandir", fake_scandir)
+    monkeypatch.setattr("workpytools.common.walk.os.scandir", fake_scandir)
 
     with caplog.at_level("WARNING"):
         entries, skipped = walk(str(root), source_label=str(root))
@@ -168,7 +168,7 @@ def test_does_not_recursionerror_on_many_stack_frames(
     # os.scandirの結果を差し替えて仮想的な深さ1200階層のツリーを模擬する。
     import sys
 
-    from tools.common import walk as walk_module
+    from workpytools.common import walk as walk_module
 
     depth_limit = 1200
     assert depth_limit > sys.getrecursionlimit()

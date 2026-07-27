@@ -3,20 +3,20 @@ from __future__ import annotations
 import argparse
 import logging
 
-from tools.common.browser_preview import write_and_open
-from tools.common.clipboard import (
+from workpytools.common.browser_preview import write_and_open
+from workpytools.common.clipboard import (
     get_clipboard_html_fragment,
     get_clipboard_text,
     has_clipboard_html,
     has_clipboard_text,
 )
-from tools.common.markdown_html import markdown_to_html_fragment
-from tools.processing.base import Processor
+from workpytools.common.markdown_html import markdown_to_html_fragment
+from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
 
-_PREVIEW_FILENAME = "tools_clipview_preview.html"
-_SVG_PREVIEW_FILENAME = "tools_clipview_preview.svg"
+_PREVIEW_FILENAME = "workpytools_clipview_preview.html"
+_SVG_PREVIEW_FILENAME = "workpytools_clipview_preview.svg"
 
 # markdown-it-pyが```mermaidフェンスをレンダリングすると
 # <pre><code class="language-mermaid">...</code></pre> になる。

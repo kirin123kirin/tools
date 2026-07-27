@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from tools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
-from tools.processing import seiretsu as seiretsu_module
-from tools.processing.seiretsu import SeiretsuProcessor
+from workpytools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
+from workpytools.processing import seiretsu as seiretsu_module
+from workpytools.processing.seiretsu import SeiretsuProcessor
 
 _SELECTION_NONE = 0
 _SELECTION_SHAPES = 2

@@ -1,6 +1,6 @@
 import pytest
 
-from tools.common.table_shapes import (
+from workpytools.common.table_shapes import (
     DuplicateGridPositionError,
     GridShape,
     column_and_row_sizes,

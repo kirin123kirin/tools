@@ -4,8 +4,8 @@ import argparse
 import html as html_module
 from dataclasses import dataclass
 
-from tools.cli import _ENTRY_POINT_ALIASES, _discover_processors
-from tools.processing.base import Processor
+from workpytools.cli import _ENTRY_POINT_ALIASES, _discover_processors
+from workpytools.processing.base import Processor
 
 # コマンド名 -> 単体実行ファイル名（拡張子なし）。pyproject.tomlの
 # [project.scripts]は基本的にコマンド名と同名のエントリーポイントを

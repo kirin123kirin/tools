@@ -1,4 +1,4 @@
-from tools.common.shape_cluster import ShapeInfo, cluster_shapes
+from workpytools.common.shape_cluster import ShapeInfo, cluster_shapes
 
 
 def _shape(

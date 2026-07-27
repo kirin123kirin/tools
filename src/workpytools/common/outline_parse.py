@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from tools.common.textfile import normalize_newlines
+from workpytools.common.textfile import normalize_newlines
 
 _HEADING_RE = re.compile(r"^#{1,6} .+")
 

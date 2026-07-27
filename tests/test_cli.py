@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from tools.cli import _discover_processors, build_parser, run_as_subcommand
-from tools.processing import denoise as denoise_module
+from workpytools.cli import _discover_processors, build_parser, run_as_subcommand
+from workpytools.processing import denoise as denoise_module
 
 
 def _fake_fast_nl_means_denoising_colored(
@@ -58,7 +58,9 @@ def test_run_as_subcommand_strips_exe_suffix(
         "fastNlMeansDenoisingColored",
         _fake_fast_nl_means_denoising_colored,
     )
-    monkeypatch.setattr("sys.argv", [r"C:\tools\Scripts\denoise.exe", str(src), "-o", str(out)])
+    monkeypatch.setattr(
+        "sys.argv", [r"C:\workpytools\Scripts\denoise.exe", str(src), "-o", str(out)]
+    )
 
     result = run_as_subcommand()
 

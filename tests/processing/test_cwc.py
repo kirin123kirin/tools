@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from tools.processing import cwc as cwc_module
-from tools.processing.cwc import CwcProcessor, _normalize, _split_default
+from workpytools.processing import cwc as cwc_module
+from workpytools.processing.cwc import CwcProcessor, _normalize, _split_default
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:
@@ -73,10 +73,10 @@ def test_run_from_clipboard_file_object_saves_to_tmpdir_and_copies_file(
     tmpdir.mkdir()
 
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.OpenClipboard", lambda: None
+        "workpytools.common.clipboard.win32clipboard.OpenClipboard", lambda: None
     )
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.CloseClipboard", lambda: None
+        "workpytools.common.clipboard.win32clipboard.CloseClipboard", lambda: None
     )
 
     def fake_is_available(fmt: int) -> bool:
@@ -85,17 +85,17 @@ def test_run_from_clipboard_file_object_saves_to_tmpdir_and_copies_file(
         return fmt == wc.CF_HDROP
 
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.IsClipboardFormatAvailable",
+        "workpytools.common.clipboard.win32clipboard.IsClipboardFormatAvailable",
         fake_is_available,
     )
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.GetClipboardData",
+        "workpytools.common.clipboard.win32clipboard.GetClipboardData",
         lambda fmt: [str(copied_src)],
     )
-    monkeypatch.setattr("tools.common.output.tempfile.gettempdir", lambda: str(tmpdir))
+    monkeypatch.setattr("workpytools.common.output.tempfile.gettempdir", lambda: str(tmpdir))
     clipboard_calls = []
     monkeypatch.setattr(
-        "tools.common.output.copy_file_to_clipboard", lambda p: clipboard_calls.append(p)
+        "workpytools.common.output.copy_file_to_clipboard", lambda p: clipboard_calls.append(p)
     )
 
     proc = CwcProcessor()
@@ -111,10 +111,10 @@ def test_run_from_clipboard_plain_text_copies_image_no_file(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.OpenClipboard", lambda: None
+        "workpytools.common.clipboard.win32clipboard.OpenClipboard", lambda: None
     )
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.CloseClipboard", lambda: None
+        "workpytools.common.clipboard.win32clipboard.CloseClipboard", lambda: None
     )
 
     def fake_is_available(fmt: int) -> bool:
@@ -123,17 +123,17 @@ def test_run_from_clipboard_plain_text_copies_image_no_file(
         return fmt == wc.CF_UNICODETEXT
 
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.IsClipboardFormatAvailable",
+        "workpytools.common.clipboard.win32clipboard.IsClipboardFormatAvailable",
         fake_is_available,
     )
     monkeypatch.setattr(
-        "tools.common.clipboard.win32clipboard.GetClipboardData",
+        "workpytools.common.clipboard.win32clipboard.GetClipboardData",
         lambda fmt: "今日は天気が良い。",
     )
     monkeypatch.chdir(tmp_path)
     copied = []
     monkeypatch.setattr(
-        "tools.common.output.copy_image_to_clipboard", lambda img: copied.append(img)
+        "workpytools.common.output.copy_image_to_clipboard", lambda img: copied.append(img)
     )
 
     proc = CwcProcessor()
@@ -377,7 +377,7 @@ def _fake_embed(monkeypatch: pytest.MonkeyPatch, vectors: dict) -> None:
 
 
 def test_similar_sentence_split_on_period_newline_and_halfwidth_marks() -> None:
-    from tools.processing.cwc import _SENTENCE_SPLIT_PATTERN
+    from workpytools.processing.cwc import _SENTENCE_SPLIT_PATTERN
 
     text = "今日は天気が良い。散歩した\n特になし!他は?"
     parts = [s for s in _SENTENCE_SPLIT_PATTERN.split(text) if s]
@@ -512,7 +512,7 @@ def test_similar_empty_input_returns_empty_dict(monkeypatch: pytest.MonkeyPatch)
 
 
 def test_embedding_module_does_not_import_onnxruntime_or_tokenizers_at_top_level() -> None:
-    import tools.common.embedding as mod
+    import workpytools.common.embedding as mod
 
     src = mod.__file__
     assert src is not None
