@@ -23,6 +23,49 @@ def standalone_entry_point_name(command_name: str) -> str:
     for `outline.exe`, "toolh" for the `help` command's `toolh.exe`)."""
     return _STANDALONE_NAME_OVERRIDES.get(command_name, command_name)
 
+
+# help.htmlはコマンド名のアルファベット順ではなく、何を処理するコマンドかで
+# 固めて並べる（画像処理→テキスト集計→クリップボード処理→表形式データ→
+# PowerPoint操作→その他）。カテゴリ内の順序はこの一覧の記載順。
+# 新しい処理を processing/ に追加したら、ここにも追加すること
+# （未登録の場合は「その他」カテゴリの末尾に自動で入る）。
+_CATEGORIES: list[tuple[str, list[str]]] = [
+    ("画像処理", ["touka", "denoise", "kukiri"]),
+    ("テキスト集計", ["cwc"]),
+    ("クリップボード処理", ["clipmd", "mdtsv", "clipfmt", "clipview"]),
+    ("表形式データ", ["profiler", "lsdir"]),
+    (
+        "PowerPoint操作",
+        ["outline", "ikko", "mokuji", "tbl", "seiretsu", "nagasa", "umekomi"],
+    ),
+    ("その他", ["vv", "help"]),
+]
+
+_CATEGORY_BY_COMMAND: dict[str, str] = {
+    name: category for category, names in _CATEGORIES for name in names
+}
+_ORDER_BY_COMMAND: dict[str, int] = {
+    name: i for _, names in _CATEGORIES for i, name in enumerate(names)
+}
+_CATEGORY_ORDER: dict[str, int] = {category: i for i, (category, _) in enumerate(_CATEGORIES)}
+_UNCATEGORIZED = "その他"
+
+
+def command_category(command_name: str) -> str:
+    """The category a command is grouped under in help.html. Commands not
+    yet listed in `_CATEGORIES` fall back to "その他" rather than raising,
+    so a newly added processor doesn't break help generation."""
+    return _CATEGORY_BY_COMMAND.get(command_name, _UNCATEGORIZED)
+
+
+def _sort_key(command_name: str) -> tuple[int, int, str]:
+    category = command_category(command_name)
+    return (
+        _CATEGORY_ORDER.get(category, len(_CATEGORIES)),
+        _ORDER_BY_COMMAND.get(command_name, len(_CATEGORIES)),
+        command_name,
+    )
+
 # --- Before/After 図 ----------------------------------------------------
 #
 # help.htmlは説明文だけだと頭に入りにくいため、各コマンドが「何を」
@@ -412,6 +455,7 @@ class CommandHelp:
     usage: str
     full_help: str
     standalone_name: str
+    category: str
 
 
 def collect_command_help() -> list[CommandHelp]:
@@ -419,7 +463,7 @@ def collect_command_help() -> list[CommandHelp]:
     processors = _discover_processors()
     results: list[CommandHelp] = []
 
-    for name in sorted(processors):
+    for name in sorted(processors, key=_sort_key):
         proc = processors[name]
         parser = _build_standalone_parser(proc)
         full_help = parser.format_help()
@@ -430,6 +474,7 @@ def collect_command_help() -> list[CommandHelp]:
                 usage=parser.format_usage(),
                 full_help=full_help,
                 standalone_name=standalone_entry_point_name(name),
+                category=command_category(name),
             )
         )
 
@@ -444,12 +489,17 @@ def _build_standalone_parser(proc: Processor) -> argparse.ArgumentParser:
 
 def render_help_html(commands: list[CommandHelp]) -> str:
     rows = []
+    prev_category: str | None = None
     for cmd in commands:
+        if cmd.category != prev_category:
+            rows.append(f'<h2 class="category">{html_module.escape(cmd.category)}</h2>')
+            prev_category = cmd.category
+
         diagram_svg = _render_diagram_svg(cmd.name)
         exe_name = f"{cmd.standalone_name}.exe"
         rows.append(
             "<section class=\"command\">\n"
-            f"<h2 id=\"{html_module.escape(cmd.name)}\">{html_module.escape(cmd.name)}</h2>\n"
+            f"<h3 id=\"{html_module.escape(cmd.name)}\">{html_module.escape(cmd.name)}</h3>\n"
             f"<p class=\"standalone\">単体実行: "
             f"<code>{html_module.escape(exe_name)}</code></p>\n"
             f"{diagram_svg}\n"
@@ -458,12 +508,22 @@ def render_help_html(commands: list[CommandHelp]) -> str:
             "</section>"
         )
 
-    toc_items = "\n".join(
-        f'<li><a href="#{html_module.escape(c.name)}">{html_module.escape(c.name)}</a>'
-        f' <code>({html_module.escape(c.standalone_name)}.exe)</code>'
-        f" — {html_module.escape(c.summary)}</li>"
-        for c in commands
-    )
+    toc_parts: list[str] = []
+    prev_toc_category: str | None = None
+    for c in commands:
+        if c.category != prev_toc_category:
+            if prev_toc_category is not None:
+                toc_parts.append("</ul></li>")
+            toc_parts.append(f"<li>{html_module.escape(c.category)}<ul>")
+            prev_toc_category = c.category
+        toc_parts.append(
+            f'<li><a href="#{html_module.escape(c.name)}">{html_module.escape(c.name)}</a>'
+            f' <code>({html_module.escape(c.standalone_name)}.exe)</code>'
+            f" — {html_module.escape(c.summary)}</li>"
+        )
+    if prev_toc_category is not None:
+        toc_parts.append("</ul></li>")
+    toc_items = "\n".join(toc_parts)
 
     return f"""<!doctype html>
 <html lang="ja">
@@ -483,12 +543,19 @@ body {{
   background: #fff;
 }}
 h1 {{ font-size: 1.6rem; }}
-h2 {{
-  font-size: 1.2rem;
-  margin-top: 2rem;
+h2.category {{
+  font-size: 1.35rem;
+  margin-top: 2.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid #888;
+}}
+h3 {{
+  font-size: 1.1rem;
+  margin-top: 1.6rem;
   border-bottom: 1px solid #ccc;
   padding-bottom: 0.3rem;
 }}
+nav li > ul {{ margin-bottom: 0.6rem; }}
 .summary {{ color: #555; margin: 0.3rem 0 0.8rem; }}
 .standalone {{
   color: #666;
@@ -533,7 +600,8 @@ nav code {{
 }}
 @media (prefers-color-scheme: dark) {{
   body {{ color: #ddd; background: #1e1e1e; }}
-  h2 {{ border-bottom-color: #555; }}
+  h2.category {{ border-bottom-color: #666; }}
+  h3 {{ border-bottom-color: #555; }}
   .summary {{ color: #aaa; }}
   .standalone {{ color: #aaa; }}
   .standalone code {{ background: #333; }}

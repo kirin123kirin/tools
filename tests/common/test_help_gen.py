@@ -1,6 +1,8 @@
 from workpytools.common.help_gen import (
+    _CATEGORIES,
     _DIAGRAMS,
     collect_command_help,
+    command_category,
     render_help_html,
     standalone_entry_point_name,
 )
@@ -14,10 +16,22 @@ def test_collect_command_help_includes_all_processors() -> None:
     assert "help" in names
 
 
-def test_collect_command_help_sorted_by_name() -> None:
+def test_collect_command_help_grouped_by_category_in_declared_order() -> None:
     commands = collect_command_help()
-    names = [c.name for c in commands]
-    assert names == sorted(names)
+    categories = [c.category for c in commands]
+    expected_order = [category for category, _ in _CATEGORIES]
+    # 出現するカテゴリの順序が_CATEGORIESの宣言順と一致し、
+    # かつ同じカテゴリが連続してまとまっていること
+    seen_order = []
+    for category in categories:
+        if not seen_order or seen_order[-1] != category:
+            seen_order.append(category)
+    assert len(seen_order) == len(set(categories)), "同じカテゴリが分断されている"
+    assert [c for c in expected_order if c in seen_order] == seen_order
+
+
+def test_collect_command_help_ungrouped_command_falls_back_to_other() -> None:
+    assert command_category("no_such_command") == "その他"
 
 
 def test_collect_command_help_has_summary_and_full_help() -> None:

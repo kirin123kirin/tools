@@ -5,6 +5,15 @@
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-07-27
+
+### Changed
+
+- `doc/help.html`のコマンド一覧を、名前のアルファベット順ではなく
+  処理内容によるカテゴリ順（画像処理／テキスト集計／クリップボード処理／
+  表形式データ／PowerPoint操作／その他）でグループ化して表示するように変更
+  （目次・本文の両方にカテゴリ見出しを追加）
+
 ## [0.1.6] - 2026-07-27
 
 ### Fixed
@@ -84,7 +93,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/kirin123kirin/workpytools/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/kirin123kirin/workpytools/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/kirin123kirin/workpytools/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/kirin123kirin/workpytools/compare/v0.1.3...v0.1.4
