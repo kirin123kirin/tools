@@ -5,6 +5,19 @@
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-07-28
+
+### Added
+
+- `doc/help.html`にコマンド名をクリップボードへコピーするボタンを追加
+  （サイドバーの各行と、本文の「単体実行」表示の両方）。ターミナルに
+  exe名を目視して手入力する手間を減らすため。Clipboard APIのみを使い、
+  何のプロセスも起動しない
+- `shortcut` — 全コマンドの単体実行ファイルへのスタートメニューショートカット
+  を作成/削除する（`%APPDATA%\Microsoft\Windows\Start Menu\Programs\workpytools\`
+  にショートカットファイルを配置するのみで、レジストリやスケジュールタスク
+  への登録は行わない）。アイコンは自前描画で新規同梱（`data/app.ico`）
+
 ## [0.1.10] - 2026-07-28
 
 ### Changed
@@ -126,7 +139,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.11...HEAD
+[0.1.11]: https://github.com/kirin123kirin/workpytools/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/kirin123kirin/workpytools/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/kirin123kirin/workpytools/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/kirin123kirin/workpytools/compare/v0.1.7...v0.1.8

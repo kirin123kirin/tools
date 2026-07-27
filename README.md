@@ -36,7 +36,8 @@ workpytools/
 │           ├── seiretsu.py         # PowerPointのシェイプを表に変換せず格子状に整列
 │           ├── nagasa.py           # PowerPointのシェイプの幅・高さを最大値に統一
 │           ├── umekomi.py          # PowerPointのテキストボックスをシェイプに埋め込む
-│           └── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
+│           ├── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
+│           └── shortcut.py         # 全コマンドのスタートメニューショートカットを作成/削除
 ├── tests/                  # src/workpytools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
 ├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象。
@@ -246,6 +247,12 @@ tools umekomi --dry-run
 tools help
 # 単体実行ファイルはtoolh.exe（他コマンドと違いhelp.exeという名前ではない）
 toolh
+
+# 全コマンドのスタートメニューショートカットを作成する
+tools shortcut
+
+# 作成済みのショートカットを削除する
+tools shortcut --remove
 ```
 
 `touka` は初回実行時に背景除去モデル（U2Net, rembg）をインターネットからダウンロードします。
@@ -281,6 +288,27 @@ toolh
 
 `clipview`のみ、プレビュー用に `%TEMP%\workpytools_clipview_preview.html` を固定名で生成します
 （毎回上書きするためファイルは増殖しません）。
+
+### shortcut（スタートメニューへのショートカット登録）
+
+`pip install` だけではスタートメニューにアイコンが並ばないため、`tools shortcut`
+を1回実行すると `%APPDATA%\Microsoft\Windows\Start Menu\Programs\workpytools\` に
+全コマンド分の単体実行ファイル（`touka.exe`等）へのショートカットを作成します。
+これにより、コマンド名を覚えて打ち込まなくても、スタートメニューの検索や
+一覧からクリックして起動できるようになります（引数が必要なコマンドは
+クリップボード入力モードで起動します）。
+
+- `pip install` 実行時に自動では作られません（勝手にファイルを配置しない
+  という方針のため）。導入後に一度だけ手動で実行してください
+- アイコンは同梱の `data/app.ico`（自前描画のシンプルな図形）を使います
+- `tools shortcut --remove` で作成済みのショートカットを一括削除できます
+- レジストリの変更、スケジュールタスクの登録などの永続化は一切行いません
+  （スタートメニューフォルダへのショートカットファイル配置のみです）
+
+```powershell
+tools shortcut          # 全コマンド分のショートカットを作成
+tools shortcut --remove # 作成済みのショートカットを削除
+```
 
 ### vv（定型プロンプトの呼び出し）
 
@@ -395,7 +423,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 （`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` /
 `clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` /
 `profiler.exe` / `lsdir.exe` / `outline.exe` / `ikko.exe` / `mokuji.exe` /
-`tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` など）。
+`tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` / `shortcut.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 

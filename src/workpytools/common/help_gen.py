@@ -75,6 +75,7 @@ _CATEGORIES: list[tuple[str, list[tuple[str, str]]]] = [
         [
             ("vv", "定型プロンプトをコピー"),
             ("help", "ヘルプ一覧を開く"),
+            ("shortcut", "スタートメニューに登録"),
         ],
     ),
 ]
@@ -463,6 +464,24 @@ _DIAGRAMS: dict[str, str] = {
         '<text x="95" y="52" font-size="24" font-weight="bold" '
         'text-anchor="middle" fill="currentColor">?</text>'
     ),
+    "shortcut": (
+        # before: コマンドプロンプトのウィンドウに文字入力
+        '<rect x="10" y="15" width="80" height="60" rx="3" fill="none" '
+        'stroke="currentColor" stroke-width="2"/>'
+        '<line x1="10" y1="27" x2="90" y2="27" stroke="currentColor" stroke-width="1.5"/>'
+        '<text x="16" y="45" font-size="11" font-family="Consolas, monospace" '
+        'fill="currentColor">&gt;touka.exe_</text>'
+        + _ARROW_CENTER +
+        # after: スタートメニューにアイコンが並ぶ
+        '<rect x="130" y="12" width="80" height="66" rx="3" fill="none" '
+        'stroke="currentColor" stroke-width="2"/>'
+        '<rect x="138" y="20" width="14" height="14" rx="3" fill="currentColor"/>'
+        '<line x1="156" y1="27" x2="202" y2="27" stroke="currentColor" stroke-width="2"/>'
+        '<rect x="138" y="40" width="14" height="14" rx="3" fill="currentColor"/>'
+        '<line x1="156" y1="47" x2="202" y2="47" stroke="currentColor" stroke-width="2"/>'
+        '<rect x="138" y="60" width="14" height="14" rx="3" fill="currentColor"/>'
+        '<line x1="156" y1="67" x2="202" y2="67" stroke="currentColor" stroke-width="2"/>'
+    ),
     "umekomi": (
         # before: shape（実線の四角形）の上にテキストボックス（破線の四角形）が重なる
         '<rect x="16" y="20" width="64" height="50" rx="2" fill="none" '
@@ -546,11 +565,15 @@ def render_help_html(commands: list[CommandHelp]) -> str:
 
         diagram_svg = _render_diagram_svg(cmd.name)
         exe_name = f"{cmd.standalone_name}.exe"
+        copy_name = html_module.escape(cmd.standalone_name)
         rows.append(
             "<section class=\"command\">\n"
             f"<h3 id=\"{html_module.escape(cmd.name)}\">{html_module.escape(cmd.name)}</h3>\n"
             f"<p class=\"standalone\">単体実行: "
-            f"<code>{html_module.escape(exe_name)}</code></p>\n"
+            f"<code>{html_module.escape(exe_name)}</code> "
+            f'<button type="button" class="copy-btn" data-copy="{copy_name}">'
+            "コマンド名をコピー</button>"
+            "</p>\n"
             f"{diagram_svg}\n"
             f"<p class=\"summary\">{html_module.escape(cmd.summary)}</p>\n"
             f"<pre>{html_module.escape(cmd.full_help)}</pre>\n"
@@ -569,11 +592,14 @@ def render_help_html(commands: list[CommandHelp]) -> str:
                 "<ul>"
             )
             prev_toc_category = c.category
+        copy_name = html_module.escape(c.standalone_name)
         toc_parts.append(
-            "<li>"
+            '<li class="toc-command">'
             f'<a href="#{html_module.escape(c.name)}">{html_module.escape(c.name)}'
             f'<span class="toc-summary">{html_module.escape(c.toc_summary)}</span>'
             "</a>"
+            f'<button type="button" class="copy-btn toc-copy-btn" data-copy="{copy_name}" '
+            f'title="コマンド名をコピー" aria-label="{copy_name}をコピー">⧉</button>'
             "</li>"
         )
     if prev_toc_category is not None:
@@ -656,10 +682,17 @@ nav li.toc-category:first-child {{ margin-top: 0; }}
   color: #888;
 }}
 nav li.toc-category > ul {{ margin-top: 0.15rem; margin-bottom: 0; }}
+li.toc-command {{
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}}
 nav a {{
   display: flex;
   align-items: baseline;
   gap: 0.4rem;
+  flex: 1 1 auto;
+  min-width: 0;
   text-decoration: none;
   padding: 0.08rem 0.4rem;
   border-radius: 4px;
@@ -674,6 +707,36 @@ nav a:hover {{ background: #eee; }}
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}}
+.copy-btn {{
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  color: #444;
+}}
+.toc-copy-btn {{
+  flex: 0 0 auto;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.15rem 0.35rem;
+  opacity: 0;
+  visibility: hidden;
+}}
+li.toc-command:hover .toc-copy-btn, .toc-copy-btn:focus-visible {{
+  opacity: 1;
+  visibility: visible;
+}}
+.copy-btn:hover {{ background: #eee; }}
+.copy-btn.copied {{
+  border-color: #4a8f4a;
+  color: #2f6e2f;
+}}
+.standalone .copy-btn {{
+  font-size: 0.8rem;
+  padding: 0.1rem 0.5rem;
+  margin-left: 0.3rem;
 }}
 .summary {{ color: #555; margin: 0.3rem 0 0.8rem; }}
 .standalone {{
@@ -730,6 +793,9 @@ pre {{
   .standalone code {{ background: #333; }}
   .diagram {{ color: #999; }}
   pre {{ background: #2a2a2a; }}
+  .copy-btn {{ background: #2a2a2a; border-color: #555; color: #ccc; }}
+  .copy-btn:hover {{ background: #333; }}
+  .copy-btn.copied {{ border-color: #5cb85c; color: #8fd68f; }}
 }}
 @media (max-width: 56rem) {{
   nav {{ border-bottom-color: #444; }}
@@ -789,6 +855,31 @@ pre {{
     resizer.classList.remove("dragging");
     var current = getComputedStyle(root).getPropertyValue("--nav-width");
     window.localStorage.setItem(STORAGE_KEY, parseInt(current, 10));
+  }});
+}})();
+
+(function () {{
+  // 「コマンド名をコピー」ボタン。単体実行ファイル名（exeの拡張子なし）を
+  // クリップボードへコピーするだけで、何のプロセスも起動しない。
+  // Clipboard APIというブラウザの標準・公開APIのみを使う。
+  document.querySelectorAll(".copy-btn").forEach(function (btn) {{
+    var originalLabel = btn.textContent;
+    btn.addEventListener("click", function () {{
+      var text = btn.getAttribute("data-copy");
+      navigator.clipboard.writeText(text).then(function () {{
+        btn.classList.add("copied");
+        var isIconButton = btn.classList.contains("toc-copy-btn");
+        if (!isIconButton) {{
+          btn.textContent = "コピーしました";
+        }}
+        window.setTimeout(function () {{
+          btn.classList.remove("copied");
+          if (!isIconButton) {{
+            btn.textContent = originalLabel;
+          }}
+        }}, 1200);
+      }});
+    }});
   }});
 }})();
 </script>

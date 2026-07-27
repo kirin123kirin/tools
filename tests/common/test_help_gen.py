@@ -145,9 +145,31 @@ def test_toc_command_name_not_wrapped_in_category_uppercase_element() -> None:
     assert "toc-category-label" in html
     for cmd in commands:
         anchor_start = html.index(f'href="#{cmd.name}"')
-        li_start = html.rindex("<li>", 0, anchor_start)
+        li_start = html.rindex('<li class="toc-command">', 0, anchor_start)
         li_fragment = html[li_start : anchor_start + 1]
         assert "toc-category-label" not in li_fragment
+
+
+def test_copy_button_uses_standalone_name_without_exe_suffix() -> None:
+    # コピーボタンはexe名（xxx.exe）ではなく拡張子なしのコマンド名を
+    # クリップボードにコピーする（ユーザーがタイプするのはxxxの方であり、
+    # ターミナルで".exe"まで打つ必要はないため）
+    commands = collect_command_help()
+    html = render_help_html(commands)
+    for cmd in commands:
+        assert f'data-copy="{cmd.standalone_name}"' in html
+        assert f'data-copy="{cmd.standalone_name}.exe"' not in html
+
+
+def test_copy_button_click_does_not_navigate_or_submit() -> None:
+    # コピーボタンはtype="button"でなければならない（フォーム内での暴発や
+    # デフォルトのsubmit挙動を防ぐため。今回フォームはないが将来の事故防止）
+    commands = collect_command_help()
+    html = render_help_html(commands)
+    assert 'class="copy-btn"' in html or 'class="copy-btn toc-copy-btn"' in html
+    for line in html.splitlines():
+        if "copy-btn" in line and "<button" in line:
+            assert 'type="button"' in line
 
 
 def test_rendered_html_toc_omits_exe_name_shows_only_summary() -> None:
