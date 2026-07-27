@@ -98,6 +98,7 @@ nav code {
 <li><a href="#seiretsu">seiretsu</a> <code>(seiretsu.exe)</code> — 選択したシェイプを表に変換せず格子状の位置に整列する</li>
 <li><a href="#tbl">tbl</a> <code>(tbl.exe)</code> — PowerPointの表とシェイプ群を相互変換する（表分解/表合成/行分割）</li>
 <li><a href="#touka">touka</a> <code>(touka.exe)</code> — 画像の背景を透過する（ファイルパス／クリップボード入力対応）</li>
+<li><a href="#umekomi">umekomi</a> <code>(umekomi.exe)</code> — shapeの上に重ねて配置されたテキストボックスをshapeに埋め込む</li>
 <li><a href="#vv">vv</a> <code>(vv.exe)</code> — 定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）</li>
 </ul>
 </nav>
@@ -433,6 +434,20 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         出力先パス（省略時は自動生成、拡張子はpng）
+</pre>
+</section>
+<section class="command">
+<h2 id="umekomi">umekomi</h2>
+<p class="standalone">単体実行: <code>umekomi.exe</code></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="16" y="20" width="64" height="50" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="28" y="35" width="52" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3,2"/><text x="54" y="49" font-size="11" text-anchor="middle" fill="currentColor">Text</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="136" y="20" width="64" height="50" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><text x="168" y="49" font-size="11" text-anchor="middle" fill="currentColor">Text</text></g></svg></div>
+<p class="summary">shapeの上に重ねて配置されたテキストボックスをshapeに埋め込む</p>
+<pre>usage: umekomi [-h] [--dry-run]
+
+shapeの上に重ねて配置されたテキストボックスをshapeに埋め込む
+
+options:
+  -h, --help  show this help message and exit
+  --dry-run   実際には変更せず、埋め込み対象になる組み合わせを表示するだけにする
 </pre>
 </section>
 <section class="command">

@@ -5,6 +5,14 @@
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-07-27
+
+### Added
+
+- `umekomi` — PowerPointのシェイプの上に重ねて配置されたテキストボックスを
+  シェイプ本体に埋め込む（テキストボックスの中心座標がシェイプの矩形内に
+  入っている組み合わせを対象とし、複数重なる場合は上下位置順に結合）
+
 ## [0.1.4] - 2026-07-27
 
 ### Changed
@@ -66,7 +74,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/kirin123kirin/workpytools/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/kirin123kirin/workpytools/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/kirin123kirin/workpytools/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/kirin123kirin/workpytools/compare/v0.1.1...v0.1.2

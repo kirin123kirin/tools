@@ -373,6 +373,21 @@ _DIAGRAMS: dict[str, str] = {
         '<text x="95" y="52" font-size="24" font-weight="bold" '
         'text-anchor="middle" fill="currentColor">?</text>'
     ),
+    "umekomi": (
+        # before: shape（実線の四角形）の上にテキストボックス（破線の四角形）が重なる
+        '<rect x="16" y="20" width="64" height="50" rx="2" fill="none" '
+        'stroke="currentColor" stroke-width="2.2"/>'
+        '<rect x="28" y="35" width="52" height="20" rx="1.5" fill="none" '
+        'stroke="currentColor" stroke-width="2" stroke-dasharray="3,2"/>'
+        '<text x="54" y="49" font-size="11" text-anchor="middle" '
+        'fill="currentColor">Text</text>'
+        + _ARROW_CENTER +
+        # after: shape本体にテキストが収まり、テキストボックスの枠は消える
+        '<rect x="136" y="20" width="64" height="50" rx="2" fill="none" '
+        'stroke="currentColor" stroke-width="2.2"/>'
+        '<text x="168" y="49" font-size="11" text-anchor="middle" '
+        'fill="currentColor">Text</text>'
+    ),
 }
 
 

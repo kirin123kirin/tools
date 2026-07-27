@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "workpytools"
-version = "0.1.4"
+version = "0.1.5"
 description = "Collection of Python processing utilities"
 requires-python = ">=3.11"
 readme = "README.md"
@@ -58,6 +58,7 @@ mokuji = "workpytools.cli:run_as_subcommand"
 tbl = "workpytools.cli:run_as_subcommand"
 seiretsu = "workpytools.cli:run_as_subcommand"
 nagasa = "workpytools.cli:run_as_subcommand"
+umekomi = "workpytools.cli:run_as_subcommand"
 # help コマンドの単体エントリーポイントのみ toolh という別名にする
 # （run_as_subcommand内の_ENTRY_POINT_ALIASESでhelpにマッピングされる）。
 toolh = "workpytools.cli:run_as_subcommand"

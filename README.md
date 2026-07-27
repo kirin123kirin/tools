@@ -35,6 +35,7 @@ workpytools/
 │           ├── tbl.py              # PowerPointの表とシェイプ群を相互変換（分解/合成/行分割）
 │           ├── seiretsu.py         # PowerPointのシェイプを表に変換せず格子状に整列
 │           ├── nagasa.py           # PowerPointのシェイプの幅・高さを最大値に統一
+│           ├── umekomi.py          # PowerPointのテキストボックスをシェイプに埋め込む
 │           └── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
 ├── tests/                  # src/workpytools と同じ階層構造でテストを配置
 ├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
@@ -233,6 +234,14 @@ tools seiretsu
 # 選択したシェイプの幅・高さを最大値に統一する（中心を保ったまま拡大）
 tools nagasa
 
+# shapeの上に重ねて配置されたテキストボックスをshapeに埋め込む
+# （選択したシェイプ群が対象。中心座標が重なるテキストボックスをshapeに統合し、
+#  元のテキストボックスは削除する）
+tools umekomi
+
+# 実際には変更せず、埋め込み対象になる組み合わせだけを確認する
+tools umekomi --dry-run
+
 # 全コマンドのヘルプ一覧（doc/help.html）をブラウザで開く
 tools help
 # 単体実行ファイルはtoolh.exe（他コマンドと違いhelp.exeという名前ではない）
@@ -316,7 +325,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 場合のみ解決します（`WScript.Shell`経由）。複数フォルダを指定して起点が
 重複する場合はフルパスで自動的に重複除去されます。
 
-### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa）
+### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi）
 
 いずれも実行中のPowerPointを対象にします（`pywin32`経由、`python-pptx`は
 「開いているファイル」を操作できないため使いません）。役割は以下の通りです。
@@ -329,6 +338,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 | `tbl` | PowerPointの表とシェイプ群を相互変換する（選択状態から自動判定） |
 | `seiretsu` | 選択したシェイプを表に変換せず格子状の位置に整列する |
 | `nagasa` | 選択したシェイプの幅・高さを最大値に統一する |
+| `umekomi` | 選択したシェイプの上に重ねて置かれたテキストボックスをシェイプ本体に埋め込む |
 
 - `outline`はクリップボードのテキストを**Markdown見出し（`#`等）／タブ区切り
   ／空行区切り**の3形式から自動判別し、抽出した項目ぶんのスライドを
@@ -368,12 +378,24 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
   編集した際にサイズが自動調整で巻き戻る事故が実機で確認されたため、
   リサイズ前に対象シェイプの`AutoSize`を無効化します**。2つ以上選択
   されていない場合はエラーになります
+- `umekomi`は選択したシェイプ群の中から、図形種別が**テキストボックス
+  （`msoTextBox`）のもの**とそれ以外（埋め込み先シェイプ）を区別し、
+  テキストボックスの**中心座標**が埋め込み先シェイプの矩形内に入っている
+  組み合わせを埋め込み対象とします。1つのシェイプに複数のテキストボックスが
+  重なる場合は、上下位置（`Top`）の順に改行区切りで結合します。
+  埋め込み先シェイプに元々テキストがある場合は、テキストボックスが
+  シェイプの垂直中心より下にあれば末尾へ、上にあれば先頭へ追加します。
+  書式（フォント名・サイズ・太字・色・配置）は最も上にあるテキストボックス
+  のものを採用します。埋め込み後、元のテキストボックスは削除されます。
+  `ikko`と同じくUndo境界を必ず打つため、Ctrl+Z一回で元に戻せます。
+  `--dry-run`で実際に変更せず対象を確認できます。2つ以上選択されていない
+  場合はエラーになります
 
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
 （`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` /
 `clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` /
 `profiler.exe` / `lsdir.exe` / `outline.exe` / `ikko.exe` / `mokuji.exe` /
-`tbl.exe` / `seiretsu.exe` / `nagasa.exe` など）。
+`tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 
