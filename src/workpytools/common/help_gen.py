@@ -514,7 +514,11 @@ def render_help_html(commands: list[CommandHelp]) -> str:
         if c.category != prev_toc_category:
             if prev_toc_category is not None:
                 toc_parts.append("</ul></li>")
-            toc_parts.append(f'<li class="toc-category">{html_module.escape(c.category)}<ul>')
+            toc_parts.append(
+                '<li class="toc-category">'
+                f'<span class="toc-category-label">{html_module.escape(c.category)}</span>'
+                "<ul>"
+            )
             prev_toc_category = c.category
         toc_parts.append(
             "<li>"
@@ -534,7 +538,7 @@ def render_help_html(commands: list[CommandHelp]) -> str:
 <meta http-equiv="Cache-Control" content="no-store">
 <title>tools コマンドヘルプ</title>
 <style>
-:root {{ color-scheme: light dark; }}
+:root {{ color-scheme: light dark; --nav-width: 36rem; }}
 * {{ box-sizing: border-box; }}
 body {{
   margin: 0;
@@ -548,8 +552,8 @@ body {{
   align-items: flex-start;
 }}
 nav {{
-  flex: 0 0 18rem;
-  width: 18rem;
+  flex: 0 0 var(--nav-width);
+  width: var(--nav-width);
   position: sticky;
   top: 0;
   height: 100vh;
@@ -557,6 +561,18 @@ nav {{
   padding: 1.5rem 1rem;
   border-right: 1px solid #ddd;
   background: #fafafa;
+}}
+#nav-resizer {{
+  flex: 0 0 6px;
+  width: 6px;
+  cursor: col-resize;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: transparent;
+}}
+#nav-resizer:hover, #nav-resizer.dragging {{
+  background: #99c2ff;
 }}
 main {{
   flex: 1 1 auto;
@@ -580,15 +596,16 @@ h3 {{
   padding-bottom: 0.3rem;
 }}
 nav ul {{ list-style: none; padding-left: 0; margin: 0; }}
-nav li.toc-category {{
+nav li.toc-category {{ margin-top: 1.2rem; }}
+nav li.toc-category:first-child {{ margin-top: 0; }}
+.toc-category-label {{
+  display: block;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: #888;
-  margin-top: 1.2rem;
 }}
-nav li.toc-category:first-child {{ margin-top: 0; }}
 nav li.toc-category > ul {{ margin-top: 0.4rem; margin-bottom: 0.2rem; }}
 nav a {{
   display: block;
@@ -642,6 +659,7 @@ pre {{
     border-right: none;
     border-bottom: 1px solid #ddd;
   }}
+  #nav-resizer {{ display: none; }}
   main {{ margin: 0; max-width: none; }}
 }}
 @media (prefers-color-scheme: dark) {{
@@ -649,8 +667,9 @@ pre {{
   nav {{ background: #181818; border-right-color: #444; }}
   nav a {{ color: #ddd; }}
   nav a:hover {{ background: #2a2a2a; }}
-  nav li.toc-category {{ color: #999; }}
+  .toc-category-label {{ color: #999; }}
   .toc-summary {{ color: #999; }}
+  #nav-resizer:hover, #nav-resizer.dragging {{ background: #3a5a8a; }}
   h2.category {{ border-bottom-color: #666; }}
   h3 {{ border-bottom-color: #555; }}
   .summary {{ color: #aaa; }}
@@ -666,16 +685,60 @@ pre {{
 </head>
 <body>
 <div class="layout">
-<nav>
+<nav id="nav-sidebar">
 <h1>tools コマンド一覧</h1>
 <ul>
 {toc_items}
 </ul>
 </nav>
+<div id="nav-resizer"></div>
 <main>
 {chr(10).join(rows)}
 </main>
 </div>
+<script>
+(function () {{
+  // サイドバー幅をドラッグで調整できるようにする。localStorageに保存し、
+  // 次回開いたときも同じ幅を復元する。外部通信・外部ライブラリは使わない。
+  var STORAGE_KEY = "workpytools-help-nav-width";
+  var MIN_WIDTH = 200;
+  var MAX_WIDTH = 800;
+  var root = document.documentElement;
+  var resizer = document.getElementById("nav-resizer");
+
+  var saved = window.localStorage.getItem(STORAGE_KEY);
+  if (saved) {{
+    var width = parseInt(saved, 10);
+    if (width >= MIN_WIDTH && width <= MAX_WIDTH) {{
+      root.style.setProperty("--nav-width", width + "px");
+    }}
+  }}
+
+  var dragging = false;
+
+  resizer.addEventListener("mousedown", function (event) {{
+    dragging = true;
+    resizer.classList.add("dragging");
+    event.preventDefault();
+  }});
+
+  document.addEventListener("mousemove", function (event) {{
+    if (!dragging) return;
+    var width = event.clientX;
+    if (width < MIN_WIDTH) width = MIN_WIDTH;
+    if (width > MAX_WIDTH) width = MAX_WIDTH;
+    root.style.setProperty("--nav-width", width + "px");
+  }});
+
+  document.addEventListener("mouseup", function () {{
+    if (!dragging) return;
+    dragging = false;
+    resizer.classList.remove("dragging");
+    var current = getComputedStyle(root).getPropertyValue("--nav-width");
+    window.localStorage.setItem(STORAGE_KEY, parseInt(current, 10));
+  }});
+}})();
+</script>
 </body>
 </html>
 """

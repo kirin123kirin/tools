@@ -58,6 +58,18 @@ def test_render_help_html_has_charset_and_no_external_refs() -> None:
     assert "https://" not in style_section
 
 
+def test_render_help_html_script_has_no_external_refs_or_src() -> None:
+    # サイドバーのドラッグリサイズ用JSはlocalStorageのみを使い、
+    # 外部ホストへの通信や外部スクリプトの読み込みを一切行わない
+    commands = collect_command_help()
+    html = render_help_html(commands)
+    assert "<script>" in html
+    script_section = html.split("<script>")[1].split("</script>")[0]
+    assert "http://" not in script_section
+    assert "https://" not in script_section
+    assert "<script src=" not in html
+
+
 # --- Before/After 図 ---
 
 
@@ -114,12 +126,26 @@ def test_rendered_html_shows_exe_name_for_every_command() -> None:
         assert f"{cmd.standalone_name}.exe" in section
 
 
+def test_toc_command_name_not_wrapped_in_category_uppercase_element() -> None:
+    # カテゴリ見出しのuppercase装飾がコマンド名側の<a>に継承されないよう、
+    # カテゴリラベルは専用の<span class="toc-category-label">に分離されている
+    # べきで、コマンド名の<a>がそのtext-transformの対象にならないようにする
+    commands = collect_command_help()
+    html = render_help_html(commands)
+    assert "toc-category-label" in html
+    for cmd in commands:
+        anchor_start = html.index(f'href="#{cmd.name}"')
+        li_start = html.rindex("<li>", 0, anchor_start)
+        li_fragment = html[li_start : anchor_start + 1]
+        assert "toc-category-label" not in li_fragment
+
+
 def test_rendered_html_toc_omits_exe_name_shows_only_summary() -> None:
     # TOCはサイドバー表示のためコマンド名と要約のみとし、exe名は
     # 本文側（<section>内）でのみ表示する
     commands = collect_command_help()
     html = render_help_html(commands)
-    nav_section = html.split("<nav>")[1].split("</nav>")[0]
+    nav_section = html.split("<nav ")[1].split("</nav>")[0]
     assert "toolh.exe" not in nav_section
     for cmd in commands:
         assert f'href="#{cmd.name}"' in nav_section

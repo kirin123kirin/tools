@@ -5,6 +5,22 @@
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-07-27
+
+### Fixed
+
+- `doc/help.html`: サイドバーのカテゴリ見出しに適用していた
+  `text-transform: uppercase`が、同じ`<li>`内の子要素であるコマンド名
+  リンクにも継承され、コマンド名が全て大文字表示になっていたバグを修正
+  （カテゴリラベルを専用の`<span>`に分離）
+
+### Changed
+
+- `doc/help.html`のサイドバー幅を18remから36remに拡大
+- サイドバーとメイン領域の境界をマウスドラッグでリサイズできるようにし、
+  幅は`localStorage`に保存して次回起動時も復元する
+  （外部通信・外部ライブラリは使わない、素のJavaScriptのみ）
+
 ## [0.1.8] - 2026-07-27
 
 ### Changed
@@ -101,7 +117,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/kirin123kirin/workpytools/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/kirin123kirin/workpytools/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/kirin123kirin/workpytools/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/kirin123kirin/workpytools/compare/v0.1.5...v0.1.6
