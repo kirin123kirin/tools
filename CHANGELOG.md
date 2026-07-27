@@ -5,6 +5,14 @@
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-07-27
+
+### Changed
+
+- `doc/help.html`のレイアウトを左サイドバー固定のTOC構成に変更
+  （`position: sticky`でスクロールに追従、TOC項目はexe名を省略し
+  コマンド名と要約のみを表示。画面幅が狭い場合は従来の縦積みに戻る）
+
 ## [0.1.7] - 2026-07-27
 
 ### Changed
@@ -93,7 +101,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/kirin123kirin/workpytools/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/kirin123kirin/workpytools/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/kirin123kirin/workpytools/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/kirin123kirin/workpytools/compare/v0.1.4...v0.1.5

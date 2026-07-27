@@ -514,12 +514,14 @@ def render_help_html(commands: list[CommandHelp]) -> str:
         if c.category != prev_toc_category:
             if prev_toc_category is not None:
                 toc_parts.append("</ul></li>")
-            toc_parts.append(f"<li>{html_module.escape(c.category)}<ul>")
+            toc_parts.append(f'<li class="toc-category">{html_module.escape(c.category)}<ul>')
             prev_toc_category = c.category
         toc_parts.append(
-            f'<li><a href="#{html_module.escape(c.name)}">{html_module.escape(c.name)}</a>'
-            f' <code>({html_module.escape(c.standalone_name)}.exe)</code>'
-            f" — {html_module.escape(c.summary)}</li>"
+            "<li>"
+            f'<a href="#{html_module.escape(c.name)}">{html_module.escape(c.name)}'
+            f'<span class="toc-summary">{html_module.escape(c.summary)}</span>'
+            "</a>"
+            "</li>"
         )
     if prev_toc_category is not None:
         toc_parts.append("</ul></li>")
@@ -533,29 +535,76 @@ def render_help_html(commands: list[CommandHelp]) -> str:
 <title>tools コマンドヘルプ</title>
 <style>
 :root {{ color-scheme: light dark; }}
+* {{ box-sizing: border-box; }}
 body {{
-  max-width: 50rem;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  margin: 0;
   font-family: -apple-system, "Segoe UI", sans-serif;
   line-height: 1.6;
   color: #222;
   background: #fff;
 }}
-h1 {{ font-size: 1.6rem; }}
+.layout {{
+  display: flex;
+  align-items: flex-start;
+}}
+nav {{
+  flex: 0 0 18rem;
+  width: 18rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 1.5rem 1rem;
+  border-right: 1px solid #ddd;
+  background: #fafafa;
+}}
+main {{
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 50rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 3rem;
+}}
+nav h1 {{ font-size: 1.15rem; margin: 0 0 1rem; }}
 h2.category {{
   font-size: 1.35rem;
   margin-top: 2.5rem;
   padding-bottom: 0.4rem;
   border-bottom: 2px solid #888;
 }}
+main > h2.category:first-child {{ margin-top: 0; }}
 h3 {{
   font-size: 1.1rem;
   margin-top: 1.6rem;
   border-bottom: 1px solid #ccc;
   padding-bottom: 0.3rem;
 }}
-nav li > ul {{ margin-bottom: 0.6rem; }}
+nav ul {{ list-style: none; padding-left: 0; margin: 0; }}
+nav li.toc-category {{
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #888;
+  margin-top: 1.2rem;
+}}
+nav li.toc-category:first-child {{ margin-top: 0; }}
+nav li.toc-category > ul {{ margin-top: 0.4rem; margin-bottom: 0.2rem; }}
+nav a {{
+  display: block;
+  text-decoration: none;
+  padding: 0.3rem 0.4rem;
+  border-radius: 4px;
+  color: #222;
+}}
+nav a:hover {{ background: #eee; }}
+.toc-summary {{
+  display: block;
+  font-size: 0.75rem;
+  color: #777;
+  font-weight: normal;
+  white-space: normal;
+}}
 .summary {{ color: #555; margin: 0.3rem 0 0.8rem; }}
 .standalone {{
   color: #666;
@@ -568,26 +617,12 @@ nav li > ul {{ margin-bottom: 0.6rem; }}
   border-radius: 3px;
   font-family: Consolas, "Courier New", monospace;
 }}
-nav .standalone-hint {{
-  font-size: 0.8rem;
-  color: #888;
-}}
 pre {{
   background: #f5f5f5;
   padding: 0.8rem;
   overflow-x: auto;
   font-family: Consolas, "Courier New", monospace;
   font-size: 0.85rem;
-}}
-nav ul {{ padding-left: 1.2rem; }}
-nav a {{ text-decoration: none; }}
-nav a:hover {{ text-decoration: underline; }}
-nav code {{
-  background: #eee;
-  padding: 0.05rem 0.3rem;
-  border-radius: 3px;
-  font-family: Consolas, "Courier New", monospace;
-  font-size: 0.8rem;
 }}
 .diagram {{
   margin: 0.4rem 0 0.6rem;
@@ -598,28 +633,49 @@ nav code {{
   max-width: 22rem;
   height: auto;
 }}
+@media (max-width: 56rem) {{
+  .layout {{ display: block; }}
+  nav {{
+    position: static;
+    width: auto;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }}
+  main {{ margin: 0; max-width: none; }}
+}}
 @media (prefers-color-scheme: dark) {{
   body {{ color: #ddd; background: #1e1e1e; }}
+  nav {{ background: #181818; border-right-color: #444; }}
+  nav a {{ color: #ddd; }}
+  nav a:hover {{ background: #2a2a2a; }}
+  nav li.toc-category {{ color: #999; }}
+  .toc-summary {{ color: #999; }}
   h2.category {{ border-bottom-color: #666; }}
   h3 {{ border-bottom-color: #555; }}
   .summary {{ color: #aaa; }}
   .standalone {{ color: #aaa; }}
   .standalone code {{ background: #333; }}
-  nav code {{ background: #333; }}
-  nav .standalone-hint {{ color: #888; }}
   .diagram {{ color: #999; }}
   pre {{ background: #2a2a2a; }}
+}}
+@media (max-width: 56rem) {{
+  nav {{ border-bottom-color: #444; }}
 }}
 </style>
 </head>
 <body>
-<h1>tools コマンド一覧</h1>
+<div class="layout">
 <nav>
+<h1>tools コマンド一覧</h1>
 <ul>
 {toc_items}
 </ul>
 </nav>
+<main>
 {chr(10).join(rows)}
+</main>
+</div>
 </body>
 </html>
 """

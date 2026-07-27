@@ -114,9 +114,13 @@ def test_rendered_html_shows_exe_name_for_every_command() -> None:
         assert f"{cmd.standalone_name}.exe" in section
 
 
-def test_rendered_html_toc_shows_exe_name() -> None:
+def test_rendered_html_toc_omits_exe_name_shows_only_summary() -> None:
+    # TOCはサイドバー表示のためコマンド名と要約のみとし、exe名は
+    # 本文側（<section>内）でのみ表示する
     commands = collect_command_help()
     html = render_help_html(commands)
-    help_cmd = next(c for c in commands if c.name == "help")
-    assert "toolh.exe" in html
-    assert f"{help_cmd.standalone_name}.exe" in html
+    nav_section = html.split("<nav>")[1].split("</nav>")[0]
+    assert "toolh.exe" not in nav_section
+    for cmd in commands:
+        assert f'href="#{cmd.name}"' in nav_section
+        assert cmd.summary in nav_section
