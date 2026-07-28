@@ -161,6 +161,18 @@ def test_copy_button_uses_standalone_name_without_exe_suffix() -> None:
         assert f'data-copy="{cmd.standalone_name}.exe"' not in html
 
 
+def test_copy_button_script_has_fallback_when_clipboard_api_unavailable() -> None:
+    # navigator.clipboard.writeTextはfile://で開いた場合や特定のブラウザ
+    # 設定下では存在しない/失敗しうるため、execCommand("copy")によるフォール
+    # バックを備えていること（コピーが完全に無反応になるのを防ぐ）
+    commands = collect_command_help()
+    html = render_help_html(commands)
+    script_section = html.split("<script>")[-1].split("</script>")[0]
+    assert "fallbackCopy" in script_section
+    assert 'execCommand("copy")' in script_section
+    assert "navigator.clipboard" in script_section
+
+
 def test_copy_button_click_does_not_navigate_or_submit() -> None:
     # コピーボタンはtype="button"でなければならない（フォーム内での暴発や
     # デフォルトのsubmit挙動を防ぐため。今回フォームはないが将来の事故防止）

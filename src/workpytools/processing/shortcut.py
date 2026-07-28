@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import logging
 
-from workpytools.cli import _ENTRY_POINT_ALIASES, _discover_processors
+from workpytools.cli import _discover_processors
 from workpytools.common.help_gen import standalone_entry_point_name
 from workpytools.common.shortcuts import (
     StartMenuLocationError,
@@ -21,7 +21,6 @@ def _all_standalone_names() -> list[str]:
     e.g. "touka", "toolh" for help."""
     processors = _discover_processors()
     names = {standalone_entry_point_name(name) for name in processors}
-    names.update(_ENTRY_POINT_ALIASES)
     return sorted(names)
 
 

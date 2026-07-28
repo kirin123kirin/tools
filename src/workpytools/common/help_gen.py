@@ -733,6 +733,10 @@ li.toc-command:hover .toc-copy-btn, .toc-copy-btn:focus-visible {{
   border-color: #4a8f4a;
   color: #2f6e2f;
 }}
+.copy-btn.copy-failed {{
+  border-color: #c0504d;
+  color: #a33;
+}}
 .standalone .copy-btn {{
   font-size: 0.8rem;
   padding: 0.1rem 0.5rem;
@@ -796,6 +800,7 @@ pre {{
   .copy-btn {{ background: #2a2a2a; border-color: #555; color: #ccc; }}
   .copy-btn:hover {{ background: #333; }}
   .copy-btn.copied {{ border-color: #5cb85c; color: #8fd68f; }}
+  .copy-btn.copy-failed {{ border-color: #d9736c; color: #e08a84; }}
 }}
 @media (max-width: 56rem) {{
   nav {{ border-bottom-color: #444; }}
@@ -862,23 +867,54 @@ pre {{
   // 「コマンド名をコピー」ボタン。単体実行ファイル名（exeの拡張子なし）を
   // クリップボードへコピーするだけで、何のプロセスも起動しない。
   // Clipboard APIというブラウザの標準・公開APIのみを使う。
+  function fallbackCopy(text) {{
+    // Clipboard APIが使えない環境（file://での制限、権限拒否など）向けの
+    // フォールバック。非表示のtextareaを使う非推奨APIだが、コピー機能が
+    // 完全に無反応になるよりはよい。
+    var textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    var ok = false;
+    try {{
+      ok = document.execCommand("copy");
+    }} catch (e) {{
+      ok = false;
+    }}
+    document.body.removeChild(textarea);
+    return ok;
+  }}
+
   document.querySelectorAll(".copy-btn").forEach(function (btn) {{
     var originalLabel = btn.textContent;
     btn.addEventListener("click", function () {{
       var text = btn.getAttribute("data-copy");
-      navigator.clipboard.writeText(text).then(function () {{
-        btn.classList.add("copied");
-        var isIconButton = btn.classList.contains("toc-copy-btn");
+      var isIconButton = btn.classList.contains("toc-copy-btn");
+
+      function showResult(ok) {{
+        btn.classList.add(ok ? "copied" : "copy-failed");
         if (!isIconButton) {{
-          btn.textContent = "コピーしました";
+          btn.textContent = ok ? "コピーしました" : "コピーできませんでした";
         }}
         window.setTimeout(function () {{
-          btn.classList.remove("copied");
+          btn.classList.remove("copied", "copy-failed");
           if (!isIconButton) {{
             btn.textContent = originalLabel;
           }}
         }}, 1200);
-      }});
+      }}
+
+      if (window.navigator.clipboard && window.navigator.clipboard.writeText) {{
+        window.navigator.clipboard.writeText(text).then(
+          function () {{ showResult(true); }},
+          function () {{ showResult(fallbackCopy(text)); }}
+        );
+      }} else {{
+        showResult(fallbackCopy(text));
+      }}
     }});
   }});
 }})();

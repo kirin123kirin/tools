@@ -5,6 +5,17 @@
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-07-28
+
+### Fixed
+
+- `doc/help.html`: コピーボタンが`navigator.clipboard.writeText()`失敗時に
+  無反応になる問題を修正。`execCommand("copy")`によるフォールバックを追加し、
+  成功/失敗をボタンの見た目でも区別するようにした
+- `shortcut`: `_all_standalone_names()`内の冗長かつ意図の分かりにくい
+  `names.update(_ENTRY_POINT_ALIASES)`を削除（実害はなかったが、
+  `standalone_entry_point_name()`が既に別名変換を行っているため不要だった）
+
 ## [0.1.11] - 2026-07-28
 
 ### Added
@@ -139,7 +150,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.11...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.12...HEAD
+[0.1.12]: https://github.com/kirin123kirin/workpytools/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/kirin123kirin/workpytools/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/kirin123kirin/workpytools/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/kirin123kirin/workpytools/compare/v0.1.8...v0.1.9

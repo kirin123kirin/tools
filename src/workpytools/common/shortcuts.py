@@ -39,6 +39,11 @@ def scripts_dir() -> Path:
     is the answer. In a base install (e.g. pyenv-win), `python.exe` lives
     one level above `Scripts/`, so it has to be appended. Prefer whichever
     of the two actually contains `tools.exe`, our own console_script.
+
+    Not accounted for: `pip install --user`, which places scripts under
+    `%APPDATA%\\Python\\PythonXY\\Scripts` rather than next to the
+    interpreter. README only documents the venv setup, so this is out of
+    scope for now.
     """
     interpreter_dir = Path(sys.executable).parent
     if (interpreter_dir / "tools.exe").exists():

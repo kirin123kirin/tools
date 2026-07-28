@@ -6,13 +6,23 @@ import pytest
 
 from workpytools.common.shortcuts import StartMenuLocationError
 from workpytools.processing import shortcut as shortcut_module
-from workpytools.processing.shortcut import ShortcutProcessor
+from workpytools.processing.shortcut import ShortcutProcessor, _all_standalone_names
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:
     defaults: dict[str, object] = dict(remove=False)
     defaults.update(overrides)
     return argparse.Namespace(**defaults)
+
+
+def test_all_standalone_names_has_no_duplicate_for_aliased_command() -> None:
+    # helpコマンドのexe名は"toolh"に別名化されているため、"help"という名前が
+    # 別途混入して重複登録されないこと（standalone_entry_point_nameが既に
+    # 別名を反映しているので、素朴に処理名の集合を取るだけでよい）
+    names = _all_standalone_names()
+    assert names.count("toolh") == 1
+    assert "help" not in names
+    assert "shortcut" in names
 
 
 def test_run_creates_shortcuts_for_all_commands(
