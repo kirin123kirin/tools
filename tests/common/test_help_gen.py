@@ -68,6 +68,17 @@ def test_render_help_html_has_charset_and_no_external_refs() -> None:
     assert "https://" not in style_section
 
 
+def test_render_help_html_script_computes_autofit_width_when_no_saved_width() -> None:
+    # 初回表示（localStorageに保存済み幅がない）時は、最も長いコマンド名+
+    # 要約が折り返さずに収まる幅を実測して--nav-widthに設定する
+    commands = collect_command_help()
+    html = render_help_html(commands)
+    script_section = html.split("<script>")[1].split("</script>")[0]
+    assert "autofitWidth" in script_section
+    assert "scrollWidth" in script_section
+    assert 'nav.querySelectorAll("li.toc-command")' in script_section
+
+
 def test_render_help_html_script_has_no_external_refs_or_src() -> None:
     # サイドバーのドラッグリサイズ用JSはlocalStorageのみを使い、
     # 外部ホストへの通信や外部スクリプトの読み込みを一切行わない

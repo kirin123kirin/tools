@@ -5,6 +5,15 @@
 
 ## [Unreleased]
 
+## [0.1.13] - 2026-07-28
+
+### Added
+
+- `doc/help.html`のサイドバー幅を初回表示時に自動計算するようにした
+  （最も長いコマンド名+要約が折り返さずに収まる幅を実測、200〜800pxの
+  範囲でクランプ）。ドラッグでの手動調整・幅の記憶は従来通り機能し、
+  一度手動調整すると次回以降はその値を優先する
+
 ## [0.1.12] - 2026-07-28
 
 ### Fixed
@@ -150,7 +159,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.12...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.13...HEAD
+[0.1.13]: https://github.com/kirin123kirin/workpytools/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/kirin123kirin/workpytools/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/kirin123kirin/workpytools/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/kirin123kirin/workpytools/compare/v0.1.9...v0.1.10

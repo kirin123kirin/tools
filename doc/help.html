@@ -635,6 +635,22 @@ options:
   var MAX_WIDTH = 800;
   var root = document.documentElement;
   var resizer = document.getElementById("nav-resizer");
+  var nav = document.getElementById("nav-sidebar");
+
+  function autofitWidth() {
+    // 最も長いコマンド名+要約の行が折り返さずに収まる幅を実測する。
+    // 各<li>のscrollWidthはpadding込みの必要幅を返すため、そのまま
+    // navの左右paddingを足せば「はみ出さない幅」になる。
+    var items = nav.querySelectorAll("li.toc-command");
+    var maxItemWidth = 0;
+    items.forEach(function (item) {
+      if (item.scrollWidth > maxItemWidth) maxItemWidth = item.scrollWidth;
+    });
+    var navStyle = getComputedStyle(nav);
+    var horizontalPadding =
+      parseFloat(navStyle.paddingLeft) + parseFloat(navStyle.paddingRight);
+    return Math.round(maxItemWidth + horizontalPadding);
+  }
 
   var saved = window.localStorage.getItem(STORAGE_KEY);
   if (saved) {
@@ -642,6 +658,11 @@ options:
     if (width >= MIN_WIDTH && width <= MAX_WIDTH) {
       root.style.setProperty("--nav-width", width + "px");
     }
+  } else {
+    var fitted = autofitWidth();
+    if (fitted < MIN_WIDTH) fitted = MIN_WIDTH;
+    if (fitted > MAX_WIDTH) fitted = MAX_WIDTH;
+    root.style.setProperty("--nav-width", fitted + "px");
   }
 
   var dragging = false;
