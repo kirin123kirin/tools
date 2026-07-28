@@ -17,7 +17,7 @@ _MSO_GROUP = 6  # msoGroup
 _DEFAULT_FONT = "メイリオ"
 
 
-class MfontProcessor(Processor):
+class MerioallProcessor(Processor):
     """Set the Japanese (far-east) font to Meiryo across the whole
     presentation: the theme's font scheme, every placeholder on every
     slide master/layout, and every shape's text on every slide (recursing
@@ -27,7 +27,7 @@ class MfontProcessor(Processor):
     a text frame (HasTextFrame) are touched.
     """
 
-    name = "mfont"
+    name = "merioall"
     help = "テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する"
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:

@@ -68,7 +68,7 @@ _CATEGORIES: list[tuple[str, list[tuple[str, str]]]] = [
             ("seiretsu", "シェイプを格子状に整列"),
             ("nagasa", "シェイプのサイズを統一"),
             ("umekomi", "テキストボックスを埋め込み"),
-            ("mfont", "和文フォントをメイリオに統一"),
+            ("merioall", "和文フォントをメイリオに統一"),
         ],
     ),
     (
@@ -498,7 +498,7 @@ _DIAGRAMS: dict[str, str] = {
         '<text x="168" y="49" font-size="11" text-anchor="middle" '
         'fill="currentColor">Text</text>'
     ),
-    "mfont": (
+    "merioall": (
         # before: 書体がバラバラな「あ」の文字3つ（フォント不統一を表現）
         '<text x="24" y="55" font-size="30" font-family="serif" '
         'fill="currentColor">あ</text>'
