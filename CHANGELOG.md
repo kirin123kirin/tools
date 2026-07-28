@@ -5,6 +5,16 @@
 
 ## [Unreleased]
 
+## [0.1.14] - 2026-07-28
+
+### Added
+
+- `mfont` — テーマ・スライドマスター（レイアウト含む）・全スライド上の
+  既存シェイプ（グループ内を再帰的に含む）の和文フォントをメイリオに
+  一括統一する。SVGを図形に変換した際にテキストボックスのフォントが
+  遊ゴシックのまま残る問題への対処。欧文フォントは変更しない。表・
+  SmartArt等は対象外
+
 ## [0.1.13] - 2026-07-28
 
 ### Added
@@ -159,7 +169,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.13...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.14...HEAD
+[0.1.14]: https://github.com/kirin123kirin/workpytools/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/kirin123kirin/workpytools/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/kirin123kirin/workpytools/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/kirin123kirin/workpytools/compare/v0.1.10...v0.1.11

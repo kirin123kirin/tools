@@ -36,6 +36,7 @@ workpytools/
 │           ├── seiretsu.py         # PowerPointのシェイプを表に変換せず格子状に整列
 │           ├── nagasa.py           # PowerPointのシェイプの幅・高さを最大値に統一
 │           ├── umekomi.py          # PowerPointのテキストボックスをシェイプに埋め込む
+│           ├── mfont.py            # テーマ・マスター・全スライドの和文フォントをメイリオに統一
 │           ├── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
 │           └── shortcut.py         # 全コマンドのスタートメニューショートカットを作成/削除
 ├── tests/                  # src/workpytools と同じ階層構造でテストを配置
@@ -243,6 +244,10 @@ tools umekomi
 # 実際には変更せず、埋め込み対象になる組み合わせだけを確認する
 tools umekomi --dry-run
 
+# テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する
+# （欧文フォントは変更しない。表・SmartArt等は対象外）
+tools mfont
+
 # 全コマンドのヘルプ一覧（doc/help.html）をブラウザで開く
 tools help
 # 単体実行ファイルはtoolh.exe（他コマンドと違いhelp.exeという名前ではない）
@@ -353,7 +358,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 場合のみ解決します（`WScript.Shell`経由）。複数フォルダを指定して起点が
 重複する場合はフルパスで自動的に重複除去されます。
 
-### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi）
+### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi / mfont）
 
 いずれも実行中のPowerPointを対象にします（`pywin32`経由、`python-pptx`は
 「開いているファイル」を操作できないため使いません）。役割は以下の通りです。
@@ -367,6 +372,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 | `seiretsu` | 選択したシェイプを表に変換せず格子状の位置に整列する |
 | `nagasa` | 選択したシェイプの幅・高さを最大値に統一する |
 | `umekomi` | 選択したシェイプの上に重ねて置かれたテキストボックスをシェイプ本体に埋め込む |
+| `mfont` | テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する |
 
 - `outline`はクリップボードのテキストを**Markdown見出し（`#`等）／タブ区切り
   ／空行区切り**の3形式から自動判別し、抽出した項目ぶんのスライドを
@@ -418,12 +424,26 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
   `ikko`と同じくUndo境界を必ず打つため、Ctrl+Z一回で元に戻せます。
   `--dry-run`で実際に変更せず対象を確認できます。2つ以上選択されていない
   場合はエラーになります
+- `mfont`は、SVGを図形に変換した際などにテキストボックスのフォントが
+  遊ゴシックのまま残る問題への対処として、プレゼンテーション内の
+  **和文（東アジア言語）フォントだけ**をメイリオへ一括統一します
+  （欧文フォントは変更しません）。対象は次の3箇所です。
+  1. **テーマのフォント**（`ThemeFontScheme`の`MajorFont`/`MinorFont`）
+     — `+本文のフォント`/`+見出しのフォント`を参照している文字に影響
+  2. **スライドマスター・スライドレイアウト上の全プレースホルダー**
+  3. **全スライド上の既存シェイプ内の文字**
+     （グループ化されたシェイプは再帰的に中まで辿ります）
+
+  引数はなく、選択状態に関わらずプレゼンテーション全体が対象です。
+  表・SmartArt等の特殊オブジェクトは対象外（`HasTextFrame`を持つ
+  シェイプのみ処理）です。他のPowerPoint操作コマンドと同じくUndo境界を
+  必ず打つため、Ctrl+Z一回で元に戻せます
 
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
 （`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` /
 `clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` /
 `profiler.exe` / `lsdir.exe` / `outline.exe` / `ikko.exe` / `mokuji.exe` /
-`tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` / `shortcut.exe` など）。
+`tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` / `mfont.exe` / `shortcut.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 

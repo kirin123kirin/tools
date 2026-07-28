@@ -68,6 +68,7 @@ _CATEGORIES: list[tuple[str, list[tuple[str, str]]]] = [
             ("seiretsu", "シェイプを格子状に整列"),
             ("nagasa", "シェイプのサイズを統一"),
             ("umekomi", "テキストボックスを埋め込み"),
+            ("mfont", "和文フォントをメイリオに統一"),
         ],
     ),
     (
@@ -496,6 +497,23 @@ _DIAGRAMS: dict[str, str] = {
         'stroke="currentColor" stroke-width="2.2"/>'
         '<text x="168" y="49" font-size="11" text-anchor="middle" '
         'fill="currentColor">Text</text>'
+    ),
+    "mfont": (
+        # before: 書体がバラバラな「あ」の文字3つ（フォント不統一を表現）
+        '<text x="24" y="55" font-size="30" font-family="serif" '
+        'fill="currentColor">あ</text>'
+        '<text x="52" y="55" font-size="26" font-family="sans-serif" '
+        'font-weight="bold" fill="currentColor">あ</text>'
+        '<text x="78" y="55" font-size="22" font-family="monospace" '
+        'font-style="italic" fill="currentColor">あ</text>'
+        + _ARROW_CENTER +
+        # after: 同じ書体（メイリオ想定のsans-serif）に揃った「あ」の文字3つ
+        '<text x="144" y="55" font-size="26" font-family="sans-serif" '
+        'fill="currentColor">あ</text>'
+        '<text x="170" y="55" font-size="26" font-family="sans-serif" '
+        'fill="currentColor">あ</text>'
+        '<text x="196" y="55" font-size="26" font-family="sans-serif" '
+        'fill="currentColor">あ</text>'
     ),
 }
 
