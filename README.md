@@ -37,6 +37,7 @@ workpytools/
 │           ├── nagasa.py           # PowerPointのシェイプの幅・高さを最大値に統一
 │           ├── umekomi.py          # PowerPointのテキストボックスをシェイプに埋め込む
 │           ├── merioall.py         # テーマ・マスター・全スライドの和文フォントをメイリオに統一
+│           ├── iro.py              # 既存スライドの独自色化・テーマカラー変更・既定書式の一時適用
 │           ├── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
 │           └── shortcut.py         # 全コマンドのスタートメニューショートカットを作成/削除
 ├── tests/                  # src/workpytools と同じ階層構造でテストを配置
@@ -248,6 +249,10 @@ tools umekomi --dry-run
 # （欧文フォントは変更しない。表・SmartArt等は対象外）
 tools merioall
 
+# 既存スライドを独自色化した上で、テーマカラー（アクセント1〜6）を
+# 新配色に変更し、シェイプ・矢印・テキストボックスの既定書式を一時適用する
+tools iro
+
 # 全コマンドのヘルプ一覧（doc/help.html）をブラウザで開く
 tools help
 # 単体実行ファイルはtoolh.exe（他コマンドと違いhelp.exeという名前ではない）
@@ -358,7 +363,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 場合のみ解決します（`WScript.Shell`経由）。複数フォルダを指定して起点が
 重複する場合はフルパスで自動的に重複除去されます。
 
-### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi / merioall）
+### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi / merioall / iro）
 
 いずれも実行中のPowerPointを対象にします（`pywin32`経由、`python-pptx`は
 「開いているファイル」を操作できないため使いません）。役割は以下の通りです。
@@ -373,6 +378,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 | `nagasa` | 選択したシェイプの幅・高さを最大値に統一する |
 | `umekomi` | 選択したシェイプの上に重ねて置かれたテキストボックスをシェイプ本体に埋め込む |
 | `merioall` | テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する |
+| `iro` | 既存スライドを独自色化した上でテーマカラーと既定図形の書式を統一する |
 
 - `outline`はクリップボードのテキストを**Markdown見出し（`#`等）／タブ区切り
   ／空行区切り**の3形式から自動判別し、抽出した項目ぶんのスライドを
@@ -438,12 +444,36 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
   表・SmartArt等の特殊オブジェクトは対象外（`HasTextFrame`を持つ
   シェイプのみ処理）です。他のPowerPoint操作コマンドと同じくUndo境界を
   必ず打つため、Ctrl+Z一回で元に戻せます
+- `iro`は、資料の配色を「深緑×レンガ色×グレー」の対比配色に統一
+  したいという用途向けに、以下の3ステップを順番に行います。
+
+  1. **既存スライドの独自色化**: 全スライド上の全シェイプ（グループ内も
+     再帰的に含む）の塗りつぶし色・枠線色・文字色のうち、テーマカラーを
+     参照しているものを検出し、**現在の見た目のままRGB固定値に変換**
+     します。これにより、次のステップでテーマカラーを変更しても
+     既存スライドの見た目は変わりません
+  2. **テーマカラーの変更**: アクセント1〜6を新配色（`#1E7145`の深緑、
+     `#A8493D`のレンガ色、`#808080`のグレーとそれぞれの薄いバリエー
+     ション）に変更します。テキスト/背景色・ハイパーリンク色は変更しません
+  3. **既定書式の一時適用**: シェイプ（黒枠1pt・メイリオ・折り返しあり・
+     オートフィットなし）、矢印（黒・2pt）、テキストボックス（メイリオ
+     12pt・黒・折り返しなし・「枠に合わせて図形のサイズを変更する」）の
+     サンプル図形を作成して書式を適用し、PowerPointの「既定の図形として
+     設定」をCommandBars経由で試みます。**この既定値はファイルに保存
+     されず、PowerPointを再起動すると失われる一時的な状態です。**
+     失敗しても致命的エラーにはせず、手動設定を促す警告を出して
+     正常終了します
+
+  引数はなく、選択状態に関わらずプレゼンテーション全体が対象です。
+  独自色化・テーマカラー変更にはUndo境界を打つため、Ctrl+Zで戻せます
+  （既定書式の一時適用はファイルに保存されない状態のためUndo対象外です）
 
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
 （`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` /
 `clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` /
 `profiler.exe` / `lsdir.exe` / `outline.exe` / `ikko.exe` / `mokuji.exe` /
-`tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` / `merioall.exe` / `shortcut.exe` など）。
+`tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` / `merioall.exe` /
+`iro.exe` / `shortcut.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 

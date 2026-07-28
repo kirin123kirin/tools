@@ -69,6 +69,7 @@ _CATEGORIES: list[tuple[str, list[tuple[str, str]]]] = [
             ("nagasa", "シェイプのサイズを統一"),
             ("umekomi", "テキストボックスを埋め込み"),
             ("merioall", "和文フォントをメイリオに統一"),
+            ("iro", "テーマカラーと既定書式を統一"),
         ],
     ),
     (
@@ -514,6 +515,17 @@ _DIAGRAMS: dict[str, str] = {
         'fill="currentColor">あ</text>'
         '<text x="196" y="55" font-size="26" font-family="sans-serif" '
         'fill="currentColor">あ</text>'
+    ),
+    "iro": (
+        # before: バラバラな色の四角形3つ（配色不統一を表現）
+        '<rect x="14" y="20" width="20" height="50" fill="#8899aa"/>'
+        '<rect x="40" y="20" width="20" height="50" fill="#cc8844"/>'
+        '<rect x="66" y="20" width="20" height="50" fill="#9955bb"/>'
+        + _ARROW_CENTER +
+        # after: 統一された配色（深緑・レンガ色・グレー）の四角形3つ
+        '<rect x="134" y="20" width="20" height="50" fill="#1E7145"/>'
+        '<rect x="160" y="20" width="20" height="50" fill="#A8493D"/>'
+        '<rect x="186" y="20" width="20" height="50" fill="#808080"/>'
     ),
 }
 

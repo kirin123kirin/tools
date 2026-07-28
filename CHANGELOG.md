@@ -5,6 +5,23 @@
 
 ## [Unreleased]
 
+## [0.1.17] - 2026-07-29
+
+### Added
+
+- `iro` — 既存スライドを独自色化した上でテーマカラーと既定図形の書式を
+  統一する新コマンド。以下の3ステップを順に行う。
+  1. 全スライド上の全シェイプ（グループ内を再帰的に含む）の塗りつぶし・
+     枠線・文字色のうち、テーマカラーを参照しているものを現在の見た目の
+     ままRGB固定値に変換する（独自色化）
+  2. テーマのアクセント1〜6を新配色（深緑`#1E7145`・レンガ色`#A8493D`・
+     グレー`#808080`とそれぞれの薄いバリエーション）に変更する
+  3. シェイプ・矢印・テキストボックスのサンプル図形に指定書式
+     （線の色・太さ、フォント、オートフィット、折り返し）を適用し、
+     CommandBars経由で「既定の図形として設定」を試みる
+     （PowerPointを再起動すると失われる一時的な状態。失敗しても
+     致命的エラーにはせず警告のみで正常終了する）
+
 ## [0.1.16] - 2026-07-28
 
 ### Fixed
@@ -187,7 +204,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.16...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.17...HEAD
+[0.1.17]: https://github.com/kirin123kirin/workpytools/compare/v0.1.16...v0.1.17
 [0.1.16]: https://github.com/kirin123kirin/workpytools/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/kirin123kirin/workpytools/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/kirin123kirin/workpytools/compare/v0.1.13...v0.1.14
