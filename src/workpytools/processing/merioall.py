@@ -74,7 +74,9 @@ class MerioallProcessor(Processor):
         # 複数デザイン（セクションごとに別テーマ等）を使っている場合に備え、
         # SlideMasterだけでなくDesigns配下の全マスターのテーマを対象にする
         changed = False
-        for design in presentation.Designs:  # type: ignore[attr-defined]
+        designs = presentation.Designs  # type: ignore[attr-defined]
+        for i in range(1, designs.Count + 1):
+            design = designs.Item(i)
             theme = design.SlideMaster.Theme
             font_scheme = theme.ThemeFontScheme
             font_scheme.MajorFont.NameFarEast = _DEFAULT_FONT
@@ -84,17 +86,20 @@ class MerioallProcessor(Processor):
 
     def _apply_masters(self, presentation: object) -> int:
         count = 0
-        for design in presentation.Designs:  # type: ignore[attr-defined]
-            master = design.SlideMaster
+        designs = presentation.Designs  # type: ignore[attr-defined]
+        for i in range(1, designs.Count + 1):
+            master = designs.Item(i).SlideMaster
             count += self._apply_shapes(master.Shapes)
-            for layout in master.CustomLayouts:
-                count += self._apply_shapes(layout.Shapes)
+            layouts = master.CustomLayouts
+            for j in range(1, layouts.Count + 1):
+                count += self._apply_shapes(layouts.Item(j).Shapes)
         return count
 
     def _apply_slides(self, presentation: object) -> int:
         count = 0
-        for slide in presentation.Slides:  # type: ignore[attr-defined]
-            count += self._apply_shapes(slide.Shapes)
+        slides = presentation.Slides  # type: ignore[attr-defined]
+        for i in range(1, slides.Count + 1):
+            count += self._apply_shapes(slides.Item(i).Shapes)
         return count
 
     def _apply_shapes(self, shapes: object) -> int:

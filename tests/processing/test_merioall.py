@@ -44,6 +44,10 @@ def _make_presentation(
     master_shapes: list | None = None,
     layout_shapes_list: list[list] | None = None,
 ) -> MagicMock:
+    # PowerPoint COMのレイトバインディング（GetActiveObject経由）では
+    # Slides/Designs/CustomLayoutsのようなコレクションを直接for...inで
+    # 回せない可能性があるため、実装は Count + Item(i) でアクセスする。
+    # モック側もそれに合わせてCount/Itemを持つコレクションにする。
     presentation = MagicMock()
 
     slides = []
@@ -51,7 +55,7 @@ def _make_presentation(
         slide = MagicMock()
         slide.Shapes = _make_shapes_collection(shapes)
         slides.append(slide)
-    presentation.Slides = slides
+    presentation.Slides = _make_shapes_collection(slides)
 
     design = MagicMock()
     master = design.SlideMaster
@@ -62,9 +66,9 @@ def _make_presentation(
         layout = MagicMock()
         layout.Shapes = _make_shapes_collection(shapes)
         layouts.append(layout)
-    master.CustomLayouts = layouts
+    master.CustomLayouts = _make_shapes_collection(layouts)
 
-    presentation.Designs = [design]
+    presentation.Designs = _make_shapes_collection([design])
     return presentation, design
 
 
@@ -262,7 +266,8 @@ def test_com_exception_mentions_undo(monkeypatch: pytest.MonkeyPatch) -> None:
     presentation, _design = _make_presentation(slide_shapes_list=[])
 
     class _RaisingDesigns:
-        def __iter__(self) -> object:
+        @property
+        def Count(self) -> int:  # noqa: N802
             raise RuntimeError("boom")
 
     presentation.Designs = _RaisingDesigns()

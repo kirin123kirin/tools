@@ -5,6 +5,17 @@
 
 ## [Unreleased]
 
+## [0.1.16] - 2026-07-28
+
+### Fixed
+
+- `merioall`: テーマ・スライドマスター・スライドの各COMコレクション
+  （`Designs`/`Slides`/`CustomLayouts`）を`for x in collection:`という
+  直接イテレーションで処理していたのを、他のPowerPoint操作コマンドと
+  同じ`Count`+`Item(i)`方式に統一。レイトバインディング
+  （`GetActiveObject`経由）では直接イテレーションが動作しない
+  リスクがあったため
+
 ## [0.1.15] - 2026-07-28
 
 ### Changed
@@ -176,7 +187,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.15...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.16...HEAD
+[0.1.16]: https://github.com/kirin123kirin/workpytools/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/kirin123kirin/workpytools/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/kirin123kirin/workpytools/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/kirin123kirin/workpytools/compare/v0.1.12...v0.1.13

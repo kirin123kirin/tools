@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "workpytools"
-version = "0.1.15"
+version = "0.1.16"
 description = "Collection of Python processing utilities"
 requires-python = ">=3.11"
 readme = "README.md"
