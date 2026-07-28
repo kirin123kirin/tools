@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>tools コマンドヘルプ</title>
+<style>
+:root { color-scheme: light dark; --nav-width: 36rem; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.6;
+  color: #222;
+  background: #fff;
+}
+.layout {
+  display: flex;
+  align-items: flex-start;
+}
+nav {
+  flex: 0 0 var(--nav-width);
+  width: var(--nav-width);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 1.5rem 1rem;
+  border-right: 1px solid #ddd;
+  background: #fafafa;
+}
+#nav-resizer {
+  flex: 0 0 6px;
+  width: 6px;
+  cursor: col-resize;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: transparent;
+}
+#nav-resizer:hover, #nav-resizer.dragging {
+  background: #99c2ff;
+}
+main {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 50rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 3rem;
+}
+nav h1 { font-size: 1.15rem; margin: 0 0 1rem; }
+h2.category {
+  font-size: 1.35rem;
+  margin-top: 2.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid #888;
+}
+main > h2.category:first-child { margin-top: 0; }
+h3 {
+  font-size: 1.1rem;
+  margin-top: 1.6rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.3rem;
+}
+nav ul { list-style: none; padding-left: 0; margin: 0; }
+nav li.toc-category { margin-top: 0.7rem; }
+nav li.toc-category:first-child { margin-top: 0; }
+.toc-category-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #888;
+}
+nav li.toc-category > ul { margin-top: 0.15rem; margin-bottom: 0; }
+li.toc-command {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+nav a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  text-decoration: none;
+  padding: 0.08rem 0.4rem;
+  border-radius: 4px;
+  color: #222;
+  line-height: 1.35;
+}
+nav a:hover { background: #eee; }
+.toc-summary {
+  font-size: 0.72rem;
+  color: #777;
+  font-weight: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.copy-btn {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  color: #444;
+}
+.toc-copy-btn {
+  flex: 0 0 auto;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.15rem 0.35rem;
+  opacity: 0;
+  visibility: hidden;
+}
+li.toc-command:hover .toc-copy-btn, .toc-copy-btn:focus-visible {
+  opacity: 1;
+  visibility: visible;
+}
+.copy-btn:hover { background: #eee; }
+.copy-btn.copied {
+  border-color: #4a8f4a;
+  color: #2f6e2f;
+}
+.copy-btn.copy-failed {
+  border-color: #c0504d;
+  color: #a33;
+}
+.standalone .copy-btn {
+  font-size: 0.8rem;
+  padding: 0.1rem 0.5rem;
+  margin-left: 0.3rem;
+}
+.summary { color: #555; margin: 0.3rem 0 0.8rem; }
+.standalone {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0.2rem 0;
+}
+.standalone code {
+  background: #eee;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-family: Consolas, "Courier New", monospace;
+}
+pre {
+  background: #f5f5f5;
+  padding: 0.8rem;
+  overflow-x: auto;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.85rem;
+}
+.diagram {
+  margin: 0.4rem 0 0.6rem;
+  color: #666;
+}
+.diagram svg {
+  width: 100%;
+  max-width: 22rem;
+  height: auto;
+}
+@media (max-width: 56rem) {
+  .layout { display: block; }
+  nav {
+    position: static;
+    width: auto;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+  #nav-resizer { display: none; }
+  main { margin: 0; max-width: none; }
+}
+@media (prefers-color-scheme: dark) {
+  body { color: #ddd; background: #1e1e1e; }
+  nav { background: #181818; border-right-color: #444; }
+  nav a { color: #ddd; }
+  nav a:hover { background: #2a2a2a; }
+  .toc-category-label { color: #999; }
+  .toc-summary { color: #999; }
+  #nav-resizer:hover, #nav-resizer.dragging { background: #3a5a8a; }
+  h2.category { border-bottom-color: #666; }
+  h3 { border-bottom-color: #555; }
+  .summary { color: #aaa; }
+  .standalone { color: #aaa; }
+  .standalone code { background: #333; }
+  .diagram { color: #999; }
+  pre { background: #2a2a2a; }
+  .copy-btn { background: #2a2a2a; border-color: #555; color: #ccc; }
+  .copy-btn:hover { background: #333; }
+  .copy-btn.copied { border-color: #5cb85c; color: #8fd68f; }
+  .copy-btn.copy-failed { border-color: #d9736c; color: #e08a84; }
+}
+@media (max-width: 56rem) {
+  nav { border-bottom-color: #444; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav id="nav-sidebar">
+<h1>tools コマンド一覧</h1>
+<ul>
+<li class="toc-category"><span class="toc-category-label">画像処理</span><ul>
+<li class="toc-command"><a href="#touka">touka<span class="toc-summary">背景を透過</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="touka" title="コマンド名をコピー" aria-label="toukaをコピー">⧉</button></li>
+<li class="toc-command"><a href="#denoise">denoise<span class="toc-summary">ノイズ除去</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="denoise" title="コマンド名をコピー" aria-label="denoiseをコピー">⧉</button></li>
+<li class="toc-command"><a href="#kukiri">kukiri<span class="toc-summary">輪郭くっきり</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="kukiri" title="コマンド名をコピー" aria-label="kukiriをコピー">⧉</button></li>
+</ul></li>
+<li class="toc-category"><span class="toc-category-label">テキスト集計</span><ul>
+<li class="toc-command"><a href="#cwc">cwc<span class="toc-summary">ワードクラウド生成</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="cwc" title="コマンド名をコピー" aria-label="cwcをコピー">⧉</button></li>
+</ul></li>
+<li class="toc-category"><span class="toc-category-label">クリップボード処理</span><ul>
+<li class="toc-command"><a href="#clipmd">clipmd<span class="toc-summary">Markdown⇔リッチテキスト</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="clipmd" title="コマンド名をコピー" aria-label="clipmdをコピー">⧉</button></li>
+<li class="toc-command"><a href="#mdtsv">mdtsv<span class="toc-summary">Markdown表⇔TSV</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="mdtsv" title="コマンド名をコピー" aria-label="mdtsvをコピー">⧉</button></li>
+<li class="toc-command"><a href="#clipfmt">clipfmt<span class="toc-summary">Markdown整形</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="clipfmt" title="コマンド名をコピー" aria-label="clipfmtをコピー">⧉</button></li>
+<li class="toc-command"><a href="#clipview">clipview<span class="toc-summary">ブラウザでプレビュー</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="clipview" title="コマンド名をコピー" aria-label="clipviewをコピー">⧉</button></li>
+</ul></li>
+<li class="toc-category"><span class="toc-category-label">表形式データ</span><ul>
+<li class="toc-command"><a href="#profiler">profiler<span class="toc-summary">列をプロファイル</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="profiler" title="コマンド名をコピー" aria-label="profilerをコピー">⧉</button></li>
+<li class="toc-command"><a href="#lsdir">lsdir<span class="toc-summary">フォルダ一覧をExcel化</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="lsdir" title="コマンド名をコピー" aria-label="lsdirをコピー">⧉</button></li>
+</ul></li>
+<li class="toc-category"><span class="toc-category-label">PowerPoint操作</span><ul>
+<li class="toc-command"><a href="#outline">outline<span class="toc-summary">アウトラインからスライド追加</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="outline" title="コマンド名をコピー" aria-label="outlineをコピー">⧉</button></li>
+<li class="toc-command"><a href="#ikko">ikko<span class="toc-summary">テキストボックスを合体</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="ikko" title="コマンド名をコピー" aria-label="ikkoをコピー">⧉</button></li>
+<li class="toc-command"><a href="#mokuji">mokuji<span class="toc-summary">スライドタイトル一覧</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="mokuji" title="コマンド名をコピー" aria-label="mokujiをコピー">⧉</button></li>
+<li class="toc-command"><a href="#tbl">tbl<span class="toc-summary">表とシェイプを相互変換</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="tbl" title="コマンド名をコピー" aria-label="tblをコピー">⧉</button></li>
+<li class="toc-command"><a href="#seiretsu">seiretsu<span class="toc-summary">シェイプを格子状に整列</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="seiretsu" title="コマンド名をコピー" aria-label="seiretsuをコピー">⧉</button></li>
+<li class="toc-command"><a href="#nagasa">nagasa<span class="toc-summary">シェイプのサイズを統一</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="nagasa" title="コマンド名をコピー" aria-label="nagasaをコピー">⧉</button></li>
+<li class="toc-command"><a href="#umekomi">umekomi<span class="toc-summary">テキストボックスを埋め込み</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="umekomi" title="コマンド名をコピー" aria-label="umekomiをコピー">⧉</button></li>
+<li class="toc-command"><a href="#merioall">merioall<span class="toc-summary">和文フォントをメイリオに統一</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="merioall" title="コマンド名をコピー" aria-label="merioallをコピー">⧉</button></li>
+<li class="toc-command"><a href="#iro">iro<span class="toc-summary">テーマカラーと既定書式を統一</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="iro" title="コマンド名をコピー" aria-label="iroをコピー">⧉</button></li>
+</ul></li>
+<li class="toc-category"><span class="toc-category-label">その他</span><ul>
+<li class="toc-command"><a href="#vv">vv<span class="toc-summary">定型プロンプトをコピー</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="vv" title="コマンド名をコピー" aria-label="vvをコピー">⧉</button></li>
+<li class="toc-command"><a href="#help">help<span class="toc-summary">ヘルプ一覧を開く</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="toolh" title="コマンド名をコピー" aria-label="toolhをコピー">⧉</button></li>
+<li class="toc-command"><a href="#shortcut">shortcut<span class="toc-summary">スタートメニューに登録</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="shortcut" title="コマンド名をコピー" aria-label="shortcutをコピー">⧉</button></li>
+</ul></li>
+</ul>
+</nav>
+<div id="nav-resizer"></div>
+<main>
+<h2 class="category">画像処理</h2>
+<section class="command">
+<h3 id="touka">touka</h3>
+<p class="standalone">単体実行: <code>touka.exe</code> <button type="button" class="copy-btn" data-copy="touka">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="3" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/><circle cx="50" cy="45" r="18" fill="#ffb100"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><g><rect x="130" y="15" width="80" height="60" rx="3" fill="#eee" stroke="currentColor" stroke-width="2"/><rect x="130" y="15" width="10" height="10" fill="#ccc"/><rect x="150" y="15" width="10" height="10" fill="#ccc"/><rect x="170" y="15" width="10" height="10" fill="#ccc"/><rect x="190" y="15" width="10" height="10" fill="#ccc"/><rect x="140" y="25" width="10" height="10" fill="#ccc"/><rect x="160" y="25" width="10" height="10" fill="#ccc"/><rect x="180" y="25" width="10" height="10" fill="#ccc"/><rect x="130" y="35" width="10" height="10" fill="#ccc"/><rect x="150" y="35" width="10" height="10" fill="#ccc"/><rect x="170" y="35" width="10" height="10" fill="#ccc"/><rect x="190" y="35" width="10" height="10" fill="#ccc"/><circle cx="170" cy="45" r="18" fill="#ffb100"/></g></g></svg></div>
+<p class="summary">画像の背景を透過する（ファイルパス／クリップボード入力対応）</p>
+<pre>usage: touka [-h] [-o OUTPUT] [path]
+
+画像の背景を透過する（ファイルパス／クリップボード入力対応）
+
+positional arguments:
+  path                  画像ファイルパス。省略時はクリップボードの画像/コピーしたファイルを使用
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（省略時は自動生成、拡張子はpng）
+</pre>
+</section>
+<section class="command">
+<h3 id="denoise">denoise</h3>
+<p class="standalone">単体実行: <code>denoise.exe</code> <button type="button" class="copy-btn" data-copy="denoise">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><circle cx="50" cy="45" r="26" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/><circle cx="38" cy="32" r="1.4" fill="#557" /><circle cx="52" cy="28" r="1.4" fill="#557" /><circle cx="61" cy="40" r="1.4" fill="#557" /><circle cx="44" cy="48" r="1.4" fill="#557" /><circle cx="58" cy="55" r="1.4" fill="#557" /><circle cx="35" cy="50" r="1.4" fill="#557" /><circle cx="48" cy="58" r="1.4" fill="#557" /><circle cx="63" cy="30" r="1.4" fill="#557" /><circle cx="40" cy="40" r="1.4" fill="#557" /><circle cx="55" cy="45" r="1.4" fill="#557" /><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="170" cy="45" r="26" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/></g></svg></div>
+<p class="summary">画像のノイズ除去（ファイルパス／クリップボード入力対応、OpenCV Non-local Means）</p>
+<pre>usage: denoise [-h] [-o OUTPUT] [--strength STRENGTH] [path]
+
+画像のノイズ除去（ファイルパス／クリップボード入力対応、OpenCV Non-local Means）
+
+positional arguments:
+  path                  画像ファイルパス。省略時はクリップボードの画像/コピーしたファイルを使用
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（省略時は自動生成、拡張子はpng）
+  --strength STRENGTH   ノイズ除去強度 h（デフォルト: 10.0）。値を大きくするほどノイズは減るがディテールも失われる
+</pre>
+</section>
+<section class="command">
+<h3 id="kukiri">kukiri</h3>
+<p class="standalone">単体実行: <code>kukiri.exe</code> <button type="button" class="copy-btn" data-copy="kukiri">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="24" y="19" width="52" height="52" rx="4" fill="none" stroke="#99a" stroke-width="6" opacity="0.35"/><rect x="24" y="19" width="52" height="52" rx="4" fill="#cfe3ff" stroke="#99a" stroke-width="2" opacity="0.7"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="144" y="19" width="52" height="52" rx="4" fill="#cfe3ff" stroke="currentColor" stroke-width="3"/></g></svg></div>
+<p class="summary">JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）</p>
+<pre>usage: kukiri [-h] [-o OUTPUT] [--smooth SMOOTH] [--sharpen SHARPEN] [path]
+
+JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）
+
+positional arguments:
+  path                  画像ファイルパス。省略時はクリップボードの画像/コピーしたファイルを使用
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（省略時は自動生成、拡張子はpng）
+  --smooth SMOOTH       バイラテラルフィルタの強さ（デフォルト: 75.0）。大きいほど滲みは消えるが細部も失われる
+  --sharpen SHARPEN     アンシャープマスクの強さ（デフォルト: 0.5、0で無効）。大きいほど境界のコントラストが強調される
+</pre>
+</section>
+<h2 class="category">テキスト集計</h2>
+<section class="command">
+<h3 id="cwc">cwc</h3>
+<p class="standalone">単体実行: <code>cwc.exe</code> <button type="button" class="copy-btn" data-copy="cwc">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="14" y="15" width="72" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><line x1="22" y1="28" x2="78" y2="28" stroke="currentColor" stroke-width="2.5"/><line x1="22" y1="40" x2="78" y2="40" stroke="currentColor" stroke-width="2.5"/><line x1="22" y1="52" x2="78" y2="52" stroke="currentColor" stroke-width="2.5"/><line x1="22" y1="64" x2="60" y2="64" stroke="currentColor" stroke-width="2.5"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><text x="145" y="35" font-size="16" font-weight="bold" fill="currentColor">単語</text><text x="185" y="30" font-size="9" fill="currentColor">語</text><text x="140" y="55" font-size="10" fill="currentColor">頻度</text><text x="170" y="60" font-size="20" font-weight="bold" fill="currentColor">多い</text><text x="150" y="75" font-size="8" fill="currentColor">少</text></g></svg></div>
+<p class="summary">テキストからワードクラウド画像を生成する（ファイルパス／クリップボード入力対応）</p>
+<pre>usage: cwc [-h] [-o OUTPUT] [--encoding ENCODING] [-w]
+           [--hinshi HINSHI [HINSHI ...]] [--semantic]
+           [--synonym-dict SYNONYM_DICT] [--no-synonym-dict]
+           [--user-dict USER_DICT] [--no-user-dict] [--stopwords STOPWORDS]
+           [--stopwords-file STOPWORDS_FILE] [--no-default-stopwords]
+           [--font FONT] [--similar] [--similar-threshold SIMILAR_THRESHOLD]
+           [--similar-model SIMILAR_MODEL]
+           [--similar-max-length SIMILAR_MAX_LENGTH]
+           [path]
+
+テキストからワードクラウド画像を生成する（ファイルパス／クリップボード入力対応）
+
+positional arguments:
+  path                  テキストファイルパス。省略時はクリップボードのテキスト/コピーしたファイルを使用
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（省略時は自動生成、拡張子はpng）
+  --encoding ENCODING   入力ファイルのエンコーディングを明示指定（省略時はUTF-8→CP932の順に試す）
+  -w, --wakachi         Janomeによる分かち書きで分割する
+  --hinshi HINSHI [HINSHI ...]
+                        集計対象の品詞を指定（複数可、カンマ区切りも可）。指定可能: 名詞, 動詞, 形容詞, 副詞, 助詞,
+                        助動詞, 連体詞, 接続詞, 感動詞, 接頭詞, 記号, フィラー, その他
+  --semantic            同義語辞書で異表記を代表語に寄せる
+  --synonym-dict SYNONYM_DICT
+                        同義語辞書ファイルのパス
+  --no-synonym-dict     同義語辞書を一切使用しない
+  --user-dict USER_DICT
+                        Janomeユーザー辞書のパス
+  --no-user-dict        Janomeユーザー辞書を一切使用しない
+  --stopwords STOPWORDS
+                        追加するストップワード（カンマ区切り）
+  --stopwords-file STOPWORDS_FILE
+                        追加するストップワードのファイルパス
+  --no-default-stopwords
+                        デフォルトのストップワードを無効化する
+  --font FONT           使用するフォントファイルのパス
+  --similar             集計単位を語ではなく文にし、埋め込みベクトルの類似度でクラスタリングする
+  --similar-threshold SIMILAR_THRESHOLD
+                        --similar のクラスタをまとめる距離の閾値（コサイン距離、既定: 0.2）
+  --similar-model SIMILAR_MODEL
+                        --similar で使用する埋め込みモデル名
+  --similar-max-length SIMILAR_MAX_LENGTH
+                        --similar の代表文の表示文字数の上限（0で無制限、既定: 10）
+</pre>
+</section>
+<h2 class="category">クリップボード処理</h2>
+<section class="command">
+<h3 id="clipmd">clipmd</h3>
+<p class="standalone">単体実行: <code>clipmd.exe</code> <button type="button" class="copy-btn" data-copy="clipmd">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><text x="18" y="35" font-size="12" font-family="Consolas, monospace" fill="currentColor"># 見出し</text><text x="18" y="52" font-size="12" font-family="Consolas, monospace" fill="currentColor">**太字**</text><text x="18" y="69" font-size="12" font-family="Consolas, monospace" fill="currentColor">- 項目</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><text x="138" y="34" font-size="15" font-weight="bold" fill="currentColor">見出し</text><text x="138" y="52" font-size="12" font-weight="bold" fill="currentColor">太字</text><circle cx="140" cy="63" r="1.8" fill="currentColor"/><text x="146" y="67" font-size="12" fill="currentColor">項目</text></g></svg></div>
+<p class="summary">クリップボードのMarkdownとリッチテキストを相互変換する</p>
+<pre>usage: clipmd [-h] [--to-markdown | --to-rich]
+
+クリップボードのMarkdownとリッチテキストを相互変換する
+
+options:
+  -h, --help     show this help message and exit
+  --to-markdown  入力をHTMLとみなしMarkdownに変換する
+  --to-rich      入力をMarkdownとみなしリッチテキストに変換する
+</pre>
+</section>
+<section class="command">
+<h3 id="mdtsv">mdtsv</h3>
+<p class="standalone">単体実行: <code>mdtsv.exe</code> <button type="button" class="copy-btn" data-copy="mdtsv">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><text x="16" y="35" font-size="11" font-family="Consolas, monospace" fill="currentColor">|a|b|</text><text x="16" y="50" font-size="11" font-family="Consolas, monospace" fill="currentColor">|-|-|</text><text x="16" y="65" font-size="11" font-family="Consolas, monospace" fill="currentColor">|1|2|</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="15" width="80" height="60" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="130" y1="45" x2="210" y2="45" stroke="currentColor" stroke-width="1.5"/><line x1="170" y1="15" x2="170" y2="75" stroke="currentColor" stroke-width="1.5"/><text x="145" y="35" font-size="12" fill="currentColor">a</text><text x="185" y="35" font-size="12" fill="currentColor">b</text><text x="145" y="65" font-size="12" fill="currentColor">1</text><text x="185" y="65" font-size="12" fill="currentColor">2</text></g></svg></div>
+<p class="summary">クリップボードのMarkdownの表とTSVを相互変換する</p>
+<pre>usage: mdtsv [-h] [--to-tsv | --to-table]
+
+クリップボードのMarkdownの表とTSVを相互変換する
+
+options:
+  -h, --help  show this help message and exit
+  --to-tsv    入力をMarkdownの表とみなしTSVに変換する
+  --to-table  入力をTSVとみなしMarkdownの表に変換する
+</pre>
+</section>
+<section class="command">
+<h3 id="clipfmt">clipfmt</h3>
+<p class="standalone">単体実行: <code>clipfmt.exe</code> <button type="button" class="copy-btn" data-copy="clipfmt">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><text x="16" y="35" font-size="11" font-family="Consolas, monospace" fill="currentColor">|a|bb|c|</text><text x="16" y="50" font-size="11" font-family="Consolas, monospace" fill="currentColor">|-|-|-|</text><text x="16" y="65" font-size="11" font-family="Consolas, monospace" fill="currentColor">|1|2|3|</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><text x="136" y="35" font-size="11" font-family="Consolas, monospace" fill="currentColor">| a  | bb | c |</text><text x="136" y="50" font-size="11" font-family="Consolas, monospace" fill="currentColor">| -- | -- | - |</text><text x="136" y="65" font-size="11" font-family="Consolas, monospace" fill="currentColor">| 1  | 2  | 3 |</text></g></svg></div>
+<p class="summary">クリップボードのMarkdownを整形する</p>
+<pre>usage: clipfmt [-h] [--no-normalize-bullets]
+
+クリップボードのMarkdownを整形する
+
+options:
+  -h, --help            show this help message and exit
+  --no-normalize-bullets
+                        箇条書き記号(*/+)を-に統一する前処理を行わない
+</pre>
+</section>
+<section class="command">
+<h3 id="clipview">clipview</h3>
+<p class="standalone">単体実行: <code>clipview.exe</code> <button type="button" class="copy-btn" data-copy="clipview">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="24" y="15" width="52" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/><rect x="38" y="10" width="24" height="10" rx="2" fill="currentColor"/><line x1="32" y1="35" x2="68" y2="35" stroke="currentColor" stroke-width="2"/><line x1="32" y1="47" x2="68" y2="47" stroke="currentColor" stroke-width="2"/><line x1="32" y1="59" x2="56" y2="59" stroke="currentColor" stroke-width="2"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="12" width="80" height="66" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><line x1="130" y1="24" x2="210" y2="24" stroke="currentColor" stroke-width="2"/><circle cx="137" cy="18" r="1.6" fill="currentColor"/><circle cx="144" cy="18" r="1.6" fill="currentColor"/><text x="138" y="42" font-size="13" font-weight="bold" fill="currentColor">見出し</text><line x1="138" y1="52" x2="200" y2="52" stroke="currentColor" stroke-width="1.5"/><line x1="138" y1="61" x2="200" y2="61" stroke="currentColor" stroke-width="1.5"/><line x1="138" y1="70" x2="180" y2="70" stroke="currentColor" stroke-width="1.5"/></g></svg></div>
+<p class="summary">クリップボードのMarkdown/HTMLをブラウザでプレビューする</p>
+<pre>usage: clipview [-h] [--markdown | --html | --svg] [--no-open]
+
+クリップボードのMarkdown/HTMLをブラウザでプレビューする
+
+options:
+  -h, --help  show this help message and exit
+  --markdown  入力をMarkdownとして解釈する
+  --html      入力をHTMLとして解釈する
+  --svg       入力をSVGとして解釈する
+  --no-open   ブラウザを開かず、パスの表示のみ行う
+</pre>
+</section>
+<h2 class="category">表形式データ</h2>
+<section class="command">
+<h3 id="profiler">profiler</h3>
+<p class="standalone">単体実行: <code>profiler.exe</code> <button type="button" class="copy-btn" data-copy="profiler">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10" y1="35" x2="90" y2="35" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="55" x2="90" y2="55" stroke="currentColor" stroke-width="1.5"/><line x1="45" y1="15" x2="45" y2="75" stroke="currentColor" stroke-width="1.5"/><text x="20" y="30" font-size="11" fill="currentColor">12</text><text x="55" y="30" font-size="11" fill="currentColor">A</text><text x="20" y="50" font-size="11" fill="#c55" opacity="0.7">?</text><text x="55" y="50" font-size="11" fill="currentColor">B</text><text x="20" y="70" font-size="11" fill="currentColor">7</text><text x="55" y="70" font-size="11" fill="#c55" opacity="0.7">?</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><text x="136" y="26" font-size="10" fill="currentColor">列A 充填 67%</text><rect x="136" y="30" width="60" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1"/><rect x="136" y="30" width="40" height="6" rx="2" fill="currentColor"/><text x="136" y="52" font-size="10" fill="currentColor">列B 一意 100%</text><rect x="136" y="56" width="60" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1"/><rect x="136" y="56" width="60" height="6" rx="2" fill="currentColor"/></g></svg></div>
+<p class="summary">表形式データの各列をプロファイルする（欠損・一意性・頻度上位・主キー候補）</p>
+<pre>usage: profiler [-h] [-o OUTPUT] [--clip] [--view] [--sep SEP]
+                [--header HEADER] [--no-header] [--top TOP]
+                [--empty-values EMPTY_VALUES] [--no-default-empty-values]
+                [path ...]
+
+表形式データの各列をプロファイルする（欠損・一意性・頻度上位・主キー候補）
+
+positional arguments:
+  path                  対象ファイル（複数・グロブ可）。省略時はクリップボードのTSVを読む
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（.tsv / .xlsx）
+  --clip                結果をクリップボードにコピーする
+  --view                結果をブラウザでHTML表示する
+  --sep SEP             区切り文字（拡張子判定を上書き）
+  --header HEADER       ヘッダー行のインデックス（0始まり、既定0）
+  --no-header           ヘッダーなしとして扱う
+  --top TOP             頻度上位の表示件数（既定10、0で非表示）
+  --empty-values EMPTY_VALUES
+                        空とみなす値のカンマ区切りリスト（既定値を置き換える）
+  --no-default-empty-values
+                        既定の空値リストを無効化し、Noneと空文字だけを空とみなす
+</pre>
+</section>
+<section class="command">
+<h3 id="lsdir">lsdir</h3>
+<p class="standalone">単体実行: <code>lsdir.exe</code> <button type="button" class="copy-btn" data-copy="lsdir">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><path d="M14 22 L28 22 L32 27 L54 27 L54 40 L14 40 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M20 46 L34 46 L38 51 L60 51 L60 64 L20 64 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" opacity="0.6"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="15" width="80" height="60" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="130" y1="30" x2="210" y2="30" stroke="currentColor" stroke-width="1.5"/><line x1="130" y1="45" x2="210" y2="45" stroke="currentColor" stroke-width="1.5"/><line x1="130" y1="60" x2="210" y2="60" stroke="currentColor" stroke-width="1.5"/><line x1="170" y1="15" x2="170" y2="75" stroke="currentColor" stroke-width="1.5"/></g></svg></div>
+<p class="summary">フォルダ配下をExcelで集計できる表形式で一覧化する</p>
+<pre>usage: lsdir [-h] [-o OUTPUT] [--clip] [--files-only] [--dirs-only]
+             [--exclude EXCLUDE [EXCLUDE ...]] [--include-temp] [--total-size]
+             [--unit {b,kb,mb,gb}] [--resolve-link] [--encoding ENCODING]
+             path [path ...]
+
+フォルダ配下をExcelで集計できる表形式で一覧化する
+
+positional arguments:
+  path                  対象フォルダ（複数・グロブ可）
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        出力先パス（.tsv / .xlsx）
+  --clip                結果をクリップボードにコピーする
+  --files-only          ファイルのみ出力する
+  --dirs-only           フォルダのみ出力する
+  --exclude EXCLUDE [EXCLUDE ...]
+                        除外するフォルダ名（既定: [&#x27;.git&#x27;, &#x27;.svn&#x27;, &#x27;node_modules&#x27;,
+                        &#x27;__pycache__&#x27;]）
+  --include-temp        &#x27;~$&#x27;で始まる一時ファイルも含める
+  --total-size          フォルダ配下の合計サイズを計算する（全走査後に出力するため待ち時間が発生する）
+  --unit {b,kb,mb,gb}   サイズの単位（既定: kb）
+  --resolve-link        .lnkのリンク先を解決する（WScript.Shell経由、大量にあると遅くなる）
+  --encoding ENCODING   出力エンコーディング
+</pre>
+</section>
+<h2 class="category">PowerPoint操作</h2>
+<section class="command">
+<h3 id="outline">outline</h3>
+<p class="standalone">単体実行: <code>outline.exe</code> <button type="button" class="copy-btn" data-copy="outline">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><text x="14" y="30" font-size="12" font-family="Consolas, monospace" fill="currentColor"># 章1</text><text x="14" y="46" font-size="12" font-family="Consolas, monospace" fill="currentColor"># 章2</text><text x="14" y="62" font-size="12" font-family="Consolas, monospace" fill="currentColor"># 章3</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="18" width="30" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="165" y="18" width="30" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="130" y="45" width="30" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="165" y="45" width="30" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></g></svg></div>
+<p class="summary">クリップボードのアウトラインからPowerPointにスライドを追加する</p>
+<pre>usage: outline [-h]
+
+クリップボードのアウトラインからPowerPointにスライドを追加する
+
+options:
+  -h, --help  show this help message and exit
+</pre>
+</section>
+<section class="command">
+<h3 id="ikko">ikko</h3>
+<p class="standalone">単体実行: <code>ikko.exe</code> <button type="button" class="copy-btn" data-copy="ikko">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="16" y="16" width="68" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="16" y="38" width="68" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="16" y="60" width="68" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="136" y="16" width="68" height="58" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.5"/><line x1="144" y1="34" x2="196" y2="34" stroke="currentColor" stroke-width="2"/><line x1="144" y1="46" x2="196" y2="46" stroke="currentColor" stroke-width="2"/><line x1="144" y1="58" x2="196" y2="58" stroke="currentColor" stroke-width="2"/></g></svg></div>
+<p class="summary">スライド上のバラバラなテキストボックスを1つに合体する</p>
+<pre>usage: ikko [-h] [--dry-run] [--left-tolerance LEFT_TOLERANCE]
+            [--line-step-min LINE_STEP_MIN] [--line-step-max LINE_STEP_MAX]
+
+スライド上のバラバラなテキストボックスを1つに合体する
+
+options:
+  -h, --help            show this help message and exit
+  --dry-run             実際には変更せず、合体対象になるクラスタを表示するだけにする
+  --left-tolerance LEFT_TOLERANCE
+                        左端座標の許容誤差（ポイント、既定1.0）
+  --line-step-min LINE_STEP_MIN
+                        行送りの下限（フォントサイズ比、既定0.8）
+  --line-step-max LINE_STEP_MAX
+                        行送りの上限（フォントサイズ比、既定2.2）
+</pre>
+</section>
+<section class="command">
+<h3 id="mokuji">mokuji</h3>
+<p class="standalone">単体実行: <code>mokuji.exe</code> <button type="button" class="copy-btn" data-copy="mokuji">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="14" y="18" width="30" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="49" y="18" width="30" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="45" width="30" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="49" y="45" width="30" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="150" y="10" width="52" height="66" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/><rect x="164" y="5" width="24" height="10" rx="2" fill="currentColor"/><line x1="158" y1="34" x2="194" y2="34" stroke="currentColor" stroke-width="2"/><line x1="158" y1="46" x2="194" y2="46" stroke="currentColor" stroke-width="2"/><line x1="158" y1="58" x2="188" y2="58" stroke="currentColor" stroke-width="2"/></g></svg></div>
+<p class="summary">全スライドのタイトルを一覧化してクリップボードにコピーする</p>
+<pre>usage: mokuji [-h]
+
+全スライドのタイトルを一覧化してクリップボードにコピーする
+
+options:
+  -h, --help  show this help message and exit
+</pre>
+</section>
+<section class="command">
+<h3 id="tbl">tbl</h3>
+<p class="standalone">単体実行: <code>tbl.exe</code> <button type="button" class="copy-btn" data-copy="tbl">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><line x1="10" y1="35" x2="90" y2="35" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="55" x2="90" y2="55" stroke="currentColor" stroke-width="1.5"/><line x1="36" y1="15" x2="36" y2="75" stroke="currentColor" stroke-width="1.5"/><line x1="63" y1="15" x2="63" y2="75" stroke="currentColor" stroke-width="1.5"/><path d="M96 39 H124 M116 33 L124 39 L116 45" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M124 51 H96 M104 45 L96 51 L104 57" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="16" width="34" height="26" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="170" y="16" width="34" height="26" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="130" y="48" width="34" height="26" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="170" y="48" width="34" height="26" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/></g></svg></div>
+<p class="summary">PowerPointの表とシェイプ群を相互変換する（表分解/表合成/行分割）</p>
+<pre>usage: tbl [-h]
+
+PowerPointの表とシェイプ群を相互変換する（表分解/表合成/行分割）
+
+options:
+  -h, --help  show this help message and exit
+</pre>
+</section>
+<section class="command">
+<h3 id="seiretsu">seiretsu</h3>
+<p class="standalone">単体実行: <code>seiretsu.exe</code> <button type="button" class="copy-btn" data-copy="seiretsu">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="12" width="24" height="18" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2" transform="rotate(-10 22 21)"/><rect x="55" y="8" width="24" height="18" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2" transform="rotate(7 67 17)"/><rect x="18" y="50" width="24" height="18" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2" transform="rotate(4 30 59)"/><rect x="60" y="55" width="24" height="18" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2" transform="rotate(-6 72 64)"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="132" y="15" width="30" height="24" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="172" y="15" width="30" height="24" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="132" y="49" width="30" height="24" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="172" y="49" width="30" height="24" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/></g></svg></div>
+<p class="summary">選択したシェイプを表に変換せず格子状の位置に整列する</p>
+<pre>usage: seiretsu [-h]
+
+選択したシェイプを表に変換せず格子状の位置に整列する
+
+options:
+  -h, --help  show this help message and exit
+</pre>
+</section>
+<section class="command">
+<h3 id="nagasa">nagasa</h3>
+<p class="standalone">単体実行: <code>nagasa.exe</code> <button type="button" class="copy-btn" data-copy="nagasa">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="12" y="35" width="16" height="16" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="34" y="12" width="20" height="40" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="60" y="45" width="24" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="15" width="20" height="40" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="156" y="15" width="20" height="40" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="182" y="15" width="20" height="40" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/></g></svg></div>
+<p class="summary">選択したシェイプの幅・高さを最大値に統一する</p>
+<pre>usage: nagasa [-h]
+
+選択したシェイプの幅・高さを最大値に統一する
+
+options:
+  -h, --help  show this help message and exit
+</pre>
+</section>
+<section class="command">
+<h3 id="umekomi">umekomi</h3>
+<p class="standalone">単体実行: <code>umekomi.exe</code> <button type="button" class="copy-btn" data-copy="umekomi">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="16" y="20" width="64" height="50" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="28" y="35" width="52" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3,2"/><text x="54" y="49" font-size="11" text-anchor="middle" fill="currentColor">Text</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="136" y="20" width="64" height="50" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><text x="168" y="49" font-size="11" text-anchor="middle" fill="currentColor">Text</text></g></svg></div>
+<p class="summary">shapeの上に重ねて配置されたテキストボックスをshapeに埋め込む</p>
+<pre>usage: umekomi [-h] [--dry-run]
+
+shapeの上に重ねて配置されたテキストボックスをshapeに埋め込む
+
+options:
+  -h, --help  show this help message and exit
+  --dry-run   実際には変更せず、埋め込み対象になる組み合わせを表示するだけにする
+</pre>
+</section>
+<section class="command">
+<h3 id="merioall">merioall</h3>
+<p class="standalone">単体実行: <code>merioall.exe</code> <button type="button" class="copy-btn" data-copy="merioall">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><text x="24" y="55" font-size="30" font-family="serif" fill="currentColor">あ</text><text x="52" y="55" font-size="26" font-family="sans-serif" font-weight="bold" fill="currentColor">あ</text><text x="78" y="55" font-size="22" font-family="monospace" font-style="italic" fill="currentColor">あ</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><text x="144" y="55" font-size="26" font-family="sans-serif" fill="currentColor">あ</text><text x="170" y="55" font-size="26" font-family="sans-serif" fill="currentColor">あ</text><text x="196" y="55" font-size="26" font-family="sans-serif" fill="currentColor">あ</text></g></svg></div>
+<p class="summary">テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する</p>
+<pre>usage: merioall [-h]
+
+テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する
+
+options:
+  -h, --help  show this help message and exit
+</pre>
+</section>
+<section class="command">
+<h3 id="iro">iro</h3>
+<p class="standalone">単体実行: <code>iro.exe</code> <button type="button" class="copy-btn" data-copy="iro">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="14" y="20" width="20" height="50" fill="#8899aa"/><rect x="40" y="20" width="20" height="50" fill="#cc8844"/><rect x="66" y="20" width="20" height="50" fill="#9955bb"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="134" y="20" width="20" height="50" fill="#1E7145"/><rect x="160" y="20" width="20" height="50" fill="#A8493D"/><rect x="186" y="20" width="20" height="50" fill="#808080"/></g></svg></div>
+<p class="summary">既存スライドを独自色化した上でテーマカラーと既定図形の書式を統一する</p>
+<pre>usage: iro [-h]
+
+既存スライドを独自色化した上でテーマカラーと既定図形の書式を統一する
+
+options:
+  -h, --help  show this help message and exit
+</pre>
+</section>
+<h2 class="category">その他</h2>
+<section class="command">
+<h3 id="vv">vv</h3>
+<p class="standalone">単体実行: <code>vv.exe</code> <button type="button" class="copy-btn" data-copy="vv">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><circle cx="18" cy="24" r="2" fill="currentColor"/><line x1="26" y1="24" x2="86" y2="24" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="45" r="2" fill="currentColor" opacity="0.4"/><line x1="26" y1="45" x2="86" y2="45" stroke="currentColor" stroke-width="2" opacity="0.4"/><circle cx="18" cy="66" r="2" fill="currentColor" opacity="0.4"/><line x1="26" y1="66" x2="86" y2="66" stroke="currentColor" stroke-width="2" opacity="0.4"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="150" y="15" width="52" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/><rect x="164" y="10" width="24" height="10" rx="2" fill="currentColor"/><line x1="158" y1="40" x2="194" y2="40" stroke="currentColor" stroke-width="2.5"/><line x1="158" y1="52" x2="194" y2="52" stroke="currentColor" stroke-width="2.5"/></g></svg></div>
+<p class="summary">定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）</p>
+<pre>usage: vv [-h] [number]
+
+定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）
+
+positional arguments:
+  number      コピーするプロンプトの番号。省略時は一覧を表示するだけ
+
+options:
+  -h, --help  show this help message and exit
+</pre>
+</section>
+<section class="command">
+<h3 id="help">help</h3>
+<p class="standalone">単体実行: <code>toolh.exe</code> <button type="button" class="copy-btn" data-copy="toolh">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="70" y="12" width="80" height="66" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><line x1="70" y1="24" x2="150" y2="24" stroke="currentColor" stroke-width="2"/><circle cx="77" cy="18" r="1.6" fill="currentColor"/><circle cx="84" cy="18" r="1.6" fill="currentColor"/><text x="95" y="52" font-size="24" font-weight="bold" text-anchor="middle" fill="currentColor">?</text></g></svg></div>
+<p class="summary">全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く</p>
+<pre>usage: help [-h] [--no-open]
+
+全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く
+
+options:
+  -h, --help  show this help message and exit
+  --no-open   ブラウザを開かず、パスの表示のみ行う
+</pre>
+</section>
+<section class="command">
+<h3 id="shortcut">shortcut</h3>
+<p class="standalone">単体実行: <code>shortcut.exe</code> <button type="button" class="copy-btn" data-copy="shortcut">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10" y1="27" x2="90" y2="27" stroke="currentColor" stroke-width="1.5"/><text x="16" y="45" font-size="11" font-family="Consolas, monospace" fill="currentColor">&gt;touka.exe_</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="12" width="80" height="66" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="138" y="20" width="14" height="14" rx="3" fill="currentColor"/><line x1="156" y1="27" x2="202" y2="27" stroke="currentColor" stroke-width="2"/><rect x="138" y="40" width="14" height="14" rx="3" fill="currentColor"/><line x1="156" y1="47" x2="202" y2="47" stroke="currentColor" stroke-width="2"/><rect x="138" y="60" width="14" height="14" rx="3" fill="currentColor"/><line x1="156" y1="67" x2="202" y2="67" stroke="currentColor" stroke-width="2"/></g></svg></div>
+<p class="summary">全コマンドのスタートメニューショートカットを作成/削除する</p>
+<pre>usage: shortcut [-h] [--remove]
+
+全コマンドのスタートメニューショートカットを作成/削除する
+
+options:
+  -h, --help  show this help message and exit
+  --remove    作成済みのショートカットを削除する（作成せず削除のみ行う）
+</pre>
+</section>
+</main>
+</div>
+<script>
+(function () {
+  // サイドバー幅をドラッグで調整できるようにする。localStorageに保存し、
+  // 次回開いたときも同じ幅を復元する。外部通信・外部ライブラリは使わない。
+  var STORAGE_KEY = "workpytools-help-nav-width";
+  var MIN_WIDTH = 200;
+  var MAX_WIDTH = 800;
+  var root = document.documentElement;
+  var resizer = document.getElementById("nav-resizer");
+  var nav = document.getElementById("nav-sidebar");
+
+  function autofitWidth() {
+    // 最も長いコマンド名+要約の行が折り返さずに収まる幅を実測する。
+    // 各<li>のscrollWidthはpadding込みの必要幅を返すため、そのまま
+    // navの左右paddingを足せば「はみ出さない幅」になる。
+    var items = nav.querySelectorAll("li.toc-command");
+    var maxItemWidth = 0;
+    items.forEach(function (item) {
+      if (item.scrollWidth > maxItemWidth) maxItemWidth = item.scrollWidth;
+    });
+    var navStyle = getComputedStyle(nav);
+    var horizontalPadding =
+      parseFloat(navStyle.paddingLeft) + parseFloat(navStyle.paddingRight);
+    return Math.round(maxItemWidth + horizontalPadding);
+  }
+
+  var saved = window.localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    var width = parseInt(saved, 10);
+    if (width >= MIN_WIDTH && width <= MAX_WIDTH) {
+      root.style.setProperty("--nav-width", width + "px");
+    }
+  } else {
+    var fitted = autofitWidth();
+    if (fitted < MIN_WIDTH) fitted = MIN_WIDTH;
+    if (fitted > MAX_WIDTH) fitted = MAX_WIDTH;
+    root.style.setProperty("--nav-width", fitted + "px");
+  }
+
+  var dragging = false;
+
+  resizer.addEventListener("mousedown", function (event) {
+    dragging = true;
+    resizer.classList.add("dragging");
+    event.preventDefault();
+  });
+
+  document.addEventListener("mousemove", function (event) {
+    if (!dragging) return;
+    var width = event.clientX;
+    if (width < MIN_WIDTH) width = MIN_WIDTH;
+    if (width > MAX_WIDTH) width = MAX_WIDTH;
+    root.style.setProperty("--nav-width", width + "px");
+  });
+
+  document.addEventListener("mouseup", function () {
+    if (!dragging) return;
+    dragging = false;
+    resizer.classList.remove("dragging");
+    var current = getComputedStyle(root).getPropertyValue("--nav-width");
+    window.localStorage.setItem(STORAGE_KEY, parseInt(current, 10));
+  });
+})();
+
+(function () {
+  // 「コマンド名をコピー」ボタン。単体実行ファイル名（exeの拡張子なし）を
+  // クリップボードへコピーするだけで、何のプロセスも起動しない。
+  // Clipboard APIというブラウザの標準・公開APIのみを使う。
+  function fallbackCopy(text) {
+    // Clipboard APIが使えない環境（file://での制限、権限拒否など）向けの
+    // フォールバック。非表示のtextareaを使う非推奨APIだが、コピー機能が
+    // 完全に無反応になるよりはよい。
+    var textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(textarea);
+    return ok;
+  }
+
+  document.querySelectorAll(".copy-btn").forEach(function (btn) {
+    var originalLabel = btn.textContent;
+    btn.addEventListener("click", function () {
+      var text = btn.getAttribute("data-copy");
+      var isIconButton = btn.classList.contains("toc-copy-btn");
+
+      function showResult(ok) {
+        btn.classList.add(ok ? "copied" : "copy-failed");
+        if (!isIconButton) {
+          btn.textContent = ok ? "コピーしました" : "コピーできませんでした";
+        }
+        window.setTimeout(function () {
+          btn.classList.remove("copied", "copy-failed");
+          if (!isIconButton) {
+            btn.textContent = originalLabel;
+          }
+        }, 1200);
+      }
+
+      if (window.navigator.clipboard && window.navigator.clipboard.writeText) {
+        window.navigator.clipboard.writeText(text).then(
+          function () { showResult(true); },
+          function () { showResult(fallbackCopy(text)); }
+        );
+      } else {
+        showResult(fallbackCopy(text));
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

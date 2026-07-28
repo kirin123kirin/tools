@@ -5,6 +5,17 @@
 
 ## [Unreleased]
 
+## [0.1.18] - 2026-07-29
+
+### Fixed
+
+- `help`/`toolh`: PyPI経由で`pip install`した環境では`doc/help.html`
+  （リポジトリ直下のパス）が存在せず、`toolh`実行時に必ずエラーになる
+  バグを修正。`help.html`をパッケージデータ（`workpytools/data/help.html`）
+  として同梱し、`importlib.resources`経由で参照するように変更した。
+  `scripts/gen_help.py`は`doc/help.html`（開発用）と
+  `src/workpytools/data/help.html`（配布用）の両方を生成する
+
 ## [0.1.17] - 2026-07-29
 
 ### Added
@@ -204,7 +215,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.17...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.18...HEAD
+[0.1.18]: https://github.com/kirin123kirin/workpytools/compare/v0.1.17...v0.1.18
 [0.1.17]: https://github.com/kirin123kirin/workpytools/compare/v0.1.16...v0.1.17
 [0.1.16]: https://github.com/kirin123kirin/workpytools/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/kirin123kirin/workpytools/compare/v0.1.14...v0.1.15

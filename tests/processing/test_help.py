@@ -14,7 +14,7 @@ def _base_args(**overrides: object) -> argparse.Namespace:
 
 
 def test_missing_help_html_raises(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    monkeypatch.setattr(help_module, "_HELP_HTML_PATH", tmp_path / "does_not_exist.html")
+    monkeypatch.setattr(help_module, "_help_html_path", lambda: tmp_path / "does_not_exist.html")
     proc = HelpProcessor()
     with pytest.raises(SystemExit):
         proc.run(_base_args())
@@ -25,7 +25,7 @@ def test_existing_help_html_prints_path(
 ) -> None:
     html_path = tmp_path / "help.html"
     html_path.write_text("<html></html>", encoding="utf-8")
-    monkeypatch.setattr(help_module, "_HELP_HTML_PATH", html_path)
+    monkeypatch.setattr(help_module, "_help_html_path", lambda: html_path)
 
     proc = HelpProcessor()
     proc.run(_base_args(no_open=True))
@@ -37,7 +37,7 @@ def test_existing_help_html_prints_path(
 def test_no_open_skips_browser(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     html_path = tmp_path / "help.html"
     html_path.write_text("<html></html>", encoding="utf-8")
-    monkeypatch.setattr(help_module, "_HELP_HTML_PATH", html_path)
+    monkeypatch.setattr(help_module, "_help_html_path", lambda: html_path)
 
     calls = []
     monkeypatch.setattr(help_module.webbrowser, "open", lambda url: calls.append(url))
@@ -51,7 +51,7 @@ def test_no_open_skips_browser(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) 
 def test_opens_browser_by_default(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     html_path = tmp_path / "help.html"
     html_path.write_text("<html></html>", encoding="utf-8")
-    monkeypatch.setattr(help_module, "_HELP_HTML_PATH", html_path)
+    monkeypatch.setattr(help_module, "_help_html_path", lambda: html_path)
 
     calls = []
     monkeypatch.setattr(help_module.webbrowser, "open", lambda url: calls.append(url))

@@ -13,14 +13,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from workpytools.common.help_gen import collect_command_help, render_help_html  # noqa: E402
 
-_OUTPUT_PATH = Path(__file__).resolve().parent.parent / "doc" / "help.html"
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+# doc/help.html: リポジトリ上でそのまま開いて見るための開発用コピー。
+# src/workpytools/data/help.html: pip installでもtoolh.exeが開けるよう、
+# パッケージデータとして同梱する実行時用コピー（package-dataに登録済み）。
+_OUTPUT_PATHS = [
+    _REPO_ROOT / "doc" / "help.html",
+    _REPO_ROOT / "src" / "workpytools" / "data" / "help.html",
+]
 
 
 def main() -> int:
     commands = collect_command_help()
     html = render_help_html(commands)
-    _OUTPUT_PATH.write_text(html, encoding="utf-8")
-    print(f"generated: {_OUTPUT_PATH}")
+    for path in _OUTPUT_PATHS:
+        path.write_text(html, encoding="utf-8")
+        print(f"generated: {path}")
     return 0
 
 
