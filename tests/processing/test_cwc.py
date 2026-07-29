@@ -273,26 +273,50 @@ def test_no_synonym_dict_disables_merging() -> None:
     assert result == words
 
 
-def test_synonym_dict_missing_file_warns_and_continues(
+def test_synonym_dict_cli_missing_file_falls_back_to_bundled(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    proc = CwcProcessor()
+    # --synonym-dictに存在しないパスを指定した場合、辞書なしになるのではなく
+    # 同梱辞書（前段の候補）にフォールバックする（辞書解決の各段は「指定パスが
+    # 実在すれば採用、しなければ前段の値を維持する」という上書き方式のため）
     args = _base_args(synonym_dict="C:/does/not/exist.tsv")
     with caplog.at_level("WARNING"):
-        result = proc._apply_synonyms(["特になし"], args)
+        result = cwc_module._resolve_synonym_dict(args)
 
-    assert result == ["特になし"]
-    assert "見つからない" in caplog.text
+    assert result is not None
+    assert result.name == "synonym.tsv"
+    assert "見つかりません" in caplog.text
 
 
-def test_user_dict_missing_file_warns_and_continues(
+def test_user_dict_cli_missing_file_falls_back_to_bundled(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     args = _base_args(user_dict="C:/does/not/exist.dic")
     with caplog.at_level("WARNING"):
         result = cwc_module._resolve_user_dict(args)
 
-    assert result is None
+    assert result is not None
+    assert result.name == "user.dic"
+    assert "見つかりません" in caplog.text
+
+
+def test_user_dict_configured_missing_file_falls_back_to_bundled(
+    caplog: pytest.LogCaptureFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # 設定ファイル(config.toml)に指定されたパスが存在しない場合も、
+    # 同梱辞書へフォールバックする（設定ファイルのtypoでユーザー辞書が
+    # 完全に無効化されてしまうバグの回帰防止）
+    monkeypatch.setattr(
+        cwc_module,
+        "load_default_config",
+        lambda: {"cwc": {"user_dict": "C:/does/not/exist_from_config.dic"}},
+    )
+    args = _base_args()
+    with caplog.at_level("WARNING"):
+        result = cwc_module._resolve_user_dict(args)
+
+    assert result is not None
+    assert result.name == "user.dic"
     assert "見つからない" in caplog.text
 
 

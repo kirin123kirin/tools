@@ -50,10 +50,21 @@ def markdown_table_to_tsv(text: str) -> str:
     data_rows: list[list[str]] = []
     br_replaced = False
 
-    for line in lines:
-        if _is_separator_row(line):
+    # 区切り行（|---|---|）は各表の2行目（ヘッダー行の直後）にしか現れない
+    # というMarkdown表の仕様上の制約を利用し、「1行前の行が区切り行でなく、
+    # かつ自分自身の直後の行が区切り行である」場合のみヘッダー行→区切り行の
+    # 組として扱う。これにより、データセルの値がたまたまハイフンや
+    # コロンだけで構成される行（例: `| - | - |`）を誤って区切り行と判定して
+    # データを消してしまう問題を防ぐ。
+    skip_next = False
+    for i, line in enumerate(lines):
+        if skip_next:
+            skip_next = False
             table_count += 1
             continue
+        next_line = lines[i + 1] if i + 1 < len(lines) else None
+        if next_line is not None and _is_separator_row(next_line):
+            skip_next = True
         cells = _split_table_row(line)
         new_cells = []
         for cell in cells:

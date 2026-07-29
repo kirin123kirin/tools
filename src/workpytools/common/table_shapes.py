@@ -103,9 +103,14 @@ def _cluster_axis(values: list[float], tolerance: float) -> list[float]:
 
 
 def _index_of_cluster(value: float, cluster_starts: list[float], tolerance: float) -> int:
-    """Find which cluster `value` belongs to, using the same chained
-    tolerance test as `_cluster_axis`: the closest cluster start at or
-    below `value` within `tolerance`, falling back to nearest overall.
+    """Find which cluster `value` belongs to: the nearest cluster start.
+
+    Only meaningful when `value` is one of the values `_cluster_axis` used
+    to build `cluster_starts` in the first place (as `estimate_grid` always
+    does) -- in that case the nearest cluster is guaranteed to be within
+    `tolerance`, since `_cluster_axis` assigned `value` to it. Raises if
+    called with a value that doesn't fit any cluster within tolerance,
+    rather than silently snapping it to a distant cluster.
     """
     best_index = 0
     best_distance = abs(value - cluster_starts[0])
@@ -114,6 +119,11 @@ def _index_of_cluster(value: float, cluster_starts: list[float], tolerance: floa
         if distance < best_distance:
             best_distance = distance
             best_index = i
+    if best_distance > tolerance:
+        raise ValueError(
+            f"value={value} is not within tolerance={tolerance} of any cluster "
+            f"in {cluster_starts}"
+        )
     return best_index
 
 

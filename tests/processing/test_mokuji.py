@@ -34,12 +34,16 @@ def _make_shape(text: str, top: float = 0.0, has_text_frame: bool = True) -> Mag
 def _make_slide(
     title_text: str | None, has_title: bool, extra_shapes: list | None = None
 ) -> MagicMock:
+    # slide.Shapesは実際のPowerPoint COM（レイトバインディング）に合わせて
+    # Count + Item(i) でアクセスする。for...inの直接イテレーションは
+    # 実機で動作しないため、モックもそれを再現しないようにする。
     slide = MagicMock()
     slide.Shapes.HasTitle = has_title
     if has_title:
         slide.Shapes.Title.TextFrame.TextRange.Text = title_text or ""
     shapes = list(extra_shapes or [])
-    slide.Shapes.__iter__ = lambda self: iter(shapes)
+    slide.Shapes.Count = len(shapes)
+    slide.Shapes.Item.side_effect = lambda i: shapes[i - 1]
     return slide
 
 

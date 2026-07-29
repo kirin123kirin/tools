@@ -76,7 +76,9 @@ class MokujiProcessor(Processor):
     def _topmost_text(self, slide: object) -> str | None:
         best_top: float | None = None
         best_text: str | None = None
-        for shape in slide.Shapes:  # type: ignore[attr-defined]
+        shapes = slide.Shapes  # type: ignore[attr-defined]
+        for i in range(1, shapes.Count + 1):
+            shape = shapes.Item(i)
             if not getattr(shape, "HasTextFrame", False):
                 continue
             text = shape.TextFrame.TextRange.Text

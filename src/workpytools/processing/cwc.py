@@ -119,6 +119,10 @@ def _resolve_user_dict(args: argparse.Namespace) -> Path | None:
     if getattr(args, "no_user_dict", False):
         return None
 
+    # 同梱データ(workpytools.data)はpip installでもsite-packages配下に
+    # 実ファイルとして展開される通常のwheel配布を前提にしている。
+    # as_file()のwithブロックを抜けた後も返されたパスは有効（zipimport等の
+    # 特殊なインストール形態は対象外）。
     candidate: Path | None = None
     with resources.as_file(resources.files("workpytools.data") / "user.dic") as bundled:
         if bundled.exists():
@@ -127,14 +131,21 @@ def _resolve_user_dict(args: argparse.Namespace) -> Path | None:
     config = load_default_config()
     configured = config.get("cwc", {}).get("user_dict")
     if configured is not None:
-        candidate = Path(configured)
+        configured_path = Path(configured)
+        if configured_path.exists():
+            candidate = configured_path
+        else:
+            logger.warning(
+                "設定ファイルのユーザー辞書が見つからないため無視します: %s", configured_path
+            )
 
     if args.user_dict is not None:
-        candidate = Path(args.user_dict)
+        cli_path = Path(args.user_dict)
+        if cli_path.exists():
+            candidate = cli_path
+        else:
+            logger.warning("--user-dictで指定された辞書が見つかりません: %s", cli_path)
 
-    if candidate is not None and not candidate.exists():
-        logger.warning("ユーザー辞書が見つからないためスキップします: %s", candidate)
-        return None
     return candidate
 
 
@@ -150,14 +161,21 @@ def _resolve_synonym_dict(args: argparse.Namespace) -> Path | None:
     config = load_default_config()
     configured = config.get("cwc", {}).get("synonym_dict")
     if configured is not None:
-        candidate = Path(configured)
+        configured_path = Path(configured)
+        if configured_path.exists():
+            candidate = configured_path
+        else:
+            logger.warning(
+                "設定ファイルの同義語辞書が見つからないため無視します: %s", configured_path
+            )
 
     if args.synonym_dict is not None:
-        candidate = Path(args.synonym_dict)
+        cli_path = Path(args.synonym_dict)
+        if cli_path.exists():
+            candidate = cli_path
+        else:
+            logger.warning("--synonym-dictで指定された辞書が見つかりません: %s", cli_path)
 
-    if candidate is not None and not candidate.exists():
-        logger.warning("同義語辞書が見つからないためスキップします: %s", candidate)
-        return None
     return candidate
 
 

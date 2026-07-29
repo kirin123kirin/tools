@@ -136,6 +136,17 @@ def test_alignment_spec_does_not_break_conversion() -> None:
     assert tsv == "a\tb\n1\t2"
 
 
+def test_data_row_of_only_dashes_and_colons_not_treated_as_separator() -> None:
+    # データセルの値が"-"のみ（未定義値の慣習的表記等）だと、区切り行と
+    # 同じ正規表現にマッチしてしまい、行全体が消失するバグの回帰防止。
+    # 区切り行は各表の2行目にしか現れないため、次の行が区切り行の形式で
+    # ある行だけをヘッダー行とみなすことで、データ行としての"| - | - |"
+    # は誤検出されないようにしている。
+    md = "| A | B |\n|---|---|\n| - | - |\n| 1 | 2 |\n"
+    tsv = markdown_table_to_tsv(md)
+    assert tsv == "A\tB\n-\t-\n1\t2"
+
+
 def test_two_tables_concatenated_into_one_tsv(caplog: pytest.LogCaptureFixture) -> None:
     multi = "| a | b |\n|---|---|\n| 1 | 2 |\n\n| c | d |\n|---|---|\n| 3 | 4 |\n"
     with caplog.at_level("INFO"):

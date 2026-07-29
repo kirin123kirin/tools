@@ -3,6 +3,7 @@ import pytest
 from workpytools.common.table_shapes import (
     DuplicateGridPositionError,
     GridShape,
+    _index_of_cluster,
     column_and_row_sizes,
     compute_spaced_positions,
     estimate_grid,
@@ -122,6 +123,21 @@ def test_non_rectangle_shapes_included() -> None:
     positions, rows, cols = estimate_grid(shapes)
     refs = {p.shape.ref for p in positions}
     assert refs == {"rect", "textbox"}
+
+
+# --- _index_of_cluster ---
+
+
+def test_index_of_cluster_finds_nearest_within_tolerance() -> None:
+    assert _index_of_cluster(0.9, [0.0, 50.0, 100.0], tolerance=1.0) == 0
+
+
+def test_index_of_cluster_raises_when_value_outside_tolerance_of_every_cluster() -> None:
+    # 実際にestimate_grid経由で呼ばれる限り発生しないケースだが、万一
+    # クラスタ構築時と異なる値が渡された場合は、遠いクラスタへ静かに
+    # 吸着させず例外にする（過去に発見された潜在バグの回帰防止）
+    with pytest.raises(ValueError):
+        _index_of_cluster(100.0, [0.0, 1.05, 2.1], tolerance=1.0)
 
 
 # --- column_and_row_sizes ---

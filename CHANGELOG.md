@@ -5,6 +5,29 @@
 
 ## [Unreleased]
 
+## [0.1.19] - 2026-07-29
+
+### Fixed
+
+- `mokuji`: `for shape in slide.Shapes:`というCOMコレクションの直接
+  イテレーションを、他のPowerPoint操作コマンドと同じ`Count`+`Item(i)`
+  方式に修正。レイトバインディングでは動作しない可能性があった
+  （テスト側の`MagicMock.__iter__`モックも実機挙動に合わせて修正）
+- `mdtsv`: `markdown_table_to_tsv`が、データセルの値がハイフンや
+  コロンのみ（例: `| - | - |`）の行を区切り行と誤認してデータごと
+  消してしまうバグを修正。区切り行は各表の2行目にしか現れないという
+  Markdown表の制約を利用し、直後の行が区切り行の形式である行だけを
+  ヘッダー行とみなすように変更した
+- `cwc`: ユーザー辞書・同義語辞書の解決で、設定ファイルや`--user-dict`/
+  `--synonym-dict`に指定されたパスが存在しない場合、同梱辞書へ
+  フォールバックせず辞書なしになっていたバグを修正。各段は「指定パスが
+  実在すれば採用、しなければ前段の値を維持する」方式に変更した
+- `common/table_shapes.py`: `_index_of_cluster`が、許容誤差を超えて
+  離れた値でも常に最も近いクラスタへ強制的に割り当てていた設計上の
+  問題に対し、tolerance超過時は例外を送出する防御的チェックを追加
+  （`estimate_grid`の通常の呼び出しでは発生しないが、将来の誤用に
+  備えた回帰防止）
+
 ## [0.1.18] - 2026-07-29
 
 ### Fixed
@@ -215,7 +238,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.18...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.19...HEAD
+[0.1.19]: https://github.com/kirin123kirin/workpytools/compare/v0.1.18...v0.1.19
 [0.1.18]: https://github.com/kirin123kirin/workpytools/compare/v0.1.17...v0.1.18
 [0.1.17]: https://github.com/kirin123kirin/workpytools/compare/v0.1.16...v0.1.17
 [0.1.16]: https://github.com/kirin123kirin/workpytools/compare/v0.1.15...v0.1.16
