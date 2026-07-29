@@ -29,6 +29,40 @@ Claude Codeがコミットを作成する際は、**同じコミットの中で*
 軽微なドキュメント修正やテストのみの変更であっても、コミットする限りは
 このバージョンアップを省略しないこと。
 
+## PyPI配布（`pip install`）後のディレクトリ構成を必ず考慮する
+
+このプロジェクトは`workpytools`としてPyPIに公開しており、開発者のリポジトリ
+直下（例: `doc/help.html`、`H:\...\tools\src\...`のような絶対パス）とは
+まったく異なる`site-packages`配下のパッケージ構成で実行される。
+**「リポジトリのフォルダ構造をそのまま前提にしたパス解決」は、
+`pip install`環境で確実に壊れる。** 過去に実際に以下の事故が起きている。
+
+- `help`/`toolh`が`Path(__file__).resolve().parents[N] / "doc" / "help.html"`
+  のようにリポジトリ直下のパスを直接参照しており、PyPI経由でインストール
+  すると`doc/`自体が存在せず、実行するたびに必ずクラッシュしていた
+  （`v0.1.18`で修正。`help.html`をパッケージデータとして同梱し、
+  `importlib.resources`経由で参照する方式に直した）。
+
+新しい処理を追加する、または既存コードに手を入れる際は、以下を必ず確認すること。
+
+- **同梱データファイル**（辞書、アイコン、`.html`等）は、
+  `pyproject.toml`の`[tool.setuptools.package-data]`に拡張子を登録した上で、
+  `importlib.resources.files("workpytools.data")`（または`resources.as_file`）
+  経由で参照する。`Path(__file__).resolve().parents[N] / "doc" / ...`のような
+  リポジトリ相対パスの決め打ちは行わない。
+- **`sys.executable`基準のパス解決**（`shortcut.py`の`scripts_dir()`等）は、
+  venv・pyenv-win・`pip install --user`など複数のインストール形態があることを
+  踏まえ、決め打ちせず存在確認をしてから使う。
+- コードを書いたら、`pip install -e .`（editable install）だけで満足せず、
+  **`python -m build`で実際にwheelをビルドし、別のクリーンなvenvに
+  `pip install`して動作確認する**（editable installはソースツリーへの
+  参照になり、`site-packages`配下への実配置とは挙動が異なるため、
+  今回のようなパス関連バグを見逃す）。
+- `scripts/gen_help.py`のように、開発用の出力先（`doc/`）と配布用の
+  出力先（`src/workpytools/data/`）の両方が必要なスクリプトは、両方を
+  生成・同期するようにし、どちらか一方だけが更新されて食い違う状態を
+  作らない。
+
 ## 社内セキュリティ製品（DLP/EDR）との共存を前提とした設計
 
 社内で配布・利用することを前提に、DLP/EDRなどの監視製品から**誤検知（false positive）されにくい、

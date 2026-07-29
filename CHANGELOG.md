@@ -5,6 +5,16 @@
 
 ## [Unreleased]
 
+## [0.1.20] - 2026-07-29
+
+### Changed
+
+- `CLAUDE.md`に「PyPI配布後のディレクトリ構成を必ず考慮する」セクションを
+  追加。`help.html`未同梱バグ（`v0.1.18`）の教訓として、同梱データは
+  `importlib.resources`経由で参照すること、`sys.executable`基準のパス解決は
+  複数のインストール形態を考慮すること、editable installだけでなく実際に
+  wheelをビルドして別venvで動作確認することを明文化した
+
 ## [0.1.19] - 2026-07-29
 
 ### Fixed
@@ -238,7 +248,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.19...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.20...HEAD
+[0.1.20]: https://github.com/kirin123kirin/workpytools/compare/v0.1.19...v0.1.20
 [0.1.19]: https://github.com/kirin123kirin/workpytools/compare/v0.1.18...v0.1.19
 [0.1.18]: https://github.com/kirin123kirin/workpytools/compare/v0.1.17...v0.1.18
 [0.1.17]: https://github.com/kirin123kirin/workpytools/compare/v0.1.16...v0.1.17
