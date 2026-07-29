@@ -5,11 +5,18 @@
 
 ## [Unreleased]
 
+## [0.1.23] - 2026-07-29
+
+### Changed
+
+- 前バージョンで追加したコマンド名`tsunagi`を`tsunagu`にリネーム
+  （コネクタを最寄りの接続点へ吸着させるコマンド）
+
 ## [0.1.22] - 2026-07-29
 
 ### Added
 
-- `tsunagi` — コネクタの端点を最寄りのシェイプ接続点へ吸着させる新コマンド。
+- `tsunagu` — コネクタの端点を最寄りのシェイプ接続点へ吸着させる新コマンド。
   マウスでコネクタをシェイプの接続点にドラッグして合わせる煩わしさを解消する。
   `tbl`と同じく選択状態から動作を自動判定する。
   - コネクタ1つ以上＋シェイプ2つ以上: 各コネクタの両端を、選択中の
@@ -283,7 +290,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.22...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.23...HEAD
+[0.1.23]: https://github.com/kirin123kirin/workpytools/compare/v0.1.22...v0.1.23
 [0.1.22]: https://github.com/kirin123kirin/workpytools/compare/v0.1.21...v0.1.22
 [0.1.21]: https://github.com/kirin123kirin/workpytools/compare/v0.1.20...v0.1.21
 [0.1.20]: https://github.com/kirin123kirin/workpytools/compare/v0.1.19...v0.1.20

@@ -38,7 +38,7 @@ workpytools/
 │           ├── umekomi.py          # PowerPointのテキストボックスをシェイプに埋め込む
 │           ├── merioall.py         # テーマ・マスター・全スライドの和文フォントをメイリオに統一
 │           ├── iro.py              # 既存スライドの独自色化・テーマカラー変更・既定書式の一時適用
-│           ├── tsunagi.py          # コネクタを最寄りのシェイプ接続点に吸着（2つ選択で新規作成）
+│           ├── tsunagu.py          # コネクタを最寄りのシェイプ接続点に吸着（2つ選択で新規作成）
 │           ├── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
 │           └── shortcut.py         # 全コマンドのスタートメニューショートカットを作成/削除
 ├── tests/                  # src/workpytools と同じ階層構造でテストを配置
@@ -256,11 +256,11 @@ tools iro
 
 # コネクタとシェイプを選択して実行し、コネクタの両端を最寄りの
 # 接続点へ吸着させる（マウスでのドラッグ接続が不要になる）
-tools tsunagi
+tools tsunagu
 
 # シェイプをちょうど2つ選択して実行すると、それらを繋ぐ直線コネクタを
 # 新規作成する（黒・2pt、互いに最も近い接続点同士を繋ぐ）
-tools tsunagi
+tools tsunagu
 
 # 全コマンドのヘルプ一覧（doc/help.html）をブラウザで開く
 tools help
@@ -372,7 +372,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 場合のみ解決します（`WScript.Shell`経由）。複数フォルダを指定して起点が
 重複する場合はフルパスで自動的に重複除去されます。
 
-### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi / merioall / iro / tsunagi）
+### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi / merioall / iro / tsunagu）
 
 いずれも実行中のPowerPointを対象にします（`pywin32`経由、`python-pptx`は
 「開いているファイル」を操作できないため使いません）。役割は以下の通りです。
@@ -388,7 +388,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 | `umekomi` | 選択したシェイプの上に重ねて置かれたテキストボックスをシェイプ本体に埋め込む |
 | `merioall` | テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する |
 | `iro` | 既存スライドを独自色化した上でテーマカラーと既定図形の書式を統一する |
-| `tsunagi` | コネクタの端点を最寄りのシェイプ接続点に吸着させる（2つ選択で新規作成） |
+| `tsunagu` | コネクタの端点を最寄りのシェイプ接続点に吸着させる（2つ選択で新規作成） |
 
 - `outline`はクリップボードのテキストを**Markdown見出し（`#`等）／タブ区切り
   ／空行区切り**の3形式から自動判別し、抽出した項目ぶんのスライドを
@@ -477,7 +477,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
   引数はなく、選択状態に関わらずプレゼンテーション全体が対象です。
   独自色化・テーマカラー変更にはUndo境界を打つため、Ctrl+Zで戻せます
   （既定書式の一時適用はファイルに保存されない状態のためUndo対象外です）
-- `tsunagi`は、コネクタをマウスでシェイプの接続点（●印）にドラッグして
+- `tsunagu`は、コネクタをマウスでシェイプの接続点（●印）にドラッグして
   合わせる煩わしさを解消します。`tbl`と同じく**選択状態から動作を自動判定**
   します。
 
@@ -502,7 +502,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 `clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` /
 `profiler.exe` / `lsdir.exe` / `outline.exe` / `ikko.exe` / `mokuji.exe` /
 `tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` / `merioall.exe` /
-`iro.exe` / `tsunagi.exe` / `shortcut.exe` など）。
+`iro.exe` / `tsunagu.exe` / `shortcut.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 

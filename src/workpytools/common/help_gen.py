@@ -70,7 +70,7 @@ _CATEGORIES: list[tuple[str, list[tuple[str, str]]]] = [
             ("umekomi", "テキストボックスを埋め込み"),
             ("merioall", "和文フォントをメイリオに統一"),
             ("iro", "テーマカラーと既定書式を統一"),
-            ("tsunagi", "コネクタを最寄りの接続点へ吸着"),
+            ("tsunagu", "コネクタを最寄りの接続点へ吸着"),
         ],
     ),
     (
@@ -528,7 +528,7 @@ _DIAGRAMS: dict[str, str] = {
         '<rect x="160" y="20" width="20" height="50" fill="#A8493D"/>'
         '<rect x="186" y="20" width="20" height="50" fill="#808080"/>'
     ),
-    "tsunagi": (
+    "tsunagu": (
         # before: 2つの四角形の間に、どちらにも繋がっていない浮いた線
         '<rect x="10" y="30" width="26" height="30" rx="2" fill="none" '
         'stroke="currentColor" stroke-width="2.2"/>'

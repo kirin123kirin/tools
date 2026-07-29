@@ -25,7 +25,7 @@ _CONNECTOR_LINE_WEIGHT = 2  # iroコマンドで定めた矢印の既定書式�
 _BLACK_RGB = 0x000000
 
 
-class TsunagiProcessor(Processor):
+class TsunaguProcessor(Processor):
     """Snap connectors to the nearest connection sites of nearby shapes,
     so they don't have to be dragged onto the handles by hand. The mode is
     inferred from the current selection:
@@ -37,7 +37,7 @@ class TsunagiProcessor(Processor):
     - anything else -> error, see run()
     """
 
-    name = "tsunagi"
+    name = "tsunagu"
     help = "コネクタの端点を最寄りのシェイプの接続点に吸着させる（2つ選択で新規作成）"
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:

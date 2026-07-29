@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 import pytest
 
 from workpytools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
-from workpytools.processing import tsunagi as tsunagi_module
-from workpytools.processing.tsunagi import TsunagiProcessor
+from workpytools.processing import tsunagu as tsunagu_module
+from workpytools.processing.tsunagu import TsunaguProcessor
 
 _SELECTION_NONE = 0
 _SELECTION_SHAPES = 2
@@ -68,8 +68,8 @@ def _make_app_with_selection(selected: list, selection_type: int = _SELECTION_SH
 
 
 def _setup_running(monkeypatch: pytest.MonkeyPatch, app: MagicMock) -> None:
-    monkeypatch.setattr(tsunagi_module, "get_running_powerpoint", lambda: app)
-    monkeypatch.setattr(tsunagi_module, "get_active_presentation", lambda a: MagicMock())
+    monkeypatch.setattr(tsunagu_module, "get_running_powerpoint", lambda: app)
+    monkeypatch.setattr(tsunagu_module, "get_active_presentation", lambda a: MagicMock())
 
 
 # --- 動作の自動判定 ---
@@ -82,7 +82,7 @@ def test_connector_with_two_shapes_triggers_snap(monkeypatch: pytest.MonkeyPatch
     app = _make_app_with_selection([connector, left_shape, right_shape])
     _setup_running(monkeypatch, app)
 
-    result = TsunagiProcessor().run(_base_args())
+    result = TsunaguProcessor().run(_base_args())
 
     assert result == 0
     connector.ConnectorFormat.BeginConnect.assert_called_once()
@@ -95,7 +95,7 @@ def test_two_shapes_without_connector_triggers_create(monkeypatch: pytest.Monkey
     app = _make_app_with_selection([left_shape, right_shape])
     _setup_running(monkeypatch, app)
 
-    result = TsunagiProcessor().run(_base_args())
+    result = TsunaguProcessor().run(_base_args())
 
     assert result == 0
     app.ActiveWindow.View.Slide.Shapes.AddConnector.assert_called_once()
@@ -108,7 +108,7 @@ def test_connector_with_one_shape_raises(monkeypatch: pytest.MonkeyPatch) -> Non
     _setup_running(monkeypatch, app)
 
     with pytest.raises(SystemExit, match="2つ以上"):
-        TsunagiProcessor().run(_base_args())
+        TsunaguProcessor().run(_base_args())
 
 
 def test_three_shapes_without_connector_raises(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -117,7 +117,7 @@ def test_three_shapes_without_connector_raises(monkeypatch: pytest.MonkeyPatch) 
     _setup_running(monkeypatch, app)
 
     with pytest.raises(SystemExit, match="ちょうど2つ"):
-        TsunagiProcessor().run(_base_args())
+        TsunaguProcessor().run(_base_args())
 
 
 def test_no_selection_raises(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -125,7 +125,7 @@ def test_no_selection_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     _setup_running(monkeypatch, app)
 
     with pytest.raises(SystemExit):
-        TsunagiProcessor().run(_base_args())
+        TsunaguProcessor().run(_base_args())
 
 
 def test_line_shape_without_connector_flag_is_not_treated_as_connector(
@@ -140,7 +140,7 @@ def test_line_shape_without_connector_flag_is_not_treated_as_connector(
     _setup_running(monkeypatch, app)
 
     with pytest.raises(SystemExit, match="ちょうど2つ"):
-        TsunagiProcessor().run(_base_args())
+        TsunaguProcessor().run(_base_args())
 
 
 # --- 吸着 ---
@@ -154,7 +154,7 @@ def test_snap_connects_each_end_to_nearest_shape(monkeypatch: pytest.MonkeyPatch
     app = _make_app_with_selection([connector, left_shape, right_shape])
     _setup_running(monkeypatch, app)
 
-    TsunagiProcessor().run(_base_args())
+    TsunaguProcessor().run(_base_args())
 
     begin_args = connector.ConnectorFormat.BeginConnect.call_args[0]
     end_args = connector.ConnectorFormat.EndConnect.call_args[0]
@@ -172,7 +172,7 @@ def test_snap_processes_all_selected_connectors(monkeypatch: pytest.MonkeyPatch)
     app = _make_app_with_selection([c1, c2, left_shape, right_shape])
     _setup_running(monkeypatch, app)
 
-    TsunagiProcessor().run(_base_args())
+    TsunaguProcessor().run(_base_args())
 
     c1.ConnectorFormat.BeginConnect.assert_called_once()
     c2.ConnectorFormat.BeginConnect.assert_called_once()
@@ -189,7 +189,7 @@ def test_snap_raises_when_both_ends_nearest_same_shape(
     _setup_running(monkeypatch, app)
 
     with pytest.raises(SystemExit, match="同じシェイプ"):
-        TsunagiProcessor().run(_base_args())
+        TsunaguProcessor().run(_base_args())
 
     connector.ConnectorFormat.BeginConnect.assert_not_called()
 
@@ -203,7 +203,7 @@ def test_snap_does_not_change_connector_line_format(
     app = _make_app_with_selection([connector, left_shape, right_shape])
     _setup_running(monkeypatch, app)
 
-    TsunagiProcessor().run(_base_args())
+    TsunaguProcessor().run(_base_args())
 
     # 吸着モードでは線の見た目を一切変えない
     assert connector.Line.Weight != 2
@@ -220,7 +220,7 @@ def test_snap_respects_horizontal_flip_for_endpoints(
     app = _make_app_with_selection([connector, left_shape, right_shape])
     _setup_running(monkeypatch, app)
 
-    TsunagiProcessor().run(_base_args())
+    TsunaguProcessor().run(_base_args())
 
     begin_args = connector.ConnectorFormat.BeginConnect.call_args[0]
     end_args = connector.ConnectorFormat.EndConnect.call_args[0]
@@ -237,7 +237,7 @@ def test_create_uses_straight_connector(monkeypatch: pytest.MonkeyPatch) -> None
     app = _make_app_with_selection([a, b])
     _setup_running(monkeypatch, app)
 
-    TsunagiProcessor().run(_base_args())
+    TsunaguProcessor().run(_base_args())
 
     call_args = app.ActiveWindow.View.Slide.Shapes.AddConnector.call_args[0]
     assert call_args[0] == _MSO_CONNECTOR_STRAIGHT
@@ -250,7 +250,7 @@ def test_create_connects_facing_sites(monkeypatch: pytest.MonkeyPatch) -> None:
     new_connector = app.ActiveWindow.View.Slide.Shapes.AddConnector.return_value
     _setup_running(monkeypatch, app)
 
-    TsunagiProcessor().run(_base_args())
+    TsunaguProcessor().run(_base_args())
 
     begin_args = new_connector.ConnectorFormat.BeginConnect.call_args[0]
     end_args = new_connector.ConnectorFormat.EndConnect.call_args[0]
@@ -267,7 +267,7 @@ def test_create_sets_black_2pt_line(monkeypatch: pytest.MonkeyPatch) -> None:
     new_connector = app.ActiveWindow.View.Slide.Shapes.AddConnector.return_value
     _setup_running(monkeypatch, app)
 
-    TsunagiProcessor().run(_base_args())
+    TsunaguProcessor().run(_base_args())
 
     assert new_connector.Line.ForeColor.RGB == 0x000000
     assert new_connector.Line.Weight == 2
@@ -280,7 +280,7 @@ def test_create_uses_selection_order_for_direction(monkeypatch: pytest.MonkeyPat
     new_connector = app.ActiveWindow.View.Slide.Shapes.AddConnector.return_value
     _setup_running(monkeypatch, app)
 
-    TsunagiProcessor().run(_base_args())
+    TsunaguProcessor().run(_base_args())
 
     begin_args = new_connector.ConnectorFormat.BeginConnect.call_args[0]
     assert begin_args[0] is first  # Item(1)が始点
@@ -296,7 +296,7 @@ def test_start_new_undo_entry_called_for_snap(monkeypatch: pytest.MonkeyPatch) -
     app = _make_app_with_selection([connector, a, b])
     _setup_running(monkeypatch, app)
 
-    TsunagiProcessor().run(_base_args())
+    TsunaguProcessor().run(_base_args())
 
     app.StartNewUndoEntry.assert_called_once()
 
@@ -307,7 +307,7 @@ def test_start_new_undo_entry_called_for_create(monkeypatch: pytest.MonkeyPatch)
     app = _make_app_with_selection([a, b])
     _setup_running(monkeypatch, app)
 
-    TsunagiProcessor().run(_base_args())
+    TsunaguProcessor().run(_base_args())
 
     app.StartNewUndoEntry.assert_called_once()
 
@@ -321,26 +321,26 @@ def test_powerpoint_not_running_raises_without_new_instance(
     def raise_not_running():
         raise PowerPointNotRunningError("not running")
 
-    monkeypatch.setattr(tsunagi_module, "get_running_powerpoint", raise_not_running)
+    monkeypatch.setattr(tsunagu_module, "get_running_powerpoint", raise_not_running)
     dispatch = MagicMock()
     monkeypatch.setattr("win32com.client.Dispatch", dispatch, raising=False)
 
     with pytest.raises(SystemExit):
-        TsunagiProcessor().run(_base_args())
+        TsunaguProcessor().run(_base_args())
 
     dispatch.assert_not_called()
 
 
 def test_no_active_presentation_raises(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(tsunagi_module, "get_running_powerpoint", lambda: MagicMock())
+    monkeypatch.setattr(tsunagu_module, "get_running_powerpoint", lambda: MagicMock())
 
     def raise_no_active(app: object) -> None:
         raise NoActivePresentationError("no active")
 
-    monkeypatch.setattr(tsunagi_module, "get_active_presentation", raise_no_active)
+    monkeypatch.setattr(tsunagu_module, "get_active_presentation", raise_no_active)
 
     with pytest.raises(SystemExit):
-        TsunagiProcessor().run(_base_args())
+        TsunaguProcessor().run(_base_args())
 
 
 def test_com_exception_mentions_undo(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -352,4 +352,4 @@ def test_com_exception_mentions_undo(monkeypatch: pytest.MonkeyPatch) -> None:
     _setup_running(monkeypatch, app)
 
     with pytest.raises(SystemExit, match="Ctrl\\+Z"):
-        TsunagiProcessor().run(_base_args())
+        TsunaguProcessor().run(_base_args())

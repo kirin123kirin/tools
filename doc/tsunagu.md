@@ -1,8 +1,8 @@
-# tsunagi コマンド設計書
+# tsunagu コマンド設計書
 
 ## 概要
 
-PowerPointのコネクタとシェイプの接続を自動化する `tools tsunagi`
+PowerPointのコネクタとシェイプの接続を自動化する `tools tsunagu`
 サブコマンド。「繋ぎ」から。
 
 解決したい問題:
@@ -14,9 +14,9 @@ PowerPointのコネクタとシェイプの接続を自動化する `tools tsuna
 - 既に引いてあるコネクタの両端を、近くのシェイプへ一括で吸着させたい。
   あるいは、繋ぎたい2つのシェイプを選ぶだけでコネクタを自動生成したい
 
-サブコマンド名・単体エントリーポイント名ともに `tsunagi`
+サブコマンド名・単体エントリーポイント名ともに `tsunagu`
 （`pyproject.toml` の `[project.scripts]` に
-`tsunagi = "workpytools.cli:run_as_subcommand"` を追加）。
+`tsunagu = "workpytools.cli:run_as_subcommand"` を追加）。
 短く叩きやすい名前を優先している（`vv`/`ikko`/`seiretsu`/`iro`と同じ流儀）。
 
 ## 動作の自動判定
@@ -204,7 +204,7 @@ site i (1始まり) の角度 = -90度 + 360度 * (i-1) / site_count
 ## 他コマンドとの関係
 
 - `seiretsu`（シェイプを格子状に整列）・`nagasa`（サイズ統一）で
-  レイアウトを整えた後、`tsunagi`でコネクタを繋ぐ、という流れを想定
+  レイアウトを整えた後、`tsunagu`でコネクタを繋ぐ、という流れを想定
 - 新規作成時の線の書式（黒・2pt）は`iro`コマンドで定めた矢印の既定書式に
   合わせている
 
@@ -212,7 +212,7 @@ site i (1始まり) の角度 = -90度 + 360度 * (i-1) / site_count
 
 接続点の座標計算・最寄り接続点の選択ロジックは、COM非依存の純粋関数として
 `common/connector_sites.py`に切り出し、`tests/common/`でテストする。
-`tests/processing/test_tsunagi.py`ではPowerPoint COMオブジェクトを
+`tests/processing/test_tsunagu.py`ではPowerPoint COMオブジェクトを
 `MagicMock`でモックする。
 
 ### 接続点の座標計算（純粋関数）
