@@ -5,6 +5,24 @@
 
 ## [Unreleased]
 
+## [0.1.22] - 2026-07-29
+
+### Added
+
+- `tsunagi` — コネクタの端点を最寄りのシェイプ接続点へ吸着させる新コマンド。
+  マウスでコネクタをシェイプの接続点にドラッグして合わせる煩わしさを解消する。
+  `tbl`と同じく選択状態から動作を自動判定する。
+  - コネクタ1つ以上＋シェイプ2つ以上: 各コネクタの両端を、選択中の
+    シェイプの最寄り接続点へ`BeginConnect`/`EndConnect`する
+  - コネクタなし＋シェイプちょうど2つ: 互いに最も近い接続点同士を繋ぐ
+    直線コネクタ（黒・2pt）を新規作成する
+  - 接続点はコネクタ端点からの距離で選ぶため、マウスで引いた位置の意図が
+    そのまま反映される。吸着先候補は選択に含まれるシェイプのみに限定し、
+    意図しない遠くのシェイプへの吸着を防ぐ
+  - 接続点の座標を返すCOM APIが存在しないため、外接矩形から算出する
+    （4サイトは上・左・下・右、それ以外は外接楕円上に等分配置して近似）。
+    ロジックは`common/connector_sites.py`に純粋関数として切り出した
+
 ## [0.1.21] - 2026-07-29
 
 ### Fixed
@@ -265,7 +283,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.21...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.22...HEAD
+[0.1.22]: https://github.com/kirin123kirin/workpytools/compare/v0.1.21...v0.1.22
 [0.1.21]: https://github.com/kirin123kirin/workpytools/compare/v0.1.20...v0.1.21
 [0.1.20]: https://github.com/kirin123kirin/workpytools/compare/v0.1.19...v0.1.20
 [0.1.19]: https://github.com/kirin123kirin/workpytools/compare/v0.1.18...v0.1.19

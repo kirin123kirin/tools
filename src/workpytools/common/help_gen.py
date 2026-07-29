@@ -70,6 +70,7 @@ _CATEGORIES: list[tuple[str, list[tuple[str, str]]]] = [
             ("umekomi", "テキストボックスを埋め込み"),
             ("merioall", "和文フォントをメイリオに統一"),
             ("iro", "テーマカラーと既定書式を統一"),
+            ("tsunagi", "コネクタを最寄りの接続点へ吸着"),
         ],
     ),
     (
@@ -526,6 +527,27 @@ _DIAGRAMS: dict[str, str] = {
         '<rect x="134" y="20" width="20" height="50" fill="#1E7145"/>'
         '<rect x="160" y="20" width="20" height="50" fill="#A8493D"/>'
         '<rect x="186" y="20" width="20" height="50" fill="#808080"/>'
+    ),
+    "tsunagi": (
+        # before: 2つの四角形の間に、どちらにも繋がっていない浮いた線
+        '<rect x="10" y="30" width="26" height="30" rx="2" fill="none" '
+        'stroke="currentColor" stroke-width="2.2"/>'
+        '<rect x="64" y="30" width="26" height="30" rx="2" fill="none" '
+        'stroke="currentColor" stroke-width="2.2"/>'
+        '<line x1="42" y1="38" x2="58" y2="52" stroke="currentColor" '
+        'stroke-width="2.2"/>'
+        '<circle cx="42" cy="38" r="2.5" fill="none" stroke="#c55" stroke-width="1.8"/>'
+        '<circle cx="58" cy="52" r="2.5" fill="none" stroke="#c55" stroke-width="1.8"/>'
+        + _ARROW_CENTER +
+        # after: 線の両端が各四角形の接続点にぴったり吸着している
+        '<rect x="130" y="30" width="26" height="30" rx="2" fill="none" '
+        'stroke="currentColor" stroke-width="2.2"/>'
+        '<rect x="184" y="30" width="26" height="30" rx="2" fill="none" '
+        'stroke="currentColor" stroke-width="2.2"/>'
+        '<line x1="156" y1="45" x2="184" y2="45" stroke="currentColor" '
+        'stroke-width="2.2"/>'
+        '<circle cx="156" cy="45" r="2.5" fill="currentColor"/>'
+        '<circle cx="184" cy="45" r="2.5" fill="currentColor"/>'
     ),
 }
 
