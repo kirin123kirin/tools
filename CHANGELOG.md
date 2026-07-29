@@ -5,6 +5,23 @@
 
 ## [Unreleased]
 
+## [0.1.21] - 2026-07-29
+
+### Fixed
+
+- `mdtsv`: `v0.1.19`で行った区切り行誤検出の修正自体が、別のデグレを
+  引き起こしていたバグを再修正。「次の行が区切り行の形式かどうか」だけで
+  フラットに判定する実装だったため、データ行の直後に区切り行と同じ見た目
+  の行（例: `| - | - |`）が来ると、そのデータ行が誤って消えてしまっていた。
+  入力を空行で表のブロックに分割し、各ブロック内の2行目だけを区切り行の
+  判定対象にする方式に変更し、この種の位置依存の誤検出を構造的に防いだ
+
+### Changed
+
+- `common/table_shapes.py`: `estimate_grid`のdocstringに、
+  `_index_of_cluster`が送出しうる`ValueError`（`v0.1.19`で追加した
+  防御的チェック）が実際には発生し得ない理由を明記した
+
 ## [0.1.20] - 2026-07-29
 
 ### Changed
@@ -248,7 +265,8 @@
 - `help`（`toolh`） — 全コマンドのヘルプ一覧をブラウザで開く
 - MIT License
 
-[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.20...HEAD
+[Unreleased]: https://github.com/kirin123kirin/workpytools/compare/v0.1.21...HEAD
+[0.1.21]: https://github.com/kirin123kirin/workpytools/compare/v0.1.20...v0.1.21
 [0.1.20]: https://github.com/kirin123kirin/workpytools/compare/v0.1.19...v0.1.20
 [0.1.19]: https://github.com/kirin123kirin/workpytools/compare/v0.1.18...v0.1.19
 [0.1.18]: https://github.com/kirin123kirin/workpytools/compare/v0.1.17...v0.1.18

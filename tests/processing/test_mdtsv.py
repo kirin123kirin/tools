@@ -105,6 +105,23 @@ def test_cf_html_is_never_consulted(clipboard_state) -> None:
     assert "get_clipboard_html" not in source
 
 
+# --- _split_into_table_blocks ---
+
+
+def test_split_into_table_blocks_single_table() -> None:
+    text = "| a | b |\n|---|---|\n| 1 | 2 |\n"
+    blocks = mdtsv_module._split_into_table_blocks(text)
+    assert len(blocks) == 1
+    assert blocks[0] == ["| a | b |", "|---|---|", "| 1 | 2 |"]
+
+
+def test_split_into_table_blocks_splits_on_blank_lines() -> None:
+    text = "| a | b |\n|---|---|\n| 1 | 2 |\n\n| c | d |\n|---|---|\n| 3 | 4 |\n"
+    blocks = mdtsv_module._split_into_table_blocks(text)
+    assert len(blocks) == 2
+    assert blocks[1] == ["| c | d |", "|---|---|", "| 3 | 4 |"]
+
+
 # --- Markdownの表 → TSV ---
 
 
@@ -139,12 +156,23 @@ def test_alignment_spec_does_not_break_conversion() -> None:
 def test_data_row_of_only_dashes_and_colons_not_treated_as_separator() -> None:
     # データセルの値が"-"のみ（未定義値の慣習的表記等）だと、区切り行と
     # 同じ正規表現にマッチしてしまい、行全体が消失するバグの回帰防止。
-    # 区切り行は各表の2行目にしか現れないため、次の行が区切り行の形式で
-    # ある行だけをヘッダー行とみなすことで、データ行としての"| - | - |"
-    # は誤検出されないようにしている。
+    # 区切り行は各表（=空行区切りのブロック）の2行目にしか現れないため、
+    # ブロック単位で2行目だけを区切り行の判定対象にすることで、それ以外の
+    # 位置に出現するデータ行としての"| - | - |"は誤検出されないようにしている。
     md = "| A | B |\n|---|---|\n| - | - |\n| 1 | 2 |\n"
     tsv = markdown_table_to_tsv(md)
     assert tsv == "A\tB\n-\t-\n1\t2"
+
+
+def test_data_row_of_only_dashes_as_last_row_not_treated_as_separator() -> None:
+    # 上と同じ問題の別パターンの回帰防止: "| - | - |"がデータ行の直後
+    # （表の最終行）に来た場合も、誤って区切り行として消えないこと。
+    # 一度、"次の行が区切り行の形式かどうか"だけで判定する実装に直した際、
+    # このケースで再度回帰したため、ブロック単位・行番号ベースの判定に
+    # 修正した経緯がある。
+    md = "| a | b |\n|---|---|\n| 1 | 2 |\n| - | - |\n"
+    tsv = markdown_table_to_tsv(md)
+    assert tsv == "a\tb\n1\t2\n-\t-"
 
 
 def test_two_tables_concatenated_into_one_tsv(caplog: pytest.LogCaptureFixture) -> None:

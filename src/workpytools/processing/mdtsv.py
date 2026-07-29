@@ -43,36 +43,52 @@ def _is_separator_row(line: str) -> bool:
     return bool(re.fullmatch(r"\|[\s:|-]+\|", stripped)) and "-" in stripped
 
 
+def _split_into_table_blocks(text: str) -> list[list[str]]:
+    """Split raw text into blocks of consecutive non-blank lines. Each block
+    is treated as one independent Markdown table, so a separator row is only
+    ever looked for at each block's own 2nd line -- never based on a data
+    row's content alone (which could coincidentally look like one, e.g.
+    `| - | - |`)."""
+    blocks: list[list[str]] = []
+    current: list[str] = []
+    for line in text.split("\n"):
+        if line.strip():
+            current.append(line)
+        elif current:
+            blocks.append(current)
+            current = []
+    if current:
+        blocks.append(current)
+    return blocks
+
+
 def markdown_table_to_tsv(text: str) -> str:
-    lines = [line for line in text.split("\n") if line.strip()]
+    blocks = _split_into_table_blocks(text)
 
     table_count = 0
     data_rows: list[list[str]] = []
     br_replaced = False
 
-    # 区切り行（|---|---|）は各表の2行目（ヘッダー行の直後）にしか現れない
-    # というMarkdown表の仕様上の制約を利用し、「1行前の行が区切り行でなく、
-    # かつ自分自身の直後の行が区切り行である」場合のみヘッダー行→区切り行の
-    # 組として扱う。これにより、データセルの値がたまたまハイフンや
-    # コロンだけで構成される行（例: `| - | - |`）を誤って区切り行と判定して
-    # データを消してしまう問題を防ぐ。
-    skip_next = False
-    for i, line in enumerate(lines):
-        if skip_next:
-            skip_next = False
-            table_count += 1
-            continue
-        next_line = lines[i + 1] if i + 1 < len(lines) else None
-        if next_line is not None and _is_separator_row(next_line):
-            skip_next = True
-        cells = _split_table_row(line)
-        new_cells = []
-        for cell in cells:
-            if "<br>" in cell or "<br/>" in cell or "<br />" in cell:
-                br_replaced = True
-                cell = re.sub(r"<br\s*/?>", " ", cell)
-            new_cells.append(cell)
-        data_rows.append(new_cells)
+    # 区切り行（|---|---|）は各表（=空行で区切られた1ブロック）の2行目に
+    # しか現れないというMarkdown表の仕様上の制約を利用し、ブロックごとに
+    # 独立して2行目だけを区切り行の判定対象にする。単純に「次の行が区切り
+    # 行の形式かどうか」だけで表全体を1本のフラットな行の並びとして走査
+    # すると、データセルの値がたまたまハイフンやコロンだけで構成される行
+    # （例: `| - | - |`）を誤って区切り行と判定してしまう（実際に発生した
+    # 回帰）。ブロック単位に分けることで、この誤検出を構造的に防ぐ。
+    for block in blocks:
+        for row_index, line in enumerate(block):
+            if row_index == 1 and _is_separator_row(line):
+                table_count += 1
+                continue
+            cells = _split_table_row(line)
+            new_cells = []
+            for cell in cells:
+                if "<br>" in cell or "<br/>" in cell or "<br />" in cell:
+                    br_replaced = True
+                    cell = re.sub(r"<br\s*/?>", " ", cell)
+                new_cells.append(cell)
+            data_rows.append(new_cells)
 
     if table_count > 1:
         logger.info("表が%d個検出されたため、1つのTSVに連結します", table_count)

@@ -67,6 +67,10 @@ def estimate_grid(
 
     Returns (positions, row_count, col_count). Raises
     DuplicateGridPositionError if two shapes land on the same grid cell.
+    Never raises ValueError from `_index_of_cluster`, since every value
+    passed to it here comes from the same `shapes` list that
+    `_cluster_axis` used to build the clusters in the first place --
+    every such value is guaranteed to be within tolerance of some cluster.
     """
     col_starts = _cluster_axis([s.left for s in shapes], tolerance)
     row_starts = _cluster_axis([s.top for s in shapes], tolerance)
