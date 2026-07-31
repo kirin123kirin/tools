@@ -175,6 +175,10 @@ tools mdtsv
 # クリップボードのMarkdown/HTMLをブラウザでプレビュー
 tools clipview
 
+# クリップボードに画像データがある場合（toukaの出力等）は、
+# 透過を確認しやすいよう市松模様の背景に重ねてプレビューする
+tools clipview
+
 # クリップボードのMarkdownを整形（表の桁揃え、見出し統一、リスト記号統一など）
 tools clipfmt
 

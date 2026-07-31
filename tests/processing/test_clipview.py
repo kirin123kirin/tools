@@ -2,8 +2,10 @@ import argparse
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 from workpytools.common import browser_preview as browser_preview_module
+from workpytools.common.clipboard import ClipboardImageError, LoadedImage
 from workpytools.processing import clipview as clipview_module
 from workpytools.processing.clipview import ClipviewProcessor, wrap_preview_html
 
@@ -16,7 +18,7 @@ def _base_args(**overrides: object) -> argparse.Namespace:
 
 @pytest.fixture
 def clipboard_state(monkeypatch: pytest.MonkeyPatch) -> dict:
-    state = {"html": None, "text": None}
+    state = {"html": None, "text": None, "image": None}
     monkeypatch.setattr(clipview_module, "has_clipboard_html", lambda: state["html"] is not None)
     monkeypatch.setattr(clipview_module, "has_clipboard_text", lambda: state["text"] is not None)
     monkeypatch.setattr(clipview_module, "get_clipboard_text", lambda: state["text"])
@@ -29,6 +31,13 @@ def clipboard_state(monkeypatch: pytest.MonkeyPatch) -> dict:
         return state["html"]
 
     monkeypatch.setattr(clipview_module, "get_clipboard_html_fragment", fake_get_html)
+
+    def fake_load_image(_path):
+        if state["image"] is None:
+            raise ClipboardImageError("no image")
+        return LoadedImage(image=state["image"], source_path=None, source_kind="clipboard_data")
+
+    monkeypatch.setattr(clipview_module, "load_image", fake_load_image)
     return state
 
 
@@ -195,6 +204,52 @@ def test_svg_browser_url_has_cache_busting_query(
 
     assert "?v=" in calls[0]
     assert calls[0].endswith(".svg?v=" + calls[0].split("?v=")[1])
+
+
+# --- 画像 ---
+
+
+def test_image_only_previewed_as_checkerboard(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    clipboard_state["image"] = Image.new("RGBA", (4, 4), (255, 0, 0, 128))
+
+    ClipviewProcessor().run(_base_args())
+
+    written = (temp_preview_dir / clipview_module._PREVIEW_FILENAME).read_text(encoding="utf-8")
+    assert "checkerboard" in written
+    assert "data:image/png;base64," in written
+
+
+def test_html_takes_priority_over_image(clipboard_state, temp_preview_dir, no_browser) -> None:
+    clipboard_state["html"] = "<p>html wins</p>"
+    clipboard_state["text"] = "html wins"
+    clipboard_state["image"] = Image.new("RGBA", (4, 4), (255, 0, 0, 128))
+
+    ClipviewProcessor().run(_base_args())
+
+    written = (temp_preview_dir / clipview_module._PREVIEW_FILENAME).read_text(encoding="utf-8")
+    assert "html wins" in written
+    assert 'class="checkerboard"' not in written
+
+
+def test_text_takes_priority_over_image(clipboard_state, temp_preview_dir, no_browser) -> None:
+    clipboard_state["text"] = "# Markdown wins"
+    clipboard_state["image"] = Image.new("RGBA", (4, 4), (255, 0, 0, 128))
+
+    ClipviewProcessor().run(_base_args())
+
+    written = (temp_preview_dir / clipview_module._PREVIEW_FILENAME).read_text(encoding="utf-8")
+    assert "Markdown wins" in written
+    assert 'class="checkerboard"' not in written
+
+
+def test_neither_html_text_nor_image_raises(
+    clipboard_state, temp_preview_dir, no_browser
+) -> None:
+    proc = ClipviewProcessor()
+    with pytest.raises(SystemExit):
+        proc.run(_base_args())
 
 
 # --- Mermaid ---

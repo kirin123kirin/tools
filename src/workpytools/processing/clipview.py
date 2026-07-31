@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 import argparse
+import base64
+import io
 import logging
 
 from workpytools.common.browser_preview import write_and_open
 from workpytools.common.clipboard import (
+    ClipboardImageError,
     get_clipboard_html_fragment,
     get_clipboard_text,
     has_clipboard_html,
     has_clipboard_text,
+    load_image,
 )
 from workpytools.common.markdown_html import markdown_to_html_fragment
 from workpytools.processing.base import Processor
@@ -72,6 +76,18 @@ blockquote {
   pre { background: #2a2a2a; }
   blockquote { border-left-color: #555; color: #aaa; }
 }
+.checkerboard {
+  display: inline-block;
+  max-width: 100%;
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+.checkerboard img { display: block; max-width: 100%; height: auto; }
 """
 
 
@@ -191,4 +207,30 @@ class ClipviewProcessor(Processor):
             logger.info("CF_UNICODETEXTのみのためMarkdownとして変換します")
             return markdown_to_html_fragment(get_clipboard_text())
 
+        image_fragment = self._resolve_image_fragment()
+        if image_fragment is not None:
+            return image_fragment
+
         raise SystemExit("クリップボードにプレビューできる内容がありません")
+
+    def _resolve_image_fragment(self) -> str | None:
+        """HTML/text fragment for clipboard image data (e.g. `touka`'s output
+        copied via `copy_image_to_clipboard`), or None if the clipboard holds
+        no usable image. The image is embedded as a base64 data URI over a
+        checkerboard background, so transparency is visible at a glance
+        without writing any file besides the preview HTML itself."""
+        try:
+            loaded = load_image(None)
+        except ClipboardImageError:
+            return None
+
+        logger.info("クリップボードの画像データを検出したためプレビューします")
+        with io.BytesIO() as buf:
+            loaded.image.save(buf, "PNG")
+            data_uri = base64.b64encode(buf.getvalue()).decode("ascii")
+
+        return (
+            f'<div class="checkerboard">'
+            f'<img src="data:image/png;base64,{data_uri}" alt="clipboard image">'
+            f"</div>"
+        )
