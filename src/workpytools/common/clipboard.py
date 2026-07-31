@@ -160,16 +160,131 @@ def copy_file_to_clipboard(path: Path) -> None:
         win32clipboard.CloseClipboard()
 
 
+def _build_dibv5(image: Image.Image) -> bytes:
+    """Build a BITMAPV5HEADER + 32bpp BGRA pixel buffer for CF_DIBV5.
+
+    CF_DIB (BITMAPINFOHEADER) has no alpha channel, so `touka`'s transparent
+    output would otherwise lose its transparency (Pillow's RGB conversion
+    fills transparent pixels with black) once round-tripped through the
+    clipboard. CF_DIBV5 carries an explicit alpha mask, which apps like
+    PowerPoint/Word honor on paste.
+    """
+    rgba = image.convert("RGBA")
+    width, height = rgba.size
+
+    # DIBの行は下から上へ格納する（Windowsのボトムアップ規約）
+    flipped = rgba.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+    r, g, b, a = flipped.split()
+    bgra = Image.merge("RGBA", (b, g, r, a))
+    pixels = bgra.tobytes()
+
+    header = struct.pack(
+        "<IiiHHIIiiII",
+        124,  # bV5Size
+        width,  # bV5Width
+        height,  # bV5Height
+        1,  # bV5Planes
+        32,  # bV5BitCount
+        3,  # bV5Compression = BI_BITFIELDS
+        len(pixels),  # bV5SizeImage
+        0,  # bV5XPelsPerMeter
+        0,  # bV5YPelsPerMeter
+        0,  # bV5ClrUsed
+        0,  # bV5ClrImportant
+    )
+    header += struct.pack(
+        "<IIII",
+        0x00FF0000,  # bV5RedMask
+        0x0000FF00,  # bV5GreenMask
+        0x000000FF,  # bV5BlueMask
+        0xFF000000,  # bV5AlphaMask
+    )
+    header += struct.pack("<i", 0x73524742)  # bV5CSType = LCS_sRGB
+    header += b"\x00" * 36  # bV5Endpoints（LCS_sRGBでは無視されるフィールド、ゼロ埋め）
+    header += struct.pack("<III", 0, 0, 0)  # bV5GammaRed/Green/Blue
+    header += struct.pack("<I", 4)  # bV5Intent = LCS_GM_IMAGES
+    header += struct.pack("<III", 0, 0, 0)  # bV5ProfileData/Size/Reserved
+
+    return header + pixels
+
+
+def _build_dib(image: Image.Image) -> bytes:
+    """Build a BITMAPINFOHEADER + 24bpp BGR pixel buffer for CF_DIB (no alpha).
+
+    Transparent pixels are flattened onto a white background, since CF_DIB
+    has no alpha channel and apps that only read CF_DIB would otherwise get
+    Pillow's black-fill behavior from a plain RGBA->RGB conversion.
+    """
+    rgba = image.convert("RGBA")
+    width, height = rgba.size
+
+    background = Image.new("RGB", rgba.size, (255, 255, 255))
+    background.paste(rgba, mask=rgba.split()[3])
+    flipped = background.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+    r, g, b = flipped.split()
+    bgr = Image.merge("RGB", (b, g, r))
+    row_bytes = width * 3
+    padding = (4 - row_bytes % 4) % 4
+    if padding:
+        pixels = b"".join(
+            bgr.tobytes()[i : i + row_bytes] + b"\x00" * padding
+            for i in range(0, len(bgr.tobytes()), row_bytes)
+        )
+    else:
+        pixels = bgr.tobytes()
+
+    header = struct.pack(
+        "<IiiHHIIiiII",
+        40,  # biSize (BITMAPINFOHEADER)
+        width,
+        height,
+        1,  # biPlanes
+        24,  # biBitCount
+        0,  # biCompression = BI_RGB
+        len(pixels),  # biSizeImage
+        0,  # biXPelsPerMeter
+        0,  # biYPelsPerMeter
+        0,  # biClrUsed
+        0,  # biClrImportant
+    )
+    return header + pixels
+
+
+def _png_clipboard_format() -> int:
+    """The "PNG" clipboard format ID is not a fixed constant; look it up at runtime.
+
+    Browsers (Chrome/Firefox) and Office apps (PowerPoint/Word) prefer this
+    format when pasting an image, since it carries alpha unambiguously as a
+    literal PNG byte stream rather than a DIB variant. Without it, apps that
+    don't understand CF_DIBV5's alpha semantics may silently ignore the
+    paste (no error, nothing happens).
+    """
+    return int(win32clipboard.RegisterClipboardFormat("PNG"))
+
+
 def copy_image_to_clipboard(image: Image.Image) -> None:
-    """Put raw image data on the clipboard (CF_DIB), as if via "Copy Image"."""
+    """Put image data on the clipboard in three formats, as if via "Copy Image":
+
+    - "PNG" (custom format, raw PNG bytes): what PowerPoint/Word/browsers
+      prefer for pasting; carries alpha unambiguously.
+    - CF_DIBV5: alpha-aware DIB, for apps that don't read the "PNG" format
+      but do understand BITMAPV5HEADER.
+    - CF_DIB: alpha-flattened (white background) 24bpp DIB, for apps that
+      only understand the classic BITMAPINFOHEADER format.
+    """
+    rgba = image.convert("RGBA")
     with io.BytesIO() as buf:
-        image.convert("RGB").save(buf, "BMP")
-        # BMPファイルヘッダー（先頭14バイト）を除いたDIB部分のみがCF_DIBの中身
-        dib = buf.getvalue()[14:]
+        rgba.save(buf, "PNG")
+        png_bytes = buf.getvalue()
+
+    dibv5 = _build_dibv5(rgba)
+    dib = _build_dib(rgba)
 
     win32clipboard.OpenClipboard()
     try:
         win32clipboard.EmptyClipboard()
+        win32clipboard.SetClipboardData(_png_clipboard_format(), png_bytes)
+        win32clipboard.SetClipboardData(win32con.CF_DIBV5, dibv5)
         win32clipboard.SetClipboardData(win32con.CF_DIB, dib)
     finally:
         win32clipboard.CloseClipboard()

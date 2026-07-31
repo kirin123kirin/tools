@@ -84,25 +84,82 @@ def test_copy_file_to_clipboard_sets_cf_hdrop(
     assert str(file_path.resolve()).encode("utf-16-le") in data
 
 
-def test_copy_image_to_clipboard_sets_cf_dib(monkeypatch: pytest.MonkeyPatch) -> None:
+def _dispatch_calls(monkeypatch: pytest.MonkeyPatch) -> list[tuple[int, bytes]]:
     calls: list[tuple[int, bytes]] = []
     monkeypatch.setattr("workpytools.common.clipboard.win32clipboard.OpenClipboard", lambda: None)
     monkeypatch.setattr("workpytools.common.clipboard.win32clipboard.EmptyClipboard", lambda: None)
     monkeypatch.setattr("workpytools.common.clipboard.win32clipboard.CloseClipboard", lambda: None)
     monkeypatch.setattr(
+        "workpytools.common.clipboard.win32clipboard.RegisterClipboardFormat",
+        lambda name: 49356,  # "PNG"の実際の登録値を模した適当な固定ID
+    )
+    monkeypatch.setattr(
         "workpytools.common.clipboard.win32clipboard.SetClipboardData",
         lambda fmt, data: calls.append((fmt, data)),
     )
+    return calls
+
+
+def test_copy_image_to_clipboard_sets_png_dibv5_and_dib(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # PowerPoint/Word/ブラウザはCF_DIBV5単体だと貼り付けを認識しないことがある
+    # ため、優先度の高い"PNG"カスタムフォーマットを筆頭に、CF_DIBV5・CF_DIBの
+    # 3形式を同時に提供する
+    calls = _dispatch_calls(monkeypatch)
 
     image = Image.new("RGB", (2, 2), color="red")
     copy_image_to_clipboard(image)
 
-    assert len(calls) == 1
-    fmt, data = calls[0]
     import win32con
 
-    assert fmt == win32con.CF_DIB
-    assert len(data) > 0
+    formats = [fmt for fmt, _ in calls]
+    assert formats == [49356, win32con.CF_DIBV5, win32con.CF_DIB]
+    assert all(len(data) > 0 for _, data in calls)
+
+
+def test_copy_image_to_clipboard_png_bytes_are_valid_png(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = _dispatch_calls(monkeypatch)
+
+    image = Image.new("RGBA", (3, 3), color=(1, 2, 3, 4))
+    copy_image_to_clipboard(image)
+
+    png_bytes = calls[0][1]
+    assert png_bytes.startswith(b"\x89PNG\r\n\x1a\n")
+
+
+def test_copy_image_to_clipboard_dibv5_preserves_alpha(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # touka等が返す透過画像が、CF_DIBV5のアルファマスク経由で黒塗りされずに
+    # 残ること（アルファなしRGB変換だと透過部分が黒くなる不具合の回帰防止）
+    calls = _dispatch_calls(monkeypatch)
+
+    image = Image.new("RGBA", (1, 1), color=(255, 0, 0, 0))  # 完全透明の赤ピクセル
+    copy_image_to_clipboard(image)
+
+    dibv5_data = calls[1][1]
+    header_size = 124
+    pixel = dibv5_data[header_size : header_size + 4]  # BGRAの1ピクセル
+    assert pixel == bytes([0, 0, 255, 0])  # B=0, G=0, R=255, A=0（アルファが保持されている）
+
+
+def test_copy_image_to_clipboard_dib_flattens_alpha_onto_white(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # CF_DIBはアルファ非対応のため、透過部分は白背景に合成してフォールバック
+    # させる（黒塗りにはしない）
+    calls = _dispatch_calls(monkeypatch)
+
+    image = Image.new("RGBA", (1, 1), color=(0, 0, 0, 0))  # 完全透明の黒ピクセル
+    copy_image_to_clipboard(image)
+
+    dib_data = calls[2][1]
+    header_size = 40
+    pixel = dib_data[header_size : header_size + 3]  # BGRの1ピクセル
+    assert pixel == bytes([255, 255, 255])  # 白背景に合成されている
 
 
 def test_load_text_from_path_utf8(tmp_path: Path) -> None:
