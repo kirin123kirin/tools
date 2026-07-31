@@ -17,3 +17,4 @@ tmp/
 scripts/*
 !scripts/gen_help.py
 !scripts/pre-commit
+!scripts/warmup_exe.py

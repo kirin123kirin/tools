@@ -57,9 +57,17 @@ def create_shortcuts(commands: list[str], target_dir: Path | None = None) -> lis
 
     Commands whose .exe isn't found in `scripts_dir()` are skipped rather
     than raising, so a partial install doesn't block the rest.
+
+    Any .lnk already in the folder is removed first, so a command renamed
+    or removed since the last run (e.g. via `pip install -U`) doesn't leave
+    a stale shortcut behind. The folder is treated as fully owned by us
+    (see `remove_shortcuts`), so this is safe.
     """
     menu_dir = target_dir if target_dir is not None else start_menu_dir()
     menu_dir.mkdir(parents=True, exist_ok=True)
+    for entry in menu_dir.iterdir():
+        if entry.is_file() and entry.suffix.lower() == ".lnk":
+            entry.unlink()
 
     shell = win32com.client.Dispatch("WScript.Shell")
     icon = app_icon_path()

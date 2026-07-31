@@ -329,6 +329,17 @@ tools shortcut          # 全コマンド分のショートカットを作成
 tools shortcut --remove # 作成済みのショートカットを削除
 ```
 
+**アンインストール前に必ず `tools shortcut --remove` を実行してください。**
+`pip uninstall` にはアンインストール時に任意の処理を自動実行するフック機構が
+存在しないため、`shortcut`が作成したショートカットは`pip uninstall`だけでは
+削除されません。削除しないまま`pip uninstall`すると、実体のないexeを指す
+リンク切れの`.lnk`がスタートメニューに残ります。
+
+```powershell
+tools shortcut --remove
+pip uninstall workpytools
+```
+
 ### vv（定型プロンプトの呼び出し）
 
 よく使う長文プロンプトを、フォルダを開いて探して全選択コピーする手間なしに
@@ -519,6 +530,22 @@ denoise C:\path\to\photo.jpg
 touka C:\path\to\photo.jpg
 kukiri C:\path\to\illustration.jpg
 ```
+
+## 起動が遅いとき（社内EDR/DLP製品によるスキャン対策）
+
+社内配布のEDR/DLP製品の実行時スキャンにより、各`*.exe`は**初回実行時のみ**
+起動が遅くなることがある（同じコマンドの2回目以降は速い）。導入直後などに
+まとめて解消しておきたい場合は、以下を1回実行すると全コマンドのexeを
+順番に起動してスキャンを済ませておける。
+
+```powershell
+python scripts/warmup_exe.py
+```
+
+`shortcut.exe`は引数なし実行で実際にスタートメニューへショートカットを
+作成する（意図した副作用）。根本的な解決にはIT部門へのアローリスト登録が
+必要な場合がある（該当exeの一覧は`tools shortcut`実行時、または上記スクリプトの
+出力で確認できる）。
 
 ## テスト・lint
 

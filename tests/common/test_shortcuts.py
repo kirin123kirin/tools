@@ -124,6 +124,25 @@ def test_create_shortcuts_sets_target_and_icon(
     shortcut_obj.Save.assert_called_once()
 
 
+def test_create_shortcuts_removes_stale_lnk_not_in_current_commands(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fake_shell: MagicMock
+) -> None:
+    # リネーム・削除されたコマンドの古い.lnk（例: tsunagi.lnk）が
+    # pip install -U 後の再実行でゴミとして残らないこと
+    _make_exe(tmp_path, "touka")
+    monkeypatch.setattr(shortcuts_module, "scripts_dir", lambda: tmp_path / "Scripts")
+    monkeypatch.setattr(shortcuts_module, "app_icon_path", lambda: tmp_path / "app.ico")
+
+    target_dir = tmp_path / "StartMenu"
+    target_dir.mkdir()
+    stale_lnk = target_dir / "old_renamed_command.lnk"
+    stale_lnk.write_bytes(b"")
+
+    create_shortcuts(["touka"], target_dir=target_dir)
+
+    assert not stale_lnk.exists()
+
+
 def test_create_shortcuts_creates_target_dir(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fake_shell: MagicMock
 ) -> None:
