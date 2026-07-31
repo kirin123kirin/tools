@@ -39,6 +39,7 @@ workpytools/
 │           ├── merioall.py         # テーマ・マスター・全スライドの和文フォントをメイリオに統一
 │           ├── iro.py              # 既存スライドの独自色化・テーマカラー変更・既定書式の一時適用
 │           ├── tsunagu.py          # コネクタを最寄りのシェイプ接続点に吸着（2つ選択で新規作成）
+│           ├── bunkatsu.py         # PowerPointの画像シェイプを物体ごとに領域分割
 │           ├── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
 │           └── shortcut.py         # 全コマンドのスタートメニューショートカットを作成/削除
 ├── tests/                  # src/workpytools と同じ階層構造でテストを配置
@@ -266,6 +267,16 @@ tools tsunagu
 # 新規作成する（黒・2pt、互いに最も近い接続点同士を繋ぐ）
 tools tsunagu
 
+# 選択中の画像シェイプを物体ごとに領域分割し、個別の透過PNGとして再配置する
+# （watershedアルゴリズムによる完全自動分割。分割後、元の画像は削除される）
+tools bunkatsu
+
+# 分割の厳しさを調整する（既定0.7、値を上げるほど接触した物体を分割しやすい）
+tools bunkatsu --distance-ratio 0.7
+
+# 実際には変更せず、検出される領域数だけを確認する
+tools bunkatsu --dry-run
+
 # 全コマンドのヘルプ一覧（doc/help.html）をブラウザで開く
 tools help
 # 単体実行ファイルはtoolh.exe（他コマンドと違いhelp.exeという名前ではない）
@@ -387,7 +398,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 場合のみ解決します（`WScript.Shell`経由）。複数フォルダを指定して起点が
 重複する場合はフルパスで自動的に重複除去されます。
 
-### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi / merioall / iro / tsunagu）
+### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi / merioall / iro / tsunagu / bunkatsu）
 
 いずれも実行中のPowerPointを対象にします（`pywin32`経由、`python-pptx`は
 「開いているファイル」を操作できないため使いません）。役割は以下の通りです。
@@ -404,6 +415,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 | `merioall` | テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する |
 | `iro` | 既存スライドを独自色化した上でテーマカラーと既定図形の書式を統一する |
 | `tsunagu` | コネクタの端点を最寄りのシェイプ接続点に吸着させる（2つ選択で新規作成） |
+| `bunkatsu` | 選択した画像シェイプを物体ごとに領域分割し、個別の透過画像として再配置する |
 
 - `outline`はクリップボードのテキストを**Markdown見出し（`#`等）／タブ区切り
   ／空行区切り**の3形式から自動判別し、抽出した項目ぶんのスライドを
@@ -511,13 +523,34 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
   - コネクタの両端が同じシェイプに最も近い場合は、接続先を判断できないため
     エラーになります
   - 他のPowerPoint操作コマンドと同じくUndo境界を打つため、Ctrl+Zで戻せます
+- `bunkatsu`は、1枚の画像の中に写っている複数の物体（重なっていない、
+  または軽く接触している程度のもの）を個別の画像として分離したい場合に
+  使います。**OpenCVのwatershedアルゴリズム**（マーカーベース領域分割）で
+  完全自動的に物体を検出します。手動でのマーカー指定は不要です。
+
+  1. 選択中の画像シェイプをPNGとしてエクスポートし、アルファチャンネル
+     （透過部分）を背景、不透明部分を前景として距離変換 + watershedで
+     物体ごとに領域分割します
+  2. 検出された領域ごとに、元の物体以外を透過させた個別のPNGを生成します
+  3. 分割後の画像群を、元のシェイプと同じ位置・スケール感になるよう
+     スライド上に再配置し、**元の画像シェイプは削除**します
+
+  - 画像シェイプ（`msoPicture`/`msoLinkedPicture`）をちょうど1つ選択して
+    実行します。選択なし・複数選択・画像以外のシェイプはエラーになります
+  - `--distance-ratio`（既定0.7、0〜1）で分割の厳しさを調整できます。
+    値を上げるほど接触した物体を分割しやすくなりますが、単一の物体を
+    誤って過分割するリスクも増えます
+  - `--dry-run`で実際には変更せず、検出される領域数だけを確認できます
+  - 検出された領域が1つ以下（分割の余地なし）の場合は何も変更せず終了します
+  - 他のPowerPoint操作コマンドと同じくUndo境界を打つため、**Ctrl+Zひと押し
+    で分割前の元画像に戻せます**
 
 各サブコマンドは `tools <name>` の他に、単体の実行ファイルとしても呼び出せます
 （`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` /
 `clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` /
 `profiler.exe` / `lsdir.exe` / `outline.exe` / `ikko.exe` / `mokuji.exe` /
 `tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` / `merioall.exe` /
-`iro.exe` / `tsunagu.exe` / `shortcut.exe` など）。
+`iro.exe` / `tsunagu.exe` / `bunkatsu.exe` / `shortcut.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）
 

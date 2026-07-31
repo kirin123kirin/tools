@@ -233,6 +233,7 @@ pre {
 <li class="toc-command"><a href="#merioall">merioall<span class="toc-summary">和文フォントをメイリオに統一</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="merioall" title="コマンド名をコピー" aria-label="merioallをコピー">⧉</button></li>
 <li class="toc-command"><a href="#iro">iro<span class="toc-summary">テーマカラーと既定書式を統一</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="iro" title="コマンド名をコピー" aria-label="iroをコピー">⧉</button></li>
 <li class="toc-command"><a href="#tsunagu">tsunagu<span class="toc-summary">コネクタを最寄りの接続点へ吸着</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="tsunagu" title="コマンド名をコピー" aria-label="tsunaguをコピー">⧉</button></li>
+<li class="toc-command"><a href="#bunkatsu">bunkatsu<span class="toc-summary">画像を物体ごとに領域分割</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="bunkatsu" title="コマンド名をコピー" aria-label="bunkatsuをコピー">⧉</button></li>
 </ul></li>
 <li class="toc-category"><span class="toc-category-label">その他</span><ul>
 <li class="toc-command"><a href="#vv">vv<span class="toc-summary">定型プロンプトをコピー</span></a><button type="button" class="copy-btn toc-copy-btn" data-copy="vv" title="コマンド名をコピー" aria-label="vvをコピー">⧉</button></li>
@@ -619,6 +620,23 @@ options:
 
 options:
   -h, --help  show this help message and exit
+</pre>
+</section>
+<section class="command">
+<h3 id="bunkatsu">bunkatsu</h3>
+<p class="standalone">単体実行: <code>bunkatsu.exe</code> <button type="button" class="copy-btn" data-copy="bunkatsu">コマンド名をコピー</button></p>
+<div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="14" y="15" width="72" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="38" cy="45" r="16" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/><circle cx="64" cy="45" r="14" fill="#ffd699" stroke="currentColor" stroke-width="2"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="18" width="34" height="54" rx="2" fill="#eee" stroke="currentColor" stroke-width="2"/><rect x="130" y="18" width="8" height="8" fill="#ccc"/><rect x="146" y="18" width="8" height="8" fill="#ccc"/><rect x="138" y="26" width="8" height="8" fill="#ccc"/><rect x="154" y="26" width="8" height="8" fill="#ccc"/><circle cx="147" cy="45" r="15" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/><rect x="172" y="24" width="34" height="42" rx="2" fill="#eee" stroke="currentColor" stroke-width="2"/><rect x="172" y="24" width="8" height="8" fill="#ccc"/><rect x="188" y="24" width="8" height="8" fill="#ccc"/><rect x="180" y="32" width="8" height="8" fill="#ccc"/><circle cx="189" cy="45" r="13" fill="#ffd699" stroke="currentColor" stroke-width="2"/></g></svg></div>
+<p class="summary">選択中の画像シェイプを物体ごとに領域分割し、個別の画像として再配置する</p>
+<pre>usage: bunkatsu [-h] [--distance-ratio DISTANCE_RATIO] [--dry-run]
+
+選択中の画像シェイプを物体ごとに領域分割し、個別の画像として再配置する
+
+options:
+  -h, --help            show this help message and exit
+  --distance-ratio DISTANCE_RATIO
+                        分割の厳しさ（0-
+                        1、既定0.7）。値を上げるほど接触した物体を分割しやすくなる一方、単一物体を過分割するリスクが増える
+  --dry-run             実際には変更せず、検出される領域数だけを表示する
 </pre>
 </section>
 <h2 class="category">その他</h2>

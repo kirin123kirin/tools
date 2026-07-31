@@ -71,6 +71,7 @@ _CATEGORIES: list[tuple[str, list[tuple[str, str]]]] = [
             ("merioall", "和文フォントをメイリオに統一"),
             ("iro", "テーマカラーと既定書式を統一"),
             ("tsunagu", "コネクタを最寄りの接続点へ吸着"),
+            ("bunkatsu", "画像を物体ごとに領域分割"),
         ],
     ),
     (
@@ -548,6 +549,28 @@ _DIAGRAMS: dict[str, str] = {
         'stroke-width="2.2"/>'
         '<circle cx="156" cy="45" r="2.5" fill="currentColor"/>'
         '<circle cx="184" cy="45" r="2.5" fill="currentColor"/>'
+    ),
+    "bunkatsu": (
+        # before: 1枚の画像シェイプの中に、接した/離れた2つの物体（丸）
+        '<rect x="14" y="15" width="72" height="60" rx="3" fill="none" '
+        'stroke="currentColor" stroke-width="2"/>'
+        '<circle cx="38" cy="45" r="16" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/>'
+        '<circle cx="64" cy="45" r="14" fill="#ffd699" stroke="currentColor" stroke-width="2"/>'
+        + _ARROW_CENTER +
+        # after: 分離された2枚の透過画像（市松模様の背景）
+        '<rect x="130" y="18" width="34" height="54" rx="2" fill="#eee" '
+        'stroke="currentColor" stroke-width="2"/>'
+        '<rect x="130" y="18" width="8" height="8" fill="#ccc"/>'
+        '<rect x="146" y="18" width="8" height="8" fill="#ccc"/>'
+        '<rect x="138" y="26" width="8" height="8" fill="#ccc"/>'
+        '<rect x="154" y="26" width="8" height="8" fill="#ccc"/>'
+        '<circle cx="147" cy="45" r="15" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/>'
+        '<rect x="172" y="24" width="34" height="42" rx="2" fill="#eee" '
+        'stroke="currentColor" stroke-width="2"/>'
+        '<rect x="172" y="24" width="8" height="8" fill="#ccc"/>'
+        '<rect x="188" y="24" width="8" height="8" fill="#ccc"/>'
+        '<rect x="180" y="32" width="8" height="8" fill="#ccc"/>'
+        '<circle cx="189" cy="45" r="13" fill="#ffd699" stroke="currentColor" stroke-width="2"/>'
     ),
 }
 

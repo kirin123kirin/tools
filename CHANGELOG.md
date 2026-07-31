@@ -5,6 +5,24 @@
 
 ## [Unreleased]
 
+## [0.1.27] - 2026-07-31
+
+### Added
+
+- `bunkatsu` — PowerPointで選択中の画像シェイプを、OpenCVのwatershed
+  アルゴリズム（マーカーベース領域分割、完全自動）で物体ごとに分割し、
+  個別の透過PNGとして元の位置・スケールに再配置する新コマンド。
+  - アルファチャンネル（透過部分）を背景、不透明部分を前景として、
+    距離変換 + `cv2.watershed`で接触・近接した複数物体を分離する
+    （`src/workpytools/common/watershed.py`に切り出し）
+  - `--distance-ratio`（既定0.7）で分割の厳しさを調整可能
+  - `--dry-run`で検出領域数のみ確認できる
+  - 画像シェイプをちょうど1つ選択して実行する必要がある
+    （`msoPicture`/`msoLinkedPicture`のみ対象）
+  - 検出領域が1つ以下の場合は何も変更しない
+  - 他のPowerPoint操作コマンドと同じくUndo境界を打つため、
+    Ctrl+Zひと押しで分割前の元画像に戻せる
+
 ## [0.1.26] - 2026-07-31
 
 ### Added
