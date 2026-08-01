@@ -151,10 +151,16 @@ class MdtsvProcessor(Processor):
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
-            "--to-tsv", action="store_true", help="入力をMarkdownの表とみなしTSVに変換する"
+            "-t",
+            "--to-tsv",
+            action="store_true",
+            help="入力をMarkdownの表とみなしTSVに変換する",
         )
         group.add_argument(
-            "--to-table", action="store_true", help="入力をTSVとみなしMarkdownの表に変換する"
+            "-m",
+            "--to-table",
+            action="store_true",
+            help="入力をTSVとみなしMarkdownの表に変換する",
         )
 
     def run(self, args: argparse.Namespace) -> int:

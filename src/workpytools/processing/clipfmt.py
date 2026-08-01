@@ -106,6 +106,7 @@ class ClipfmtProcessor(Processor):
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
+            "-b",
             "--no-normalize-bullets",
             action="store_true",
             help="箇条書き記号(*/+)を-に統一する前処理を行わない",

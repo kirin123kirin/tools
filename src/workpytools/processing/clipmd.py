@@ -177,10 +177,16 @@ class ClipmdProcessor(Processor):
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
-            "--to-markdown", action="store_true", help="入力をHTMLとみなしMarkdownに変換する"
+            "-m",
+            "--to-markdown",
+            action="store_true",
+            help="入力をHTMLとみなしMarkdownに変換する",
         )
         group.add_argument(
-            "--to-rich", action="store_true", help="入力をMarkdownとみなしリッチテキストに変換する"
+            "-r",
+            "--to-rich",
+            action="store_true",
+            help="入力をMarkdownとみなしリッチテキストに変換する",
         )
 
     def run(self, args: argparse.Namespace) -> int:

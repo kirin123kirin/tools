@@ -46,6 +46,7 @@ class KukiriProcessor(Processor):
             "-o", "--output", default=None, help="出力先パス（省略時は自動生成、拡張子はpng）"
         )
         parser.add_argument(
+            "-m",
             "--smooth",
             type=float,
             default=75.0,
@@ -53,6 +54,7 @@ class KukiriProcessor(Processor):
             "大きいほど滲みは消えるが細部も失われる",
         )
         parser.add_argument(
+            "-p",
             "--sharpen",
             type=float,
             default=0.5,

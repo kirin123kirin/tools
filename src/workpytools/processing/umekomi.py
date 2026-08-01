@@ -41,6 +41,7 @@ class UmekomiProcessor(Processor):
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
+            "-n",
             "--dry-run",
             action="store_true",
             help="実際には変更せず、埋め込み対象になる組み合わせを表示するだけにする",

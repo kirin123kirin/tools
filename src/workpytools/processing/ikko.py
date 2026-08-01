@@ -35,23 +35,27 @@ class IkkoProcessor(Processor):
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
+            "-n",
             "--dry-run",
             action="store_true",
             help="実際には変更せず、合体対象になるクラスタを表示するだけにする",
         )
         parser.add_argument(
+            "-t",
             "--left-tolerance",
             type=float,
             default=LEFT_TOLERANCE,
             help=f"左端座標の許容誤差（ポイント、既定{LEFT_TOLERANCE}）",
         )
         parser.add_argument(
+            "-i",
             "--line-step-min",
             type=float,
             default=LINE_STEP_MIN_RATIO,
             help=f"行送りの下限（フォントサイズ比、既定{LINE_STEP_MIN_RATIO}）",
         )
         parser.add_argument(
+            "-a",
             "--line-step-max",
             type=float,
             default=LINE_STEP_MAX_RATIO,

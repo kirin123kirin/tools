@@ -47,6 +47,7 @@ class BunkatsuProcessor(Processor):
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
+            "-r",
             "--distance-ratio",
             type=float,
             default=DEFAULT_DISTANCE_RATIO,
@@ -57,6 +58,7 @@ class BunkatsuProcessor(Processor):
             ),
         )
         parser.add_argument(
+            "-b",
             "--background-color-distance",
             type=float,
             default=DEFAULT_BACKGROUND_COLOR_DISTANCE,
@@ -68,6 +70,7 @@ class BunkatsuProcessor(Processor):
             ),
         )
         parser.add_argument(
+            "-n",
             "--dry-run",
             action="store_true",
             help="実際には変更せず、検出される領域数だけを表示する",

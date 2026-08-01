@@ -31,7 +31,10 @@ class HelpProcessor(Processor):
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
-            "--no-open", action="store_true", help="ブラウザを開かず、パスの表示のみ行う"
+            "-n",
+            "--no-open",
+            action="store_true",
+            help="ブラウザを開かず、パスの表示のみ行う",
         )
 
     def run(self, args: argparse.Namespace) -> int:

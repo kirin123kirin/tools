@@ -233,6 +233,7 @@ class CwcProcessor(Processor):
             "-o", "--output", default=None, help="出力先パス（省略時は自動生成、拡張子はpng）"
         )
         parser.add_argument(
+            "-e",
             "--encoding",
             default=None,
             help="入力ファイルのエンコーディングを明示指定（省略時はUTF-8→CP932の順に試す）",
@@ -241,6 +242,7 @@ class CwcProcessor(Processor):
             "-w", "--wakachi", action="store_true", help="Janomeによる分かち書きで分割する"
         )
         parser.add_argument(
+            "-i",
             "--hinshi",
             nargs="+",
             default=None,
@@ -250,48 +252,64 @@ class CwcProcessor(Processor):
             ),
         )
         parser.add_argument(
-            "--semantic", action="store_true", help="同義語辞書で異表記を代表語に寄せる"
-        )
-        parser.add_argument("--synonym-dict", default=None, help="同義語辞書ファイルのパス")
-        parser.add_argument(
-            "--no-synonym-dict", action="store_true", help="同義語辞書を一切使用しない"
-        )
-        parser.add_argument("--user-dict", default=None, help="Janomeユーザー辞書のパス")
-        parser.add_argument(
-            "--no-user-dict", action="store_true", help="Janomeユーザー辞書を一切使用しない"
+            "-s", "--semantic", action="store_true", help="同義語辞書で異表記を代表語に寄せる"
         )
         parser.add_argument(
+            "-y", "--synonym-dict", default=None, help="同義語辞書ファイルのパス"
+        )
+        parser.add_argument(
+            "-Y", "--no-synonym-dict", action="store_true", help="同義語辞書を一切使用しない"
+        )
+        parser.add_argument("-u", "--user-dict", default=None, help="Janomeユーザー辞書のパス")
+        parser.add_argument(
+            "-U",
+            "--no-user-dict",
+            action="store_true",
+            help="Janomeユーザー辞書を一切使用しない",
+        )
+        parser.add_argument(
+            "-x",
             "--stopwords",
             action="append",
             default=None,
             help="追加するストップワード（カンマ区切り）",
         )
         parser.add_argument(
-            "--stopwords-file", default=None, help="追加するストップワードのファイルパス"
+            "-X",
+            "--stopwords-file",
+            default=None,
+            help="追加するストップワードのファイルパス",
         )
         parser.add_argument(
+            "-D",
             "--no-default-stopwords",
             action="store_true",
             help="デフォルトのストップワードを無効化する",
         )
-        parser.add_argument("--font", default=None, help="使用するフォントファイルのパス")
         parser.add_argument(
+            "-f", "--font", default=None, help="使用するフォントファイルのパス"
+        )
+        parser.add_argument(
+            "-m",
             "--similar",
             action="store_true",
             help="集計単位を語ではなく文にし、埋め込みベクトルの類似度でクラスタリングする",
         )
         parser.add_argument(
+            "-t",
             "--similar-threshold",
             type=float,
             default=0.2,
             help="--similar のクラスタをまとめる距離の閾値（コサイン距離、既定: 0.2）",
         )
         parser.add_argument(
+            "-M",
             "--similar-model",
             default=DEFAULT_MODEL_NAME,
             help="--similar で使用する埋め込みモデル名",
         )
         parser.add_argument(
+            "-l",
             "--similar-max-length",
             type=int,
             default=10,

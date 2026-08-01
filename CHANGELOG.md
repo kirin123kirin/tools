@@ -5,6 +5,27 @@
 
 ## [Unreleased]
 
+## [0.1.31] - 2026-08-02
+
+### Added
+
+- 全コマンドの`--`オプションにショートオプションを付与（`-h`/`--help`と
+  既存の`-o`/`-w`を除く全てが対象）。フラグ・値指定オプションを問わず、
+  各コマンド内で衝突しない1文字を割り当てた
+  （例: `touka -a`は`--alpha-matting`、`cwc -w`は`--wakachi`など）
+
+## [0.1.30] - 2026-08-02
+
+### Added
+
+- `touka`にrembgのパラメータ調整用オプションを追加。
+  - `--alpha-matting`（アルファマッティング有効化、髪の毛など細かい輪郭の
+    透過精度を上げる）と、それに付随する`--alpha-matting-foreground-threshold`
+    ・`--alpha-matting-background-threshold`・`--alpha-matting-erode-size`
+  - `--bgcolor R G B A`（背景を透過ではなく指定色で塗りつぶす）
+  - `--only-mask`（前景/背景の二値マスク画像のみを出力）
+  - `--post-process-mask`（マスクのノイズ除去・穴埋め後処理）
+
 ## [0.1.29] - 2026-08-01
 
 ### Fixed

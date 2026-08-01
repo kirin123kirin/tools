@@ -250,7 +250,10 @@ pre {
 <p class="standalone">単体実行: <code>touka.exe</code> <button type="button" class="copy-btn" data-copy="touka">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="3" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/><circle cx="50" cy="45" r="18" fill="#ffb100"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><g><rect x="130" y="15" width="80" height="60" rx="3" fill="#eee" stroke="currentColor" stroke-width="2"/><rect x="130" y="15" width="10" height="10" fill="#ccc"/><rect x="150" y="15" width="10" height="10" fill="#ccc"/><rect x="170" y="15" width="10" height="10" fill="#ccc"/><rect x="190" y="15" width="10" height="10" fill="#ccc"/><rect x="140" y="25" width="10" height="10" fill="#ccc"/><rect x="160" y="25" width="10" height="10" fill="#ccc"/><rect x="180" y="25" width="10" height="10" fill="#ccc"/><rect x="130" y="35" width="10" height="10" fill="#ccc"/><rect x="150" y="35" width="10" height="10" fill="#ccc"/><rect x="170" y="35" width="10" height="10" fill="#ccc"/><rect x="190" y="35" width="10" height="10" fill="#ccc"/><circle cx="170" cy="45" r="18" fill="#ffb100"/></g></g></svg></div>
 <p class="summary">画像の背景を透過する（ファイルパス／クリップボード入力対応）</p>
-<pre>usage: touka [-h] [-o OUTPUT] [path]
+<pre>usage: touka [-h] [-o OUTPUT] [-a] [-F ALPHA_MATTING_FOREGROUND_THRESHOLD]
+             [-B ALPHA_MATTING_BACKGROUND_THRESHOLD]
+             [-E ALPHA_MATTING_ERODE_SIZE] [-c R G B A] [-m] [-p]
+             [path]
 
 画像の背景を透過する（ファイルパス／クリップボード入力対応）
 
@@ -261,6 +264,18 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         出力先パス（省略時は自動生成、拡張子はpng）
+  -a, --alpha-matting   アルファマッティングを有効にする。髪の毛など細かい輪郭の透過精度が上がるが、処理が遅くなる
+  -F ALPHA_MATTING_FOREGROUND_THRESHOLD, --alpha-matting-foreground-threshold ALPHA_MATTING_FOREGROUND_THRESHOLD
+                        アルファマッティングの前景しきい値（0-255、既定240）。--alpha-matting指定時のみ有効
+  -B ALPHA_MATTING_BACKGROUND_THRESHOLD, --alpha-matting-background-threshold ALPHA_MATTING_BACKGROUND_THRESHOLD
+                        アルファマッティングの背景しきい値（0-255、既定10）。--alpha-matting指定時のみ有効
+  -E ALPHA_MATTING_ERODE_SIZE, --alpha-matting-erode-size ALPHA_MATTING_ERODE_SIZE
+                        アルファマッティングの侵食サイズ（既定10）。--alpha-matting指定時のみ有効
+  -c R G B A, --bgcolor R G B A
+                        背景を透過せず指定色(RGBA、各0-255)で塗りつぶす。省略時は透過のまま
+  -m, --only-mask       前景/背景の二値マスク画像のみを出力する（切り抜き結果ではなくマスクそのもの）
+  -p, --post-process-mask
+                        マスクにノイズ除去・穴埋めの後処理を適用する
 </pre>
 </section>
 <section class="command">
@@ -268,7 +283,7 @@ options:
 <p class="standalone">単体実行: <code>denoise.exe</code> <button type="button" class="copy-btn" data-copy="denoise">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><circle cx="50" cy="45" r="26" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/><circle cx="38" cy="32" r="1.4" fill="#557" /><circle cx="52" cy="28" r="1.4" fill="#557" /><circle cx="61" cy="40" r="1.4" fill="#557" /><circle cx="44" cy="48" r="1.4" fill="#557" /><circle cx="58" cy="55" r="1.4" fill="#557" /><circle cx="35" cy="50" r="1.4" fill="#557" /><circle cx="48" cy="58" r="1.4" fill="#557" /><circle cx="63" cy="30" r="1.4" fill="#557" /><circle cx="40" cy="40" r="1.4" fill="#557" /><circle cx="55" cy="45" r="1.4" fill="#557" /><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="170" cy="45" r="26" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/></g></svg></div>
 <p class="summary">画像のノイズ除去（ファイルパス／クリップボード入力対応、OpenCV Non-local Means）</p>
-<pre>usage: denoise [-h] [-o OUTPUT] [--strength STRENGTH] [path]
+<pre>usage: denoise [-h] [-o OUTPUT] [-s STRENGTH] [path]
 
 画像のノイズ除去（ファイルパス／クリップボード入力対応、OpenCV Non-local Means）
 
@@ -279,7 +294,8 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         出力先パス（省略時は自動生成、拡張子はpng）
-  --strength STRENGTH   ノイズ除去強度 h（デフォルト: 10.0）。値を大きくするほどノイズは減るがディテールも失われる
+  -s STRENGTH, --strength STRENGTH
+                        ノイズ除去強度 h（デフォルト: 10.0）。値を大きくするほどノイズは減るがディテールも失われる
 </pre>
 </section>
 <section class="command">
@@ -287,7 +303,7 @@ options:
 <p class="standalone">単体実行: <code>kukiri.exe</code> <button type="button" class="copy-btn" data-copy="kukiri">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="24" y="19" width="52" height="52" rx="4" fill="none" stroke="#99a" stroke-width="6" opacity="0.35"/><rect x="24" y="19" width="52" height="52" rx="4" fill="#cfe3ff" stroke="#99a" stroke-width="2" opacity="0.7"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="144" y="19" width="52" height="52" rx="4" fill="#cfe3ff" stroke="currentColor" stroke-width="3"/></g></svg></div>
 <p class="summary">JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）</p>
-<pre>usage: kukiri [-h] [-o OUTPUT] [--smooth SMOOTH] [--sharpen SHARPEN] [path]
+<pre>usage: kukiri [-h] [-o OUTPUT] [-m SMOOTH] [-p SHARPEN] [path]
 
 JPEGの輪郭滲みを除去し境界をくっきりさせる（フラットイラスト向け）
 
@@ -298,8 +314,10 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         出力先パス（省略時は自動生成、拡張子はpng）
-  --smooth SMOOTH       バイラテラルフィルタの強さ（デフォルト: 75.0）。大きいほど滲みは消えるが細部も失われる
-  --sharpen SHARPEN     アンシャープマスクの強さ（デフォルト: 0.5、0で無効）。大きいほど境界のコントラストが強調される
+  -m SMOOTH, --smooth SMOOTH
+                        バイラテラルフィルタの強さ（デフォルト: 75.0）。大きいほど滲みは消えるが細部も失われる
+  -p SHARPEN, --sharpen SHARPEN
+                        アンシャープマスクの強さ（デフォルト: 0.5、0で無効）。大きいほど境界のコントラストが強調される
 </pre>
 </section>
 <h2 class="category">テキスト集計</h2>
@@ -308,14 +326,10 @@ options:
 <p class="standalone">単体実行: <code>cwc.exe</code> <button type="button" class="copy-btn" data-copy="cwc">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="14" y="15" width="72" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><line x1="22" y1="28" x2="78" y2="28" stroke="currentColor" stroke-width="2.5"/><line x1="22" y1="40" x2="78" y2="40" stroke="currentColor" stroke-width="2.5"/><line x1="22" y1="52" x2="78" y2="52" stroke="currentColor" stroke-width="2.5"/><line x1="22" y1="64" x2="60" y2="64" stroke="currentColor" stroke-width="2.5"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><text x="145" y="35" font-size="16" font-weight="bold" fill="currentColor">単語</text><text x="185" y="30" font-size="9" fill="currentColor">語</text><text x="140" y="55" font-size="10" fill="currentColor">頻度</text><text x="170" y="60" font-size="20" font-weight="bold" fill="currentColor">多い</text><text x="150" y="75" font-size="8" fill="currentColor">少</text></g></svg></div>
 <p class="summary">テキストからワードクラウド画像を生成する（ファイルパス／クリップボード入力対応）</p>
-<pre>usage: cwc [-h] [-o OUTPUT] [--encoding ENCODING] [-w]
-           [--hinshi HINSHI [HINSHI ...]] [--semantic]
-           [--synonym-dict SYNONYM_DICT] [--no-synonym-dict]
-           [--user-dict USER_DICT] [--no-user-dict] [--stopwords STOPWORDS]
-           [--stopwords-file STOPWORDS_FILE] [--no-default-stopwords]
-           [--font FONT] [--similar] [--similar-threshold SIMILAR_THRESHOLD]
-           [--similar-model SIMILAR_MODEL]
-           [--similar-max-length SIMILAR_MAX_LENGTH]
+<pre>usage: cwc [-h] [-o OUTPUT] [-e ENCODING] [-w] [-i HINSHI [HINSHI ...]] [-s]
+           [-y SYNONYM_DICT] [-Y] [-u USER_DICT] [-U] [-x STOPWORDS]
+           [-X STOPWORDS_FILE] [-D] [-f FONT] [-m] [-t SIMILAR_THRESHOLD]
+           [-M SIMILAR_MODEL] [-l SIMILAR_MAX_LENGTH]
            [path]
 
 テキストからワードクラウド画像を生成する（ファイルパス／クリップボード入力対応）
@@ -327,31 +341,33 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         出力先パス（省略時は自動生成、拡張子はpng）
-  --encoding ENCODING   入力ファイルのエンコーディングを明示指定（省略時はUTF-8→CP932の順に試す）
+  -e ENCODING, --encoding ENCODING
+                        入力ファイルのエンコーディングを明示指定（省略時はUTF-8→CP932の順に試す）
   -w, --wakachi         Janomeによる分かち書きで分割する
-  --hinshi HINSHI [HINSHI ...]
+  -i HINSHI [HINSHI ...], --hinshi HINSHI [HINSHI ...]
                         集計対象の品詞を指定（複数可、カンマ区切りも可）。指定可能: 名詞, 動詞, 形容詞, 副詞, 助詞,
                         助動詞, 連体詞, 接続詞, 感動詞, 接頭詞, 記号, フィラー, その他
-  --semantic            同義語辞書で異表記を代表語に寄せる
-  --synonym-dict SYNONYM_DICT
+  -s, --semantic        同義語辞書で異表記を代表語に寄せる
+  -y SYNONYM_DICT, --synonym-dict SYNONYM_DICT
                         同義語辞書ファイルのパス
-  --no-synonym-dict     同義語辞書を一切使用しない
-  --user-dict USER_DICT
+  -Y, --no-synonym-dict
+                        同義語辞書を一切使用しない
+  -u USER_DICT, --user-dict USER_DICT
                         Janomeユーザー辞書のパス
-  --no-user-dict        Janomeユーザー辞書を一切使用しない
-  --stopwords STOPWORDS
+  -U, --no-user-dict    Janomeユーザー辞書を一切使用しない
+  -x STOPWORDS, --stopwords STOPWORDS
                         追加するストップワード（カンマ区切り）
-  --stopwords-file STOPWORDS_FILE
+  -X STOPWORDS_FILE, --stopwords-file STOPWORDS_FILE
                         追加するストップワードのファイルパス
-  --no-default-stopwords
+  -D, --no-default-stopwords
                         デフォルトのストップワードを無効化する
-  --font FONT           使用するフォントファイルのパス
-  --similar             集計単位を語ではなく文にし、埋め込みベクトルの類似度でクラスタリングする
-  --similar-threshold SIMILAR_THRESHOLD
+  -f FONT, --font FONT  使用するフォントファイルのパス
+  -m, --similar         集計単位を語ではなく文にし、埋め込みベクトルの類似度でクラスタリングする
+  -t SIMILAR_THRESHOLD, --similar-threshold SIMILAR_THRESHOLD
                         --similar のクラスタをまとめる距離の閾値（コサイン距離、既定: 0.2）
-  --similar-model SIMILAR_MODEL
+  -M SIMILAR_MODEL, --similar-model SIMILAR_MODEL
                         --similar で使用する埋め込みモデル名
-  --similar-max-length SIMILAR_MAX_LENGTH
+  -l SIMILAR_MAX_LENGTH, --similar-max-length SIMILAR_MAX_LENGTH
                         --similar の代表文の表示文字数の上限（0で無制限、既定: 10）
 </pre>
 </section>
@@ -361,14 +377,14 @@ options:
 <p class="standalone">単体実行: <code>clipmd.exe</code> <button type="button" class="copy-btn" data-copy="clipmd">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><text x="18" y="35" font-size="12" font-family="Consolas, monospace" fill="currentColor"># 見出し</text><text x="18" y="52" font-size="12" font-family="Consolas, monospace" fill="currentColor">**太字**</text><text x="18" y="69" font-size="12" font-family="Consolas, monospace" fill="currentColor">- 項目</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><text x="138" y="34" font-size="15" font-weight="bold" fill="currentColor">見出し</text><text x="138" y="52" font-size="12" font-weight="bold" fill="currentColor">太字</text><circle cx="140" cy="63" r="1.8" fill="currentColor"/><text x="146" y="67" font-size="12" fill="currentColor">項目</text></g></svg></div>
 <p class="summary">クリップボードのMarkdownとリッチテキストを相互変換する</p>
-<pre>usage: clipmd [-h] [--to-markdown | --to-rich]
+<pre>usage: clipmd [-h] [-m | -r]
 
 クリップボードのMarkdownとリッチテキストを相互変換する
 
 options:
-  -h, --help     show this help message and exit
-  --to-markdown  入力をHTMLとみなしMarkdownに変換する
-  --to-rich      入力をMarkdownとみなしリッチテキストに変換する
+  -h, --help         show this help message and exit
+  -m, --to-markdown  入力をHTMLとみなしMarkdownに変換する
+  -r, --to-rich      入力をMarkdownとみなしリッチテキストに変換する
 </pre>
 </section>
 <section class="command">
@@ -376,14 +392,14 @@ options:
 <p class="standalone">単体実行: <code>mdtsv.exe</code> <button type="button" class="copy-btn" data-copy="mdtsv">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><text x="16" y="35" font-size="11" font-family="Consolas, monospace" fill="currentColor">|a|b|</text><text x="16" y="50" font-size="11" font-family="Consolas, monospace" fill="currentColor">|-|-|</text><text x="16" y="65" font-size="11" font-family="Consolas, monospace" fill="currentColor">|1|2|</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="15" width="80" height="60" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="130" y1="45" x2="210" y2="45" stroke="currentColor" stroke-width="1.5"/><line x1="170" y1="15" x2="170" y2="75" stroke="currentColor" stroke-width="1.5"/><text x="145" y="35" font-size="12" fill="currentColor">a</text><text x="185" y="35" font-size="12" fill="currentColor">b</text><text x="145" y="65" font-size="12" fill="currentColor">1</text><text x="185" y="65" font-size="12" fill="currentColor">2</text></g></svg></div>
 <p class="summary">クリップボードのMarkdownの表とTSVを相互変換する</p>
-<pre>usage: mdtsv [-h] [--to-tsv | --to-table]
+<pre>usage: mdtsv [-h] [-t | -m]
 
 クリップボードのMarkdownの表とTSVを相互変換する
 
 options:
-  -h, --help  show this help message and exit
-  --to-tsv    入力をMarkdownの表とみなしTSVに変換する
-  --to-table  入力をTSVとみなしMarkdownの表に変換する
+  -h, --help      show this help message and exit
+  -t, --to-tsv    入力をMarkdownの表とみなしTSVに変換する
+  -m, --to-table  入力をTSVとみなしMarkdownの表に変換する
 </pre>
 </section>
 <section class="command">
@@ -391,13 +407,13 @@ options:
 <p class="standalone">単体実行: <code>clipfmt.exe</code> <button type="button" class="copy-btn" data-copy="clipfmt">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><text x="16" y="35" font-size="11" font-family="Consolas, monospace" fill="currentColor">|a|bb|c|</text><text x="16" y="50" font-size="11" font-family="Consolas, monospace" fill="currentColor">|-|-|-|</text><text x="16" y="65" font-size="11" font-family="Consolas, monospace" fill="currentColor">|1|2|3|</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><text x="136" y="35" font-size="11" font-family="Consolas, monospace" fill="currentColor">| a  | bb | c |</text><text x="136" y="50" font-size="11" font-family="Consolas, monospace" fill="currentColor">| -- | -- | - |</text><text x="136" y="65" font-size="11" font-family="Consolas, monospace" fill="currentColor">| 1  | 2  | 3 |</text></g></svg></div>
 <p class="summary">クリップボードのMarkdownを整形する</p>
-<pre>usage: clipfmt [-h] [--no-normalize-bullets]
+<pre>usage: clipfmt [-h] [-b]
 
 クリップボードのMarkdownを整形する
 
 options:
   -h, --help            show this help message and exit
-  --no-normalize-bullets
+  -b, --no-normalize-bullets
                         箇条書き記号(*/+)を-に統一する前処理を行わない
 </pre>
 </section>
@@ -406,16 +422,16 @@ options:
 <p class="standalone">単体実行: <code>clipview.exe</code> <button type="button" class="copy-btn" data-copy="clipview">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="24" y="15" width="52" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/><rect x="38" y="10" width="24" height="10" rx="2" fill="currentColor"/><line x1="32" y1="35" x2="68" y2="35" stroke="currentColor" stroke-width="2"/><line x1="32" y1="47" x2="68" y2="47" stroke="currentColor" stroke-width="2"/><line x1="32" y1="59" x2="56" y2="59" stroke="currentColor" stroke-width="2"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="12" width="80" height="66" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><line x1="130" y1="24" x2="210" y2="24" stroke="currentColor" stroke-width="2"/><circle cx="137" cy="18" r="1.6" fill="currentColor"/><circle cx="144" cy="18" r="1.6" fill="currentColor"/><text x="138" y="42" font-size="13" font-weight="bold" fill="currentColor">見出し</text><line x1="138" y1="52" x2="200" y2="52" stroke="currentColor" stroke-width="1.5"/><line x1="138" y1="61" x2="200" y2="61" stroke="currentColor" stroke-width="1.5"/><line x1="138" y1="70" x2="180" y2="70" stroke="currentColor" stroke-width="1.5"/></g></svg></div>
 <p class="summary">クリップボードのMarkdown/HTMLをブラウザでプレビューする</p>
-<pre>usage: clipview [-h] [--markdown | --html | --svg] [--no-open]
+<pre>usage: clipview [-h] [-m | -H | -s] [-n]
 
 クリップボードのMarkdown/HTMLをブラウザでプレビューする
 
 options:
-  -h, --help  show this help message and exit
-  --markdown  入力をMarkdownとして解釈する
-  --html      入力をHTMLとして解釈する
-  --svg       入力をSVGとして解釈する
-  --no-open   ブラウザを開かず、パスの表示のみ行う
+  -h, --help      show this help message and exit
+  -m, --markdown  入力をMarkdownとして解釈する
+  -H, --html      入力をHTMLとして解釈する
+  -s, --svg       入力をSVGとして解釈する
+  -n, --no-open   ブラウザを開かず、パスの表示のみ行う
 </pre>
 </section>
 <h2 class="category">表形式データ</h2>
@@ -424,9 +440,8 @@ options:
 <p class="standalone">単体実行: <code>profiler.exe</code> <button type="button" class="copy-btn" data-copy="profiler">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10" y1="35" x2="90" y2="35" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="55" x2="90" y2="55" stroke="currentColor" stroke-width="1.5"/><line x1="45" y1="15" x2="45" y2="75" stroke="currentColor" stroke-width="1.5"/><text x="20" y="30" font-size="11" fill="currentColor">12</text><text x="55" y="30" font-size="11" fill="currentColor">A</text><text x="20" y="50" font-size="11" fill="#c55" opacity="0.7">?</text><text x="55" y="50" font-size="11" fill="currentColor">B</text><text x="20" y="70" font-size="11" fill="currentColor">7</text><text x="55" y="70" font-size="11" fill="#c55" opacity="0.7">?</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><text x="136" y="26" font-size="10" fill="currentColor">列A 充填 67%</text><rect x="136" y="30" width="60" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1"/><rect x="136" y="30" width="40" height="6" rx="2" fill="currentColor"/><text x="136" y="52" font-size="10" fill="currentColor">列B 一意 100%</text><rect x="136" y="56" width="60" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1"/><rect x="136" y="56" width="60" height="6" rx="2" fill="currentColor"/></g></svg></div>
 <p class="summary">表形式データの各列をプロファイルする（欠損・一意性・頻度上位・主キー候補）</p>
-<pre>usage: profiler [-h] [-o OUTPUT] [--clip] [--view] [--sep SEP]
-                [--header HEADER] [--no-header] [--top TOP]
-                [--empty-values EMPTY_VALUES] [--no-default-empty-values]
+<pre>usage: profiler [-h] [-o OUTPUT] [-c] [-v] [-s SEP] [-H HEADER] [-n] [-t TOP]
+                [-e EMPTY_VALUES] [-N]
                 [path ...]
 
 表形式データの各列をプロファイルする（欠損・一意性・頻度上位・主キー候補）
@@ -438,15 +453,16 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         出力先パス（.tsv / .xlsx）
-  --clip                結果をクリップボードにコピーする
-  --view                結果をブラウザでHTML表示する
-  --sep SEP             区切り文字（拡張子判定を上書き）
-  --header HEADER       ヘッダー行のインデックス（0始まり、既定0）
-  --no-header           ヘッダーなしとして扱う
-  --top TOP             頻度上位の表示件数（既定10、0で非表示）
-  --empty-values EMPTY_VALUES
+  -c, --clip            結果をクリップボードにコピーする
+  -v, --view            結果をブラウザでHTML表示する
+  -s SEP, --sep SEP     区切り文字（拡張子判定を上書き）
+  -H HEADER, --header HEADER
+                        ヘッダー行のインデックス（0始まり、既定0）
+  -n, --no-header       ヘッダーなしとして扱う
+  -t TOP, --top TOP     頻度上位の表示件数（既定10、0で非表示）
+  -e EMPTY_VALUES, --empty-values EMPTY_VALUES
                         空とみなす値のカンマ区切りリスト（既定値を置き換える）
-  --no-default-empty-values
+  -N, --no-default-empty-values
                         既定の空値リストを無効化し、Noneと空文字だけを空とみなす
 </pre>
 </section>
@@ -455,9 +471,8 @@ options:
 <p class="standalone">単体実行: <code>lsdir.exe</code> <button type="button" class="copy-btn" data-copy="lsdir">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><path d="M14 22 L28 22 L32 27 L54 27 L54 40 L14 40 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M20 46 L34 46 L38 51 L60 51 L60 64 L20 64 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" opacity="0.6"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="15" width="80" height="60" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="130" y1="30" x2="210" y2="30" stroke="currentColor" stroke-width="1.5"/><line x1="130" y1="45" x2="210" y2="45" stroke="currentColor" stroke-width="1.5"/><line x1="130" y1="60" x2="210" y2="60" stroke="currentColor" stroke-width="1.5"/><line x1="170" y1="15" x2="170" y2="75" stroke="currentColor" stroke-width="1.5"/></g></svg></div>
 <p class="summary">フォルダ配下をExcelで集計できる表形式で一覧化する</p>
-<pre>usage: lsdir [-h] [-o OUTPUT] [--clip] [--files-only] [--dirs-only]
-             [--exclude EXCLUDE [EXCLUDE ...]] [--include-temp] [--total-size]
-             [--unit {b,kb,mb,gb}] [--resolve-link] [--encoding ENCODING]
+<pre>usage: lsdir [-h] [-o OUTPUT] [-c] [-f] [-d] [-x EXCLUDE [EXCLUDE ...]] [-t]
+             [-s] [-u {b,kb,mb,gb}] [-r] [-e ENCODING]
              path [path ...]
 
 フォルダ配下をExcelで集計できる表形式で一覧化する
@@ -469,17 +484,19 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         出力先パス（.tsv / .xlsx）
-  --clip                結果をクリップボードにコピーする
-  --files-only          ファイルのみ出力する
-  --dirs-only           フォルダのみ出力する
-  --exclude EXCLUDE [EXCLUDE ...]
+  -c, --clip            結果をクリップボードにコピーする
+  -f, --files-only      ファイルのみ出力する
+  -d, --dirs-only       フォルダのみ出力する
+  -x EXCLUDE [EXCLUDE ...], --exclude EXCLUDE [EXCLUDE ...]
                         除外するフォルダ名（既定: [&#x27;.git&#x27;, &#x27;.svn&#x27;, &#x27;node_modules&#x27;,
                         &#x27;__pycache__&#x27;]）
-  --include-temp        &#x27;~$&#x27;で始まる一時ファイルも含める
-  --total-size          フォルダ配下の合計サイズを計算する（全走査後に出力するため待ち時間が発生する）
-  --unit {b,kb,mb,gb}   サイズの単位（既定: kb）
-  --resolve-link        .lnkのリンク先を解決する（WScript.Shell経由、大量にあると遅くなる）
-  --encoding ENCODING   出力エンコーディング
+  -t, --include-temp    &#x27;~$&#x27;で始まる一時ファイルも含める
+  -s, --total-size      フォルダ配下の合計サイズを計算する（全走査後に出力するため待ち時間が発生する）
+  -u {b,kb,mb,gb}, --unit {b,kb,mb,gb}
+                        サイズの単位（既定: kb）
+  -r, --resolve-link    .lnkのリンク先を解決する（WScript.Shell経由、大量にあると遅くなる）
+  -e ENCODING, --encoding ENCODING
+                        出力エンコーディング
 </pre>
 </section>
 <h2 class="category">PowerPoint操作</h2>
@@ -501,19 +518,19 @@ options:
 <p class="standalone">単体実行: <code>ikko.exe</code> <button type="button" class="copy-btn" data-copy="ikko">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="16" y="16" width="68" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="16" y="38" width="68" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="16" y="60" width="68" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="136" y="16" width="68" height="58" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.5"/><line x1="144" y1="34" x2="196" y2="34" stroke="currentColor" stroke-width="2"/><line x1="144" y1="46" x2="196" y2="46" stroke="currentColor" stroke-width="2"/><line x1="144" y1="58" x2="196" y2="58" stroke="currentColor" stroke-width="2"/></g></svg></div>
 <p class="summary">スライド上のバラバラなテキストボックスを1つに合体する</p>
-<pre>usage: ikko [-h] [--dry-run] [--left-tolerance LEFT_TOLERANCE]
-            [--line-step-min LINE_STEP_MIN] [--line-step-max LINE_STEP_MAX]
+<pre>usage: ikko [-h] [-n] [-t LEFT_TOLERANCE] [-i LINE_STEP_MIN]
+            [-a LINE_STEP_MAX]
 
 スライド上のバラバラなテキストボックスを1つに合体する
 
 options:
   -h, --help            show this help message and exit
-  --dry-run             実際には変更せず、合体対象になるクラスタを表示するだけにする
-  --left-tolerance LEFT_TOLERANCE
+  -n, --dry-run         実際には変更せず、合体対象になるクラスタを表示するだけにする
+  -t LEFT_TOLERANCE, --left-tolerance LEFT_TOLERANCE
                         左端座標の許容誤差（ポイント、既定1.0）
-  --line-step-min LINE_STEP_MIN
+  -i LINE_STEP_MIN, --line-step-min LINE_STEP_MIN
                         行送りの下限（フォントサイズ比、既定0.8）
-  --line-step-max LINE_STEP_MAX
+  -a LINE_STEP_MAX, --line-step-max LINE_STEP_MAX
                         行送りの上限（フォントサイズ比、既定2.2）
 </pre>
 </section>
@@ -574,13 +591,13 @@ options:
 <p class="standalone">単体実行: <code>umekomi.exe</code> <button type="button" class="copy-btn" data-copy="umekomi">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="16" y="20" width="64" height="50" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="28" y="35" width="52" height="20" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3,2"/><text x="54" y="49" font-size="11" text-anchor="middle" fill="currentColor">Text</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="136" y="20" width="64" height="50" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><text x="168" y="49" font-size="11" text-anchor="middle" fill="currentColor">Text</text></g></svg></div>
 <p class="summary">shapeの上に重ねて配置されたテキストボックスをshapeに埋め込む</p>
-<pre>usage: umekomi [-h] [--dry-run]
+<pre>usage: umekomi [-h] [-n]
 
 shapeの上に重ねて配置されたテキストボックスをshapeに埋め込む
 
 options:
-  -h, --help  show this help message and exit
-  --dry-run   実際には変更せず、埋め込み対象になる組み合わせを表示するだけにする
+  -h, --help     show this help message and exit
+  -n, --dry-run  実際には変更せず、埋め込み対象になる組み合わせを表示するだけにする
 </pre>
 </section>
 <section class="command">
@@ -627,22 +644,20 @@ options:
 <p class="standalone">単体実行: <code>bunkatsu.exe</code> <button type="button" class="copy-btn" data-copy="bunkatsu">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="14" y="15" width="72" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="38" cy="45" r="16" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/><circle cx="64" cy="45" r="14" fill="#ffd699" stroke="currentColor" stroke-width="2"/><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="18" width="34" height="54" rx="2" fill="#eee" stroke="currentColor" stroke-width="2"/><rect x="130" y="18" width="8" height="8" fill="#ccc"/><rect x="146" y="18" width="8" height="8" fill="#ccc"/><rect x="138" y="26" width="8" height="8" fill="#ccc"/><rect x="154" y="26" width="8" height="8" fill="#ccc"/><circle cx="147" cy="45" r="15" fill="#cfe3ff" stroke="currentColor" stroke-width="2"/><rect x="172" y="24" width="34" height="42" rx="2" fill="#eee" stroke="currentColor" stroke-width="2"/><rect x="172" y="24" width="8" height="8" fill="#ccc"/><rect x="188" y="24" width="8" height="8" fill="#ccc"/><rect x="180" y="32" width="8" height="8" fill="#ccc"/><circle cx="189" cy="45" r="13" fill="#ffd699" stroke="currentColor" stroke-width="2"/></g></svg></div>
 <p class="summary">選択中の画像シェイプを物体ごとに領域分割し、個別の画像として再配置する</p>
-<pre>usage: bunkatsu [-h] [--distance-ratio DISTANCE_RATIO]
-                [--background-color-distance BACKGROUND_COLOR_DISTANCE]
-                [--dry-run]
+<pre>usage: bunkatsu [-h] [-r DISTANCE_RATIO] [-b BACKGROUND_COLOR_DISTANCE] [-n]
 
 選択中の画像シェイプを物体ごとに領域分割し、個別の画像として再配置する
 
 options:
   -h, --help            show this help message and exit
-  --distance-ratio DISTANCE_RATIO
+  -r DISTANCE_RATIO, --distance-ratio DISTANCE_RATIO
                         分割の厳しさ（0-
                         1、既定0.15）。値を上げるほど接触した物体を分割しやすくなる一方、単一物体を過分割するリスクが増える
-  --background-color-distance BACKGROUND_COLOR_DISTANCE
+  -b BACKGROUND_COLOR_DISTANCE, --background-color-distance BACKGROUND_COLOR_DISTANCE
                         背景色との色差しきい値（0-
                         441.7、既定20.0）。不透過画像（写真や塗りつぶしありの図形）のみに影響する。値を上げるほど背景の色ム
                         ラを許容しやすくなるが、背景に近い色の物体を見逃しやすくなる
-  --dry-run             実際には変更せず、検出される領域数だけを表示する
+  -n, --dry-run         実際には変更せず、検出される領域数だけを表示する
 </pre>
 </section>
 <h2 class="category">その他</h2>
@@ -667,13 +682,13 @@ options:
 <p class="standalone">単体実行: <code>toolh.exe</code> <button type="button" class="copy-btn" data-copy="toolh">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="70" y="12" width="80" height="66" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><line x1="70" y1="24" x2="150" y2="24" stroke="currentColor" stroke-width="2"/><circle cx="77" cy="18" r="1.6" fill="currentColor"/><circle cx="84" cy="18" r="1.6" fill="currentColor"/><text x="95" y="52" font-size="24" font-weight="bold" text-anchor="middle" fill="currentColor">?</text></g></svg></div>
 <p class="summary">全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く</p>
-<pre>usage: help [-h] [--no-open]
+<pre>usage: help [-h] [-n]
 
 全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く
 
 options:
-  -h, --help  show this help message and exit
-  --no-open   ブラウザを開かず、パスの表示のみ行う
+  -h, --help     show this help message and exit
+  -n, --no-open  ブラウザを開かず、パスの表示のみ行う
 </pre>
 </section>
 <section class="command">
@@ -681,13 +696,13 @@ options:
 <p class="standalone">単体実行: <code>shortcut.exe</code> <button type="button" class="copy-btn" data-copy="shortcut">コマンド名をコピー</button></p>
 <div class="diagram" aria-hidden="true"><svg viewBox="0 0 220 90"><g><rect x="10" y="15" width="80" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10" y1="27" x2="90" y2="27" stroke="currentColor" stroke-width="1.5"/><text x="16" y="45" font-size="11" font-family="Consolas, monospace" fill="currentColor">&gt;touka.exe_</text><path d="M96 45 H124 M116 37 L124 45 L116 53" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="130" y="12" width="80" height="66" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="138" y="20" width="14" height="14" rx="3" fill="currentColor"/><line x1="156" y1="27" x2="202" y2="27" stroke="currentColor" stroke-width="2"/><rect x="138" y="40" width="14" height="14" rx="3" fill="currentColor"/><line x1="156" y1="47" x2="202" y2="47" stroke="currentColor" stroke-width="2"/><rect x="138" y="60" width="14" height="14" rx="3" fill="currentColor"/><line x1="156" y1="67" x2="202" y2="67" stroke="currentColor" stroke-width="2"/></g></svg></div>
 <p class="summary">全コマンドのスタートメニューショートカットを作成/削除する</p>
-<pre>usage: shortcut [-h] [--remove]
+<pre>usage: shortcut [-h] [-r]
 
 全コマンドのスタートメニューショートカットを作成/削除する
 
 options:
-  -h, --help  show this help message and exit
-  --remove    作成済みのショートカットを削除する（作成せず削除のみ行う）
+  -h, --help    show this help message and exit
+  -r, --remove  作成済みのショートカットを削除する（作成せず削除のみ行う）
 </pre>
 </section>
 </main>

@@ -118,6 +118,22 @@ tools touka
 # 出力先を指定
 tools touka C:\path\to\photo.jpg -o C:\path\to\out.png
 
+# アルファマッティングを有効にして髪の毛などの細かい輪郭の精度を上げる
+tools touka C:\path\to\photo.jpg --alpha-matting
+
+# アルファマッティングのしきい値・侵食サイズを調整
+tools touka C:\path\to\photo.jpg --alpha-matting `
+  --alpha-matting-foreground-threshold 250 --alpha-matting-background-threshold 5
+
+# 背景を透過ではなく白で塗りつぶす（RGBA指定）
+tools touka C:\path\to\photo.jpg --bgcolor 255 255 255 255
+
+# 前景/背景の二値マスク画像のみを出力する
+tools touka C:\path\to\photo.jpg --only-mask
+
+# マスクにノイズ除去・穴埋めの後処理を適用する
+tools touka C:\path\to\photo.jpg --post-process-mask
+
 # 画像のノイズ除去（ファイルパス指定）
 tools denoise C:\path\to\photo.jpg
 

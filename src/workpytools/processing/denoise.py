@@ -42,6 +42,7 @@ class DenoiseProcessor(Processor):
             "-o", "--output", default=None, help="出力先パス（省略時は自動生成、拡張子はpng）"
         )
         parser.add_argument(
+            "-s",
             "--strength",
             type=float,
             default=10.0,

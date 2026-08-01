@@ -51,41 +51,49 @@ class LsdirProcessor(Processor):
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument("path", nargs="+", help="対象フォルダ（複数・グロブ可）")
         parser.add_argument("-o", "--output", default=None, help="出力先パス（.tsv / .xlsx）")
-        parser.add_argument("--clip", action="store_true", help="結果をクリップボードにコピーする")
         parser.add_argument(
-            "--files-only", action="store_true", help="ファイルのみ出力する"
+            "-c", "--clip", action="store_true", help="結果をクリップボードにコピーする"
         )
         parser.add_argument(
-            "--dirs-only", action="store_true", help="フォルダのみ出力する"
+            "-f", "--files-only", action="store_true", help="ファイルのみ出力する"
         )
         parser.add_argument(
+            "-d", "--dirs-only", action="store_true", help="フォルダのみ出力する"
+        )
+        parser.add_argument(
+            "-x",
             "--exclude",
             nargs="+",
             default=list(_DEFAULT_EXCLUDE),
             help="除外するフォルダ名（既定: %(default)s）",
         )
         parser.add_argument(
+            "-t",
             "--include-temp",
             action="store_true",
             help="'~$'で始まる一時ファイルも含める",
         )
         parser.add_argument(
+            "-s",
             "--total-size",
             action="store_true",
             help="フォルダ配下の合計サイズを計算する（全走査後に出力するため待ち時間が発生する）",
         )
         parser.add_argument(
+            "-u",
             "--unit",
             choices=["b", "kb", "mb", "gb"],
             default="kb",
             help="サイズの単位（既定: kb）",
         )
         parser.add_argument(
+            "-r",
             "--resolve-link",
             action="store_true",
             help=".lnkのリンク先を解決する（WScript.Shell経由、大量にあると遅くなる）",
         )
         parser.add_argument(
+            "-e",
             "--encoding",
             default="cp932" if os.name == "nt" else "utf-8",
             help="出力エンコーディング",

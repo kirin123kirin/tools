@@ -71,30 +71,39 @@ class ProfilerProcessor(Processor):
         )
         parser.add_argument("-o", "--output", default=None, help="出力先パス（.tsv / .xlsx）")
         parser.add_argument(
-            "--clip", action="store_true", help="結果をクリップボードにコピーする"
+            "-c", "--clip", action="store_true", help="結果をクリップボードにコピーする"
         )
         parser.add_argument(
-            "--view", action="store_true", help="結果をブラウザでHTML表示する"
+            "-v", "--view", action="store_true", help="結果をブラウザでHTML表示する"
         )
-        parser.add_argument("--sep", default=None, help="区切り文字（拡張子判定を上書き）")
         parser.add_argument(
+            "-s", "--sep", default=None, help="区切り文字（拡張子判定を上書き）"
+        )
+        parser.add_argument(
+            "-H",
             "--header",
             type=int,
             default=0,
             help="ヘッダー行のインデックス（0始まり、既定0）",
         )
         parser.add_argument(
-            "--no-header", action="store_true", help="ヘッダーなしとして扱う"
+            "-n", "--no-header", action="store_true", help="ヘッダーなしとして扱う"
         )
         parser.add_argument(
-            "--top", type=int, default=10, help="頻度上位の表示件数（既定10、0で非表示）"
+            "-t",
+            "--top",
+            type=int,
+            default=10,
+            help="頻度上位の表示件数（既定10、0で非表示）",
         )
         parser.add_argument(
+            "-e",
             "--empty-values",
             default=None,
             help="空とみなす値のカンマ区切りリスト（既定値を置き換える）",
         )
         parser.add_argument(
+            "-N",
             "--no-default-empty-values",
             action="store_true",
             help="既定の空値リストを無効化し、Noneと空文字だけを空とみなす",

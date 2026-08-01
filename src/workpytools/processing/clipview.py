@@ -123,12 +123,17 @@ class ClipviewProcessor(Processor):
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
-            "--markdown", action="store_true", help="入力をMarkdownとして解釈する"
+            "-m", "--markdown", action="store_true", help="入力をMarkdownとして解釈する"
         )
-        group.add_argument("--html", action="store_true", help="入力をHTMLとして解釈する")
-        group.add_argument("--svg", action="store_true", help="入力をSVGとして解釈する")
+        group.add_argument(
+            "-H", "--html", action="store_true", help="入力をHTMLとして解釈する"
+        )
+        group.add_argument("-s", "--svg", action="store_true", help="入力をSVGとして解釈する")
         parser.add_argument(
-            "--no-open", action="store_true", help="ブラウザを開かず、パスの表示のみ行う"
+            "-n",
+            "--no-open",
+            action="store_true",
+            help="ブラウザを開かず、パスの表示のみ行う",
         )
 
     def run(self, args: argparse.Namespace) -> int:

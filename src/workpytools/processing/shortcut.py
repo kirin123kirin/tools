@@ -34,6 +34,7 @@ class ShortcutProcessor(Processor):
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
+            "-r",
             "--remove",
             action="store_true",
             help="作成済みのショートカットを削除する（作成せず削除のみ行う）",
