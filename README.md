@@ -106,6 +106,10 @@ Copy-Item scripts\pre-commit .git\hooks\pre-commit
 
 ## 実行
 
+以下の例は読みやすさのため主にロングオプション（`--xxx`）で記載しているが、
+`-h`/`--help`と`-o`/`--output`を除く全オプションにはショートオプション
+（1文字）も用意されている。各コマンドの`tools <name> --help`で確認できる。
+
 ```powershell
 # 画像の背景を透過（ファイルパス指定）
 tools touka C:\path\to\photo.jpg
