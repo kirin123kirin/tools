@@ -178,6 +178,28 @@ tools cwc C:\path\to\memo.txt --semantic
 # （アンケート自由記述など、表現違いの同趣旨回答をまとめたい場合向け）
 tools cwc C:\path\to\answers.txt --similar
 
+# --similar のクラスタ閾値・使用モデル・代表文の表示文字数を調整
+tools cwc C:\path\to\answers.txt --similar `
+  --similar-threshold 0.3 --similar-model Xenova/paraphrase-multilingual-MiniLM-L12-v2 `
+  --similar-max-length 20
+
+# 入力ファイルのエンコーディングを明示指定
+tools cwc C:\path\to\memo.txt --encoding cp932
+
+# 同義語辞書・Janomeユーザー辞書のパスを明示指定、または無効化する
+tools cwc C:\path\to\memo.txt --semantic --synonym-dict C:\path\to\synonym.tsv
+tools cwc C:\path\to\memo.txt --semantic --no-synonym-dict
+tools cwc C:\path\to\memo.txt -w --user-dict C:\path\to\userdic.csv
+tools cwc C:\path\to\memo.txt -w --no-user-dict
+
+# ストップワードを追加、またはデフォルトのストップワードを無効化
+tools cwc C:\path\to\memo.txt --stopwords 会議 資料
+tools cwc C:\path\to\memo.txt --stopwords-file C:\path\to\stopwords.txt
+tools cwc C:\path\to\memo.txt --no-default-stopwords
+
+# 使用するフォントファイルを指定（既定はメイリオ）
+tools cwc C:\path\to\memo.txt --font C:\path\to\font.ttf
+
 # 出力先を指定
 tools cwc C:\path\to\memo.txt -o C:\path\to\out.png
 
@@ -200,6 +222,14 @@ tools clipview
 # 透過を確認しやすいよう市松模様の背景に重ねてプレビューする
 tools clipview
 
+# 入力の解釈方法を明示指定する（自動判別を上書き）
+tools clipview --markdown
+tools clipview --html
+tools clipview --svg
+
+# ブラウザを開かず、生成したプレビューファイルのパスだけを表示する
+tools clipview --no-open
+
 # クリップボードのMarkdownを整形（表の桁揃え、見出し統一、リスト記号統一など）
 tools clipfmt
 
@@ -221,6 +251,20 @@ tools profiler C:\path\to\data.xlsx -o C:\path\to\profile.xlsx
 # 結果をブラウザでプレビュー
 tools profiler C:\path\to\data.csv --view
 
+# 区切り文字を明示指定する（拡張子判定を上書き）
+tools profiler C:\path\to\data.txt --sep "|"
+
+# ヘッダー行のインデックスを指定、またはヘッダーなしとして扱う
+tools profiler C:\path\to\data.csv --header 2
+tools profiler C:\path\to\data.csv --no-header
+
+# 頻度上位の表示件数を指定する（既定10、0で非表示）
+tools profiler C:\path\to\data.csv --top 20
+
+# 空とみなす値のリストを指定、またはデフォルトの空値判定を無効化する
+tools profiler C:\path\to\data.csv --empty-values NULL N/A
+tools profiler C:\path\to\data.csv --no-default-empty-values
+
 # フォルダ配下をExcelで集計できる表形式で一覧化
 tools lsdir C:\path\to\folder
 
@@ -233,6 +277,15 @@ tools lsdir C:\path\to\folder --total-size
 
 # .lnkショートカットのリンク先も解決する
 tools lsdir C:\path\to\folder --resolve-link
+
+# 除外するフォルダ名を指定する（既定は.git等の定番フォルダ）
+tools lsdir C:\path\to\folder --exclude .git node_modules
+
+# '~$'で始まる一時ファイルも含める
+tools lsdir C:\path\to\folder --include-temp
+
+# 出力のエンコーディングを指定する（既定はcp932）
+tools lsdir C:\path\to\folder -o C:\path\to\list.tsv --encoding utf-8
 
 # 結果をExcelファイルに書き出す
 tools lsdir C:\path\to\folder -o C:\path\to\list.xlsx
@@ -247,6 +300,9 @@ tools ikko
 
 # 実際には変更せず、合体対象になる組み合わせだけを確認する
 tools ikko --dry-run
+
+# クラスタ判定の許容誤差・行送り比の閾値を調整する
+tools ikko --left-tolerance 5 --line-step-min 1.0 --line-step-max 1.8
 
 # アクティブなPowerPointの全スライドタイトルを一覧化してクリップボードにコピーする
 tools mokuji
@@ -293,6 +349,9 @@ tools bunkatsu
 
 # 分割の厳しさを調整する（既定0.15、値を上げるほど接触した物体を分割しやすい）
 tools bunkatsu --distance-ratio 0.3
+
+# 不透過画像の背景色との色差しきい値を調整する（既定20.0）
+tools bunkatsu --background-color-distance 30
 
 # 実際には変更せず、検出される領域数だけを確認する
 tools bunkatsu --dry-run

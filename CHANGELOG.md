@@ -5,6 +5,23 @@
 
 ## [Unreleased]
 
+## [0.1.33] - 2026-08-02
+
+### Docs
+
+- README: 実装済みだが記載が漏れていたオプションを追記
+  （設計・実装・ドキュメントの整合性を全面点検した結果、判明した記載漏れ）
+  - `cwc`: `--encoding`・`--synonym-dict`/`--no-synonym-dict`・
+    `--user-dict`/`--no-user-dict`・`--stopwords`/`--stopwords-file`・
+    `--no-default-stopwords`・`--font`・`--similar-threshold`・
+    `--similar-model`・`--similar-max-length`
+  - `ikko`: `--left-tolerance`・`--line-step-min`・`--line-step-max`
+  - `lsdir`: `--exclude`・`--include-temp`・`--encoding`
+  - `profiler`: `--sep`・`--header`・`--no-header`・`--top`・
+    `--empty-values`・`--no-default-empty-values`
+  - `clipview`: `--markdown`・`--html`・`--svg`・`--no-open`
+  - `bunkatsu`: `--background-color-distance`
+
 ## [0.1.32] - 2026-08-02
 
 ### Docs
