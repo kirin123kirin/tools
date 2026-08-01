@@ -15,7 +15,9 @@ _MSO_RECTANGLE = 1
 
 
 def _base_args(**overrides: object) -> argparse.Namespace:
-    defaults: dict[str, object] = dict(distance_ratio=0.5, dry_run=False)
+    defaults: dict[str, object] = dict(
+        distance_ratio=0.5, background_color_distance=20.0, dry_run=False
+    )
     defaults.update(overrides)
     return argparse.Namespace(**defaults)
 
@@ -52,9 +54,19 @@ def _setup_running(monkeypatch: pytest.MonkeyPatch, app: MagicMock) -> None:
     monkeypatch.setattr(bunkatsu_module, "get_active_presentation", lambda a: MagicMock())
 
 
-def _fake_export_writes_png(size: tuple[int, int] = (100, 60)):
-    def export(path: str, _filter: int) -> None:
-        Image.new("RGBA", size, (255, 0, 0, 255)).save(path)
+def _fake_export_writes_png(size: tuple[int, int] | None = None):
+    """Fake for shape.Export(path, filter, scale_width, scale_height, mode).
+
+    If `size` is None, honors the requested scale_width/scale_height (as
+    bunkatsu now passes them) -- this is what most tests want, since it
+    keeps the scale_x/scale_y math self-consistent. Pass an explicit `size`
+    only when a test needs the exported pixel size to differ from what was
+    requested.
+    """
+
+    def export(path: str, _filter: int, scale_width: int, scale_height: int, _mode: int) -> None:
+        actual_size = size if size is not None else (scale_width, scale_height)
+        Image.new("RGBA", actual_size, (255, 0, 0, 255)).save(path)
 
     return export
 
@@ -119,7 +131,7 @@ def test_no_split_when_single_region_found(monkeypatch: pytest.MonkeyPatch, caps
     shape.Export.side_effect = _fake_export_writes_png()
     app = _make_app_with_selection([shape])
     _setup_running(monkeypatch, app)
-    monkeypatch.setattr(bunkatsu_module, "split_regions", lambda img, distance_ratio: [])
+    monkeypatch.setattr(bunkatsu_module, "split_regions", lambda img, **kwargs: [])
 
     result = BunkatsuProcessor().run(_base_args())
 
@@ -136,7 +148,7 @@ def test_dry_run_does_not_modify_presentation(monkeypatch: pytest.MonkeyPatch, c
     _setup_running(monkeypatch, app)
 
     regions = [Image.new("RGBA", (40, 60), (0, 0, 0, 0)), Image.new("RGBA", (40, 60), (0, 0, 0, 0))]
-    monkeypatch.setattr(bunkatsu_module, "split_regions", lambda img, distance_ratio: regions)
+    monkeypatch.setattr(bunkatsu_module, "split_regions", lambda img, **kwargs: regions)
 
     result = BunkatsuProcessor().run(_base_args(dry_run=True))
 
@@ -162,7 +174,7 @@ def test_split_replaces_shape_with_regions(monkeypatch: pytest.MonkeyPatch, caps
     region_b.info["offset_x"] = 60
     region_b.info["offset_y"] = 0
     monkeypatch.setattr(
-        bunkatsu_module, "split_regions", lambda img, distance_ratio: [region_a, region_b]
+        bunkatsu_module, "split_regions", lambda img, **kwargs: [region_a, region_b]
     )
 
     result = BunkatsuProcessor().run(_base_args())
@@ -172,18 +184,53 @@ def test_split_replaces_shape_with_regions(monkeypatch: pytest.MonkeyPatch, caps
     assert slide.Shapes.AddPicture.call_count == 2
     shape.Delete.assert_called_once()
 
+    # AddPictureは位置引数で呼ぶ:
+    # (FileName, LinkToFile, SaveWithDocument, Left, Top, Width, Height)
     first_call = slide.Shapes.AddPicture.call_args_list[0]
-    assert first_call.kwargs["Left"] == pytest.approx(10.0)  # offset_x=0 -> 元のLeftそのまま
-    assert first_call.kwargs["Top"] == pytest.approx(20.0)
-    assert first_call.kwargs["Width"] == pytest.approx(40 * (300.0 / 100))
-    assert first_call.kwargs["Height"] == pytest.approx(60 * (200.0 / 60))
+    assert first_call.args[1] is False  # LinkToFile
+    assert first_call.args[2] is True  # SaveWithDocument
+    assert first_call.args[3] == pytest.approx(10.0)  # Left: offset_x=0 -> 元のLeftそのまま
+    assert first_call.args[4] == pytest.approx(20.0)  # Top
+    assert first_call.args[5] == pytest.approx(40 * (300.0 / 100))  # Width
+    assert first_call.args[6] == pytest.approx(60 * (200.0 / 60))  # Height
 
     second_call = slide.Shapes.AddPicture.call_args_list[1]
     # offset_x=60px * scale_x(=3.0pt/px) = 180pt を元のLeftに加算
-    assert second_call.kwargs["Left"] == pytest.approx(10.0 + 60 * (300.0 / 100))
+    assert second_call.args[3] == pytest.approx(10.0 + 60 * (300.0 / 100))  # Left
 
     captured = capsys.readouterr()
     assert "2個の画像に分割しました" in captured.out
+
+
+def test_export_requests_pixel_size_scaled_from_shape_size(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Export()はScaleWidth/ScaleHeightを省略するとスライド全体基準の
+    # ピクセルサイズを返してしまい、shape.Width/Heightとの比率計算が
+    # 崩れるため、shapeのポイントサイズから明示的に計算したピクセルサイズ
+    # ・ExportMode(ppScaleXY)を渡していることを確認する
+    shape = _make_picture_shape(width=300.0, height=200.0)
+    export_calls = []
+
+    def export(path, filt, scale_width, scale_height, mode):
+        export_calls.append((filt, scale_width, scale_height, mode))
+        Image.new("RGBA", (scale_width, scale_height), (255, 0, 0, 255)).save(path)
+
+    shape.Export.side_effect = export
+    slide = MagicMock()
+    shape.Parent = slide
+    app = _make_app_with_selection([shape])
+    _setup_running(monkeypatch, app)
+    monkeypatch.setattr(bunkatsu_module, "split_regions", lambda img, **kwargs: [])
+
+    BunkatsuProcessor().run(_base_args())
+
+    assert len(export_calls) == 1
+    filt, scale_width, scale_height, mode = export_calls[0]
+    assert filt == bunkatsu_module._PP_SHAPE_FORMAT_PNG
+    assert mode == bunkatsu_module._PP_SCALE_XY
+    # 要求したピクセルサイズがshapeのポイントサイズに正比例していること
+    assert scale_width / scale_height == pytest.approx(300.0 / 200.0)
 
 
 def test_com_error_wrapped_as_system_exit(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -196,7 +243,7 @@ def test_com_error_wrapped_as_system_exit(monkeypatch: pytest.MonkeyPatch) -> No
     _setup_running(monkeypatch, app)
 
     regions = [Image.new("RGBA", (40, 60)), Image.new("RGBA", (40, 60))]
-    monkeypatch.setattr(bunkatsu_module, "split_regions", lambda img, distance_ratio: regions)
+    monkeypatch.setattr(bunkatsu_module, "split_regions", lambda img, **kwargs: regions)
 
     with pytest.raises(SystemExit, match="Ctrl\\+Z"):
         BunkatsuProcessor().run(_base_args())

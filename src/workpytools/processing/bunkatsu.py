@@ -14,7 +14,11 @@ from workpytools.common.powerpoint import (
     get_active_presentation,
     get_running_powerpoint,
 )
-from workpytools.common.watershed import DEFAULT_DISTANCE_RATIO, split_regions
+from workpytools.common.watershed import (
+    DEFAULT_BACKGROUND_COLOR_DISTANCE,
+    DEFAULT_DISTANCE_RATIO,
+    split_regions,
+)
 from workpytools.processing.base import Processor
 
 logger = logging.getLogger(__name__)
@@ -23,6 +27,8 @@ _SELECTION_SHAPES = 2  # ppSelectionShapes
 _MSO_PICTURE = 13  # msoPicture
 _MSO_LINKED_PICTURE = 11  # msoLinkedPicture
 _PP_SHAPE_FORMAT_PNG = 2  # ppShapeFormatPNG
+_PP_SCALE_XY = 2  # ppScaleXY (ExportMode)
+_EXPORT_SCALE = 4  # shape.Width/Height(pt)をこの倍率でエクスポートし精度を確保する
 
 
 class BunkatsuProcessor(Processor):
@@ -48,6 +54,17 @@ class BunkatsuProcessor(Processor):
                 "分割の厳しさ（0-1、既定"
                 f"{DEFAULT_DISTANCE_RATIO}）。値を上げるほど接触した物体を分割"
                 "しやすくなる一方、単一物体を過分割するリスクが増える"
+            ),
+        )
+        parser.add_argument(
+            "--background-color-distance",
+            type=float,
+            default=DEFAULT_BACKGROUND_COLOR_DISTANCE,
+            help=(
+                "背景色との色差しきい値（0-441.7、既定"
+                f"{DEFAULT_BACKGROUND_COLOR_DISTANCE}）。不透過画像（写真や"
+                "塗りつぶしありの図形）のみに影響する。値を上げるほど背景の"
+                "色ムラを許容しやすくなるが、背景に近い色の物体を見逃しやすくなる"
             ),
         )
         parser.add_argument(
@@ -85,15 +102,36 @@ class BunkatsuProcessor(Processor):
 
         left, top, width, height = shape.Left, shape.Top, shape.Width, shape.Height
 
+        # Export()はScaleWidth/ScaleHeightを省略すると、shape自身のサイズ
+        # ではなくスライド全体のサイズ・解像度設定を基準にピクセルサイズを
+        # 決めてしまう（ExportModeが暗黙的にスライド相対になる）。これだと
+        # 後段のscale_x/scale_y計算の前提（出力ピクセルサイズ ∝ shapeの
+        # ポイントサイズ）が崩れるため、ScaleWidth/ScaleHeightとExportMode
+        # (ppScaleXY)を明示指定し、出力ピクセルサイズをshape自身のサイズに
+        # 固定する。倍率をかけて精度を確保する（ポイント値をそのままpxに
+        # すると解像度が粗くなるため）。
+        export_width_px = int(width * _EXPORT_SCALE)
+        export_height_px = int(height * _EXPORT_SCALE)
+
         tmp_path = Path(tempfile.gettempdir()) / f"workpytools_bunkatsu_{uuid.uuid4().hex}.png"
         try:
-            shape.Export(str(tmp_path), _PP_SHAPE_FORMAT_PNG)
+            shape.Export(
+                str(tmp_path),
+                _PP_SHAPE_FORMAT_PNG,
+                export_width_px,
+                export_height_px,
+                _PP_SCALE_XY,
+            )
             with Image.open(tmp_path) as opened:
                 source_image = opened.copy()
         finally:
             tmp_path.unlink(missing_ok=True)
 
-        regions = split_regions(source_image, distance_ratio=args.distance_ratio)
+        regions = split_regions(
+            source_image,
+            distance_ratio=args.distance_ratio,
+            background_color_distance=args.background_color_distance,
+        )
 
         if len(regions) < 2:
             print("分割できる領域が見つかりませんでした（物体は1つ、または検出できませんでした）")
@@ -113,14 +151,18 @@ class BunkatsuProcessor(Processor):
             region_paths = self._save_regions(regions)
             try:
                 for region_path, region, offset_x_px, offset_y_px in region_paths:
+                    # AddPictureはpywin32のレイトバインディング経由だと
+                    # キーワード引数（Left=..., Top=...）が正しくCOMへ渡らず
+                    # 無視されることがあるため、全て位置引数で呼ぶ
+                    # （FileName, LinkToFile, SaveWithDocument, Left, Top, Width, Height）
                     new_shape = slide.Shapes.AddPicture(
                         str(region_path),
-                        LinkToFile=False,
-                        SaveWithDocument=True,
-                        Left=left + offset_x_px * scale_x,
-                        Top=top + offset_y_px * scale_y,
-                        Width=region.width * scale_x,
-                        Height=region.height * scale_y,
+                        False,  # LinkToFile
+                        True,  # SaveWithDocument
+                        left + offset_x_px * scale_x,  # Left
+                        top + offset_y_px * scale_y,  # Top
+                        region.width * scale_x,  # Width
+                        region.height * scale_y,  # Height
                     )
                     new_shape.Name = f"{shape.Name}_bunkatsu"
             finally:
