@@ -12,14 +12,14 @@ def hex_to_ppt_rgb(hex_color: str) -> int:
     return (b << 16) | (g << 8) | r
 
 
-# アクセント1〜6の新配色。深緑(1)とレンガ色(3)を基準に、それぞれの
-# 薄めたバリエーションを2/4に、グレー系を5/6に割り当てる。
-# キーはMsoThemeColorSchemeIndex（ppAccent1=5 〜 ppAccent6=10）。
+# アクセント1〜6の新配色。緑(1)とレンガ色(3)を基準に、それぞれの
+# 薄めたバリエーション（白方向に約30%ブレンド）を2/4に、グレー系を
+# 5/6に割り当てる。キーはMsoThemeColorSchemeIndex（ppAccent1=5 〜 ppAccent6=10）。
 ACCENT_HEX_COLORS: dict[int, str] = {
-    5: "#1E7145",  # ppAccent1
-    6: "#5A9B78",  # ppAccent2
-    7: "#A8493D",  # ppAccent3
-    8: "#C57F76",  # ppAccent4
+    5: "#00B258",  # ppAccent1
+    6: "#4DC98A",  # ppAccent2
+    7: "#CC0033",  # ppAccent3
+    8: "#DB4D70",  # ppAccent4
     9: "#808080",  # ppAccent5
     10: "#BFBFBF",  # ppAccent6
 }

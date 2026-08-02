@@ -238,7 +238,7 @@ def test_theme_accent_colors_set_to_new_palette(monkeypatch: pytest.MonkeyPatch)
     IroProcessor().run(_base_args())
 
     color_scheme = designs[0].SlideMaster.Theme.ThemeColorScheme
-    assert color_scheme(5).RGB == hex_to_ppt_rgb("#1E7145")
+    assert color_scheme(5).RGB == hex_to_ppt_rgb("#00B258")
     assert color_scheme(10).RGB == hex_to_ppt_rgb("#BFBFBF")
 
 
@@ -251,7 +251,7 @@ def test_theme_colors_applied_to_all_designs(monkeypatch: pytest.MonkeyPatch) ->
 
     for design in designs:
         color_scheme = design.SlideMaster.Theme.ThemeColorScheme
-        assert color_scheme(5).RGB == hex_to_ppt_rgb("#1E7145")
+        assert color_scheme(5).RGB == hex_to_ppt_rgb("#00B258")
 
 
 def test_freeze_preserves_original_rgb_not_new_theme_color(
@@ -259,7 +259,7 @@ def test_freeze_preserves_original_rgb_not_new_theme_color(
 ) -> None:
     # 独自色化が先に行われ、その時点ではまだ新テーマカラーに変わって
     # いないため、フリーズされる値は元のRGB(0x123456)であり、新テーマの
-    # アクセント1(#1E7145)の値ではないことを確認する。もし実装の順序が
+    # アクセント1(#00B258)の値ではないことを確認する。もし実装の順序が
     # 逆（テーマ変更が先）だと、この値が新テーマ色に汚染されてしまう。
     fill_color = _make_color(color_type=_MSO_COLOR_TYPE_SCHEME, rgb=0x123456)
     shape = _make_shape(fill_color=fill_color)
@@ -270,7 +270,7 @@ def test_freeze_preserves_original_rgb_not_new_theme_color(
     IroProcessor().run(_base_args())
 
     assert shape.Fill.ForeColor.RGB == 0x123456
-    assert shape.Fill.ForeColor.RGB != hex_to_ppt_rgb("#1E7145")
+    assert shape.Fill.ForeColor.RGB != hex_to_ppt_rgb("#00B258")
 
 
 # --- ステップ3: 既定書式の一時適用 ---

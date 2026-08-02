@@ -524,9 +524,9 @@ _DIAGRAMS: dict[str, str] = {
         '<rect x="40" y="20" width="20" height="50" fill="#cc8844"/>'
         '<rect x="66" y="20" width="20" height="50" fill="#9955bb"/>'
         + _ARROW_CENTER +
-        # after: 統一された配色（深緑・レンガ色・グレー）の四角形3つ
-        '<rect x="134" y="20" width="20" height="50" fill="#1E7145"/>'
-        '<rect x="160" y="20" width="20" height="50" fill="#A8493D"/>'
+        # after: 統一された配色（緑・レンガ色・グレー）の四角形3つ
+        '<rect x="134" y="20" width="20" height="50" fill="#00B258"/>'
+        '<rect x="160" y="20" width="20" height="50" fill="#CC0033"/>'
         '<rect x="186" y="20" width="20" height="50" fill="#808080"/>'
     ),
     "tsunagu": (

@@ -43,10 +43,10 @@
 
 | 項目 | HEX | 説明 |
 | --- | --- | --- |
-| アクセント1 | `#1E7145` | 深緑（基準色） |
-| アクセント2 | `#5A9B78` | アクセント1を薄めた緑 |
-| アクセント3 | `#A8493D` | レンガ色（基準色） |
-| アクセント4 | `#C57F76` | アクセント3を薄めたレンガ色 |
+| アクセント1 | `#00B258` | 緑（基準色） |
+| アクセント2 | `#4DC98A` | アクセント1を薄めた緑 |
+| アクセント3 | `#CC0033` | レンガ色（基準色） |
+| アクセント4 | `#DB4D70` | アクセント3を薄めたレンガ色 |
 | アクセント5 | `#808080` | グレー（基準色） |
 | アクセント6 | `#BFBFBF` | アクセント5を薄めたグレー |
 
@@ -131,7 +131,7 @@ for 対象色 in [Fill.ForeColor, Line.ForeColor, Font.Color]:
 ```text
 for design in presentation.Designs:  # Count + Item(i) でアクセス
     color_scheme = design.SlideMaster.Theme.ThemeColorScheme
-    color_scheme(ppAccent1).RGB = 0x00457137  # #1E7145 相当の値
+    color_scheme(ppAccent1).RGB = 0x0058B200  # #00B258 相当の値
     color_scheme(ppAccent2).RGB = ...
     color_scheme(ppAccent3).RGB = ...
     color_scheme(ppAccent4).RGB = ...
@@ -288,7 +288,7 @@ HEX→PowerPoint RGB整数変換、新テーマカラーの定義は、COM非依
 - 複数デザイン（`Designs.Count > 1`）がある場合、全てのデザインの
   テーマが変更されること
 - HEX→PowerPoint RGB整数の変換関数が、既知の入力に対して正しい
-  値を返すこと（例: `#1E7145` → `0x00457137`）
+  値を返すこと（例: `#00B258` → `0x0058B200`）
 
 ### 既定書式の一時適用（ステップ3）
 
