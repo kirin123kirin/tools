@@ -36,14 +36,13 @@ workpytools/
 │           ├── seiretsu.py         # PowerPointのシェイプを表に変換せず格子状に整列
 │           ├── nagasa.py           # PowerPointのシェイプの幅・高さを最大値に統一
 │           ├── umekomi.py          # PowerPointのテキストボックスをシェイプに埋め込む
-│           ├── merioall.py         # テーマ・マスター・全スライドの和文フォントをメイリオに統一
+│           ├── meirio.py           # テーマ・マスター・全スライドの和文フォントをメイリオに統一
 │           ├── iro.py              # 既存スライドの独自色化・テーマカラー変更・既定書式の一時適用
 │           ├── tsunagu.py          # コネクタを最寄りのシェイプ接続点に吸着（2つ選択で新規作成）
 │           ├── bunkatsu.py         # PowerPointの画像シェイプを物体ごとに領域分割
 │           ├── help.py             # 全コマンドのヘルプ一覧をブラウザで開く
 │           └── shortcut.py         # 全コマンドのスタートメニューショートカットを作成/削除
 ├── tests/                  # src/workpytools と同じ階層構造でテストを配置
-├── configs/                # 処理ごとの設定ファイル(TOML)を置く場所（common/config.py で読み込み）
 ├── scripts/                # 動作確認用の使い捨てスクリプト（.gitignore対象。
 │                            # ただし gen_help.py と pre-commit は例外的にバージョン管理する）
 └── tmp/                    # 一時ファイル・実行結果ダンプなど（.gitignore対象）
@@ -329,7 +328,7 @@ tools umekomi --dry-run
 
 # テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する
 # （欧文フォントは変更しない。表・SmartArt等は対象外）
-tools merioall
+tools meirio
 
 # 既存スライドを独自色化した上で、テーマカラー（アクセント1〜6）を
 # 新配色に変更し、シェイプ・矢印・テキストボックスの既定書式を一時適用する
@@ -380,6 +379,17 @@ tools shortcut --remove
 不要です。日本語を分かち書きしたい場合は`-w`（Janome、純Python実装で外部辞書のインストール不要）
 を指定します。フォントは既定でWindows標準搭載のメイリオ（`C:\Windows\Fonts\meiryo.ttc`）を使うため、
 別途フォントの用意は不要です。
+
+`--user-dict`/`--synonym-dict`は、`--output`と同様にコマンドラインでの都度指定に加え、
+`%APPDATA%\workpytools\config.toml`（存在しなければ無視される）の`[cwc]`セクションでも
+既定値を指定できます。優先順位は「同梱の既定辞書 < `config.toml`の指定 < コマンドライン引数」です。
+
+```toml
+# %APPDATA%\workpytools\config.toml
+[cwc]
+user_dict = "C:\\path\\to\\userdic.csv"
+synonym_dict = "C:\\path\\to\\synonym.tsv"
+```
 
 `--similar`は集計単位を語ではなく文にし、埋め込みベクトルの類似度で似た文をまとめて集計します。
 **初回実行時にのみ**埋め込みモデル（ONNX形式、`Xenova/paraphrase-multilingual-MiniLM-L12-v2`の
@@ -477,7 +487,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 場合のみ解決します（`WScript.Shell`経由）。複数フォルダを指定して起点が
 重複する場合はフルパスで自動的に重複除去されます。
 
-### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi / merioall / iro / tsunagu / bunkatsu）
+### PowerPointをCOM操作するコマンド（outline / ikko / mokuji / tbl / seiretsu / nagasa / umekomi / meirio / iro / tsunagu / bunkatsu）
 
 いずれも実行中のPowerPointを対象にします（`pywin32`経由、`python-pptx`は
 「開いているファイル」を操作できないため使いません）。役割は以下の通りです。
@@ -491,7 +501,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 | `seiretsu` | 選択したシェイプを表に変換せず格子状の位置に整列する |
 | `nagasa` | 選択したシェイプの幅・高さを最大値に統一する |
 | `umekomi` | 選択したシェイプの上に重ねて置かれたテキストボックスをシェイプ本体に埋め込む |
-| `merioall` | テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する |
+| `meirio` | テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する |
 | `iro` | 既存スライドを独自色化した上でテーマカラーと既定図形の書式を統一する |
 | `tsunagu` | コネクタの端点を最寄りのシェイプ接続点に吸着させる（2つ選択で新規作成） |
 | `bunkatsu` | 選択した画像シェイプを物体ごとに領域分割し、個別の透過画像として再配置する |
@@ -546,7 +556,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
   `ikko`と同じくUndo境界を必ず打つため、Ctrl+Z一回で元に戻せます。
   `--dry-run`で実際に変更せず対象を確認できます。2つ以上選択されていない
   場合はエラーになります
-- `merioall`は、SVGを図形に変換した際などにテキストボックスのフォントが
+- `meirio`は、SVGを図形に変換した際などにテキストボックスのフォントが
   遊ゴシックのまま残る問題への対処として、プレゼンテーション内の
   **和文（東アジア言語）フォントだけ**をメイリオへ一括統一します
   （欧文フォントは変更しません）。対象は次の3箇所です。
@@ -631,7 +641,7 @@ size, mtime, depth`の固定列で一覧化します。サイズは既定でKB�
 （`pip install -e .` でインストールされる `touka.exe` / `denoise.exe` / `kukiri.exe` / `cwc.exe` /
 `clipmd.exe` / `mdtsv.exe` / `clipview.exe` / `clipfmt.exe` / `vv.exe` /
 `profiler.exe` / `lsdir.exe` / `outline.exe` / `ikko.exe` / `mokuji.exe` /
-`tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` / `merioall.exe` /
+`tbl.exe` / `seiretsu.exe` / `nagasa.exe` / `umekomi.exe` / `meirio.exe` /
 `iro.exe` / `tsunagu.exe` / `bunkatsu.exe` / `shortcut.exe` など）。
 
 ### 出力先のデフォルト（`-o`省略時）

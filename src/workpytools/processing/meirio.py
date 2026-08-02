@@ -15,9 +15,17 @@ logger = logging.getLogger(__name__)
 
 _MSO_GROUP = 6  # msoGroup
 _DEFAULT_FONT = "メイリオ"
+# ThemeFontScheme.MajorFont/MinorFontは、NewFontオブジェクト単体ではなく
+# 3要素のコレクション（1=Latin, 2=EastAsian, 3=ComplexScript）として
+# 実装されている（VBAの`.NameFarEast`はこの糖衣構文だが、pywin32の
+# ダイナミックディスパッチではNameFarEastという名前のメンバー自体が
+# 解決できずAttributeError/PropertyPutが失敗する）。実機で型情報を
+# 直接調べ、Item(2).Nameへの代入が東アジア言語フォントの変更に
+# 相当することを確認した。
+_THEME_FONT_EAST_ASIAN_INDEX = 2
 
 
-class MerioallProcessor(Processor):
+class MeirioProcessor(Processor):
     """Set the Japanese (far-east) font to Meiryo across the whole
     presentation: the theme's font scheme, every placeholder on every
     slide master/layout, and every shape's text on every slide (recursing
@@ -27,7 +35,7 @@ class MerioallProcessor(Processor):
     a text frame (HasTextFrame) are touched.
     """
 
-    name = "merioall"
+    name = "meirio"
     help = "テーマ・スライドマスター・全スライドの和文フォントをメイリオに統一する"
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -79,8 +87,8 @@ class MerioallProcessor(Processor):
             design = designs.Item(i)
             theme = design.SlideMaster.Theme
             font_scheme = theme.ThemeFontScheme
-            font_scheme.MajorFont.NameFarEast = _DEFAULT_FONT
-            font_scheme.MinorFont.NameFarEast = _DEFAULT_FONT
+            font_scheme.MajorFont.Item(_THEME_FONT_EAST_ASIAN_INDEX).Name = _DEFAULT_FONT
+            font_scheme.MinorFont.Item(_THEME_FONT_EAST_ASIAN_INDEX).Name = _DEFAULT_FONT
             changed = True
         return changed
 

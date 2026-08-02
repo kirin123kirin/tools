@@ -68,7 +68,7 @@ _CATEGORIES: list[tuple[str, list[tuple[str, str]]]] = [
             ("seiretsu", "シェイプを格子状に整列"),
             ("nagasa", "シェイプのサイズを統一"),
             ("umekomi", "テキストボックスを埋め込み"),
-            ("merioall", "和文フォントをメイリオに統一"),
+            ("meirio", "和文フォントをメイリオに統一"),
             ("iro", "テーマカラーと既定書式を統一"),
             ("tsunagu", "コネクタを最寄りの接続点へ吸着"),
             ("bunkatsu", "画像を物体ごとに領域分割"),
@@ -501,7 +501,7 @@ _DIAGRAMS: dict[str, str] = {
         '<text x="168" y="49" font-size="11" text-anchor="middle" '
         'fill="currentColor">Text</text>'
     ),
-    "merioall": (
+    "meirio": (
         # before: 書体がバラバラな「あ」の文字3つ（フォント不統一を表現）
         '<text x="24" y="55" font-size="30" font-family="serif" '
         'fill="currentColor">あ</text>'

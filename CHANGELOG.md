@@ -5,6 +5,26 @@
 
 ## [Unreleased]
 
+## [0.1.36] - 2026-08-02
+
+### Changed
+
+- コマンド名`merioall`を`meirio`にリネーム
+  （テーマ・マスター・全スライドの和文フォントをメイリオに統一するコマンド）
+
+### Fixed
+
+- `meirio`（旧`merioall`）が、`ThemeFontScheme.MajorFont.NameFarEast`/
+  `MinorFont.NameFarEast`への代入で必ず
+  `Property '<unknown>.NameFarEast' can not be set`エラーになっていた
+  不具合を修正。実機調査の結果、`ThemeFontScheme.MajorFont`/`MinorFont`は
+  単一の`Font`オブジェクトではなく3要素のコレクション
+  （1=Latin, 2=EastAsian, 3=ComplexScript）であり、pywin32のダイナミック
+  ディスパッチ経由では`NameFarEast`という名前のメンバー自体が存在しない
+  ことが判明した。`MajorFont.Item(2).Name = ...`という、コレクション
+  経由でのアクセスに変更して解決した（テストのモックも実装に合わせて修正）。
+  新規プレゼンテーションに限らず、`meirio`は常にこのエラーで失敗していた
+
 ## [0.1.35] - 2026-08-02
 
 ### Fixed

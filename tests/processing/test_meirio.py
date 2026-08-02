@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 import pytest
 
 from workpytools.common.powerpoint import NoActivePresentationError, PowerPointNotRunningError
-from workpytools.processing import merioall as merioall_module
-from workpytools.processing.merioall import MerioallProcessor
+from workpytools.processing import meirio as meirio_module
+from workpytools.processing.meirio import MeirioProcessor
 
 _MSO_GROUP = 6
 _MSO_TEXT_BOX = 17
@@ -73,9 +73,9 @@ def _make_presentation(
 
 
 def _setup_running(monkeypatch: pytest.MonkeyPatch, app: MagicMock) -> None:
-    monkeypatch.setattr(merioall_module, "get_running_powerpoint", lambda: app)
+    monkeypatch.setattr(meirio_module, "get_running_powerpoint", lambda: app)
     monkeypatch.setattr(
-        merioall_module, "get_active_presentation", lambda a: a.ActiveWindow.Presentation
+        meirio_module, "get_active_presentation", lambda a: a.ActiveWindow.Presentation
     )
 
 
@@ -93,11 +93,15 @@ def test_theme_fonts_set_to_meiryo_far_east_only(monkeypatch: pytest.MonkeyPatch
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    MerioallProcessor().run(_base_args())
+    MeirioProcessor().run(_base_args())
 
     theme = design.SlideMaster.Theme
-    assert theme.ThemeFontScheme.MajorFont.NameFarEast == "メイリオ"
-    assert theme.ThemeFontScheme.MinorFont.NameFarEast == "メイリオ"
+    # ThemeFontScheme.MajorFont/MinorFontは3要素のコレクション
+    # （1=Latin, 2=EastAsian, 3=ComplexScript）であり、実機ではNameFarEast
+    # という名前のプロパティは存在しない（meirio.py参照）。東アジア言語
+    # フォントの変更はItem(2).Nameへの代入で行う。
+    assert theme.ThemeFontScheme.MajorFont.Item(2).Name == "メイリオ"
+    assert theme.ThemeFontScheme.MinorFont.Item(2).Name == "メイリオ"
 
 
 # --- マスター・レイアウト ---
@@ -111,7 +115,7 @@ def test_master_placeholder_font_updated(monkeypatch: pytest.MonkeyPatch) -> Non
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    MerioallProcessor().run(_base_args())
+    MeirioProcessor().run(_base_args())
 
     assert master_shape.TextFrame.TextRange.Font.NameFarEast == "メイリオ"
 
@@ -124,7 +128,7 @@ def test_layout_placeholder_font_updated(monkeypatch: pytest.MonkeyPatch) -> Non
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    MerioallProcessor().run(_base_args())
+    MeirioProcessor().run(_base_args())
 
     assert layout_shape.TextFrame.TextRange.Font.NameFarEast == "メイリオ"
 
@@ -138,7 +142,7 @@ def test_slide_shape_font_updated(monkeypatch: pytest.MonkeyPatch) -> None:
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    MerioallProcessor().run(_base_args())
+    MeirioProcessor().run(_base_args())
 
     assert shape.TextFrame.TextRange.Font.NameFarEast == "メイリオ"
 
@@ -150,7 +154,7 @@ def test_multiple_slides_all_updated(monkeypatch: pytest.MonkeyPatch) -> None:
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    MerioallProcessor().run(_base_args())
+    MeirioProcessor().run(_base_args())
 
     assert shape1.TextFrame.TextRange.Font.NameFarEast == "メイリオ"
     assert shape2.TextFrame.TextRange.Font.NameFarEast == "メイリオ"
@@ -162,7 +166,7 @@ def test_shape_without_text_frame_skipped(monkeypatch: pytest.MonkeyPatch) -> No
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    result = MerioallProcessor().run(_base_args())
+    result = MeirioProcessor().run(_base_args())
 
     assert result == 0
     # 属性へのFont.NameFarEast=値という代入が行われていなければ、
@@ -176,7 +180,7 @@ def test_blank_text_shape_skipped(monkeypatch: pytest.MonkeyPatch) -> None:
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    MerioallProcessor().run(_base_args())
+    MeirioProcessor().run(_base_args())
 
     assert shape.TextFrame.TextRange.Font.NameFarEast != "メイリオ"
 
@@ -187,7 +191,7 @@ def test_latin_font_name_not_touched(monkeypatch: pytest.MonkeyPatch) -> None:
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    MerioallProcessor().run(_base_args())
+    MeirioProcessor().run(_base_args())
 
     assert shape.TextFrame.TextRange.Font.Name != "メイリオ"
 
@@ -202,7 +206,7 @@ def test_group_items_recursed_into(monkeypatch: pytest.MonkeyPatch) -> None:
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    MerioallProcessor().run(_base_args())
+    MeirioProcessor().run(_base_args())
 
     assert inner.TextFrame.TextRange.Font.NameFarEast == "メイリオ"
 
@@ -219,7 +223,7 @@ def test_nested_group_items_recursed_into(monkeypatch: pytest.MonkeyPatch) -> No
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    MerioallProcessor().run(_base_args())
+    MeirioProcessor().run(_base_args())
 
     assert innermost.TextFrame.TextRange.Font.NameFarEast == "メイリオ"
 
@@ -232,7 +236,7 @@ def test_start_new_undo_entry_called(monkeypatch: pytest.MonkeyPatch) -> None:
     app = _app_with_presentation(presentation)
     _setup_running(monkeypatch, app)
 
-    MerioallProcessor().run(_base_args())
+    MeirioProcessor().run(_base_args())
 
     app.StartNewUndoEntry.assert_called_once()
 
@@ -244,22 +248,22 @@ def test_powerpoint_not_running_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     def raise_not_running():
         raise PowerPointNotRunningError("not running")
 
-    monkeypatch.setattr(merioall_module, "get_running_powerpoint", raise_not_running)
+    monkeypatch.setattr(meirio_module, "get_running_powerpoint", raise_not_running)
 
     with pytest.raises(SystemExit):
-        MerioallProcessor().run(_base_args())
+        MeirioProcessor().run(_base_args())
 
 
 def test_no_active_presentation_raises(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(merioall_module, "get_running_powerpoint", lambda: MagicMock())
+    monkeypatch.setattr(meirio_module, "get_running_powerpoint", lambda: MagicMock())
 
     def raise_no_active(app: object) -> None:
         raise NoActivePresentationError("no active")
 
-    monkeypatch.setattr(merioall_module, "get_active_presentation", raise_no_active)
+    monkeypatch.setattr(meirio_module, "get_active_presentation", raise_no_active)
 
     with pytest.raises(SystemExit):
-        MerioallProcessor().run(_base_args())
+        MeirioProcessor().run(_base_args())
 
 
 def test_com_exception_mentions_undo(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -275,4 +279,4 @@ def test_com_exception_mentions_undo(monkeypatch: pytest.MonkeyPatch) -> None:
     _setup_running(monkeypatch, app)
 
     with pytest.raises(SystemExit, match="Ctrl\\+Z"):
-        MerioallProcessor().run(_base_args())
+        MeirioProcessor().run(_base_args())
