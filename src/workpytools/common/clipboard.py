@@ -368,21 +368,6 @@ def get_clipboard_html_fragment() -> str:
     )
 
 
-def get_clipboard_html_raw() -> bytes:
-    """Read the raw CF_HTML payload (with its header) as bytes, for marker detection
-    (e.g. Excel's ProgId marker) that needs to see the whole payload, not just the fragment.
-    """
-    win32clipboard.OpenClipboard()
-    try:
-        fmt = _cf_html_format()
-        if not win32clipboard.IsClipboardFormatAvailable(fmt):
-            raise ClipboardTextError("クリップボードにHTMLがありません")
-        raw = win32clipboard.GetClipboardData(fmt)
-    finally:
-        win32clipboard.CloseClipboard()
-    return raw if isinstance(raw, bytes) else str(raw).encode("utf-8")
-
-
 def _build_cf_html(html_fragment: str) -> bytes:
     """Wrap an HTML fragment in the CF_HTML header format (byte offsets, UTF-8)."""
     header_template = (

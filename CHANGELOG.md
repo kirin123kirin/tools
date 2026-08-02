@@ -5,6 +5,33 @@
 
 ## [Unreleased]
 
+## [0.1.37] - 2026-08-02
+
+### Fixed
+
+- `iro`が、スライド上に表（msoTable）シェイプが存在すると
+  「PowerPointの操作中にエラーが発生しました」（指定された値は境界を
+  超えています）で必ず失敗していた不具合を修正。表シェイプは`.Fill`/
+  `.Line`プロパティへのアクセス自体がCOMレベルの例外
+  （`pywintypes.com_error`、`AttributeError`ではない）になることが実機で
+  判明した。`getattr()`の既定値フォールバックは`AttributeError`しか
+  吸収しないため、それ以外の例外も含めて広く捕捉し「読み取れない
+  シェイプは独自色化の対象外としてスキップする」ように修正した
+
+### Changed
+
+- `Processor`基底クラス、`help`コマンドのヘルプ文言のdocstring・説明文が
+  リポジトリ直下のパス（`tools/processing/`、`doc/help.html`）を誤って
+  参照していたため、実際の配置（`src/workpytools/processing/`、
+  パッケージデータ経由）に合わせて修正
+- 未使用となっていた`get_clipboard_html_raw()`（`common/clipboard.py`）を削除
+
+### Verified
+
+- `iro`/`meirio`以外の全PowerPoint操作コマンド（`outline`/`ikko`/
+  `mokuji`/`tbl`/`seiretsu`/`nagasa`/`umekomi`/`tsunagu`/`bunkatsu`）を
+  実機で横断的に再検証し、同種の不具合がないことを確認した
+
 ## [0.1.36] - 2026-08-02
 
 ### Changed

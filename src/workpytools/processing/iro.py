@@ -129,16 +129,30 @@ class IroProcessor(Processor):
         return count
 
     def _freeze_fill_color(self, shape: object) -> int:
-        fill = getattr(shape, "Fill", None)
-        if fill is None or not getattr(fill, "Visible", False):
+        # 表（msoTable）シェイプはFill/Lineプロパティへのアクセス自体が
+        # COMレベルの例外（pywintypes.com_error、AttributeErrorではない）
+        # になることが実機で確認されている。getattr()の既定値フォール
+        # バックはAttributeErrorしか吸収しないため、com_error等も含めて
+        # 広く捕捉し「読み取れないシェイプは独自色化の対象外」として
+        # スキップする。
+        try:
+            fill = getattr(shape, "Fill", None)
+            if fill is None or not fill.Visible:
+                return 0
+            fore_color = fill.ForeColor
+        except Exception:
             return 0
-        return self._freeze_color(fill.ForeColor)
+        return self._freeze_color(fore_color)
 
     def _freeze_line_color(self, shape: object) -> int:
-        line = getattr(shape, "Line", None)
-        if line is None or not getattr(line, "Visible", False):
+        try:
+            line = getattr(shape, "Line", None)
+            if line is None or not line.Visible:
+                return 0
+            fore_color = line.ForeColor
+        except Exception:
             return 0
-        return self._freeze_color(line.ForeColor)
+        return self._freeze_color(fore_color)
 
     def _freeze_font_color(self, shape: object) -> int:
         if not getattr(shape, "HasTextFrame", False):

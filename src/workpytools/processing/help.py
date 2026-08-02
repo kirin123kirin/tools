@@ -27,7 +27,7 @@ class HelpProcessor(Processor):
     every command) in the default browser."""
 
     name = "help"
-    help = "全コマンドのヘルプ一覧(doc/help.html)をブラウザで開く"
+    help = "全コマンドのヘルプ一覧をブラウザで開く"
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(

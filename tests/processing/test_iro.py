@@ -180,6 +180,27 @@ def test_invisible_fill_is_skipped(monkeypatch: pytest.MonkeyPatch) -> None:
     assert shape.Fill.ForeColor.Type == _MSO_COLOR_TYPE_SCHEME
 
 
+def test_table_shape_fill_access_error_is_skipped(monkeypatch: pytest.MonkeyPatch) -> None:
+    # 表（msoTable）シェイプは.Fill/.Lineプロパティへのアクセス自体が
+    # COMレベルの例外（pywintypes.com_error、AttributeErrorではない）に
+    # なることが実機で確認されている。getattr()の既定値フォールバックは
+    # AttributeErrorしか吸収しないため、com_error等の他の例外でも
+    # 独自色化の対象外としてスキップされ、run()全体がクラッシュしない
+    # ことを確認する。
+    shape = MagicMock(spec=["Type", "HasTextFrame", "Fill", "Line", "TextFrame"])
+    shape.Type = _MSO_TEXT_BOX
+    shape.HasTextFrame = False
+    type(shape).Fill = property(lambda self: (_ for _ in ()).throw(RuntimeError("boom")))
+    type(shape).Line = property(lambda self: (_ for _ in ()).throw(RuntimeError("boom")))
+    presentation, _designs = _make_presentation(slide_shapes_list=[[shape]])
+    app = _app_with_presentation(presentation)
+    _setup_running(monkeypatch, app)
+
+    result = IroProcessor().run(_base_args())
+
+    assert result == 0
+
+
 def test_blank_text_shape_font_color_is_skipped(monkeypatch: pytest.MonkeyPatch) -> None:
     shape = _make_shape(
         text="", font_color=_make_color(color_type=_MSO_COLOR_TYPE_SCHEME, rgb=0x333333)

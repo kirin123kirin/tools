@@ -7,8 +7,8 @@ from abc import ABC, abstractmethod
 class Processor(ABC):
     """Base class for a single processing command.
 
-    Subclass this in a new module under `tools/processing/` and it will be
-    picked up automatically as a `tools <name>` subcommand.
+    Subclass this in a new module under `src/workpytools/processing/` and it
+    will be picked up automatically as a `tools <name>` subcommand.
     """
 
     name: str
