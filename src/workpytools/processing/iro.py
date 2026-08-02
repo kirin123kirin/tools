@@ -68,11 +68,16 @@ class IroProcessor(Processor):
 
         try:
             app.StartNewUndoEntry()
+            logger.info("ステップ1開始: 既存スライドの独自色化")
             frozen_count = self._freeze_theme_colors_in_slides(presentation)
+            logger.info("ステップ1完了: %d件", frozen_count)
+            logger.info("ステップ2開始: テーマカラーの変更")
             design_count = self._apply_theme_colors(presentation)
+            logger.info("ステップ2完了: デザイン%d件", design_count)
         except Exception as exc:
             raise SystemExit(
-                f"PowerPointの操作中にエラーが発生しました（Ctrl+Zで開始前の状態に戻せます）: {exc}"
+                f"PowerPointの操作中にエラーが発生しました（Ctrl+Zで開始前の状態に戻せます）: "
+                f"{type(exc).__name__}: {exc!r}"
             ) from exc
 
         default_shape_warning = self._apply_default_shape_formats(app, presentation)
@@ -157,7 +162,12 @@ class IroProcessor(Processor):
         for i in range(1, designs.Count + 1):
             color_scheme = designs.Item(i).SlideMaster.Theme.ThemeColorScheme
             for index, hex_color in ACCENT_HEX_COLORS.items():
-                color_scheme.Item(index).RGB = hex_to_ppt_rgb(hex_color)
+                # ThemeColorSchemeはpywin32のダイナミックディスパッチ経由だと
+                # .Item(index)という明示メソッド呼び出しの形が解決できず
+                # AttributeErrorになる（型情報が実行時に完全解決されない）。
+                # COMの既定メンバー呼び出し color_scheme(index) であれば
+                # 動作するため、そちらを使う。
+                color_scheme(index).RGB = hex_to_ppt_rgb(hex_color)
         return int(designs.Count)
 
     # --- ステップ3: 既定書式の一時適用 -----------------------------------

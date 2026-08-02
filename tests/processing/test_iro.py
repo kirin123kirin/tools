@@ -85,7 +85,12 @@ def _make_presentation(
                 _items[index] = _make_color()
             return _items[index]
 
-        color_scheme.Item.side_effect = _item
+        # ThemeColorSchemeはpywin32のダイナミックディスパッチ経由だと
+        # .Item(index)という明示メソッド呼び出しの形が解決できず
+        # AttributeErrorになる実機挙動があるため、実装はCOMの既定メンバー
+        # 呼び出し color_scheme(index) を使う（iro.py参照）。モックも
+        # それに合わせ、MagicMock自体の呼び出し（__call__）を差し替える。
+        color_scheme.side_effect = _item
 
     presentation.Designs = _make_shapes_collection(designs)
     return presentation, designs
@@ -212,8 +217,8 @@ def test_theme_accent_colors_set_to_new_palette(monkeypatch: pytest.MonkeyPatch)
     IroProcessor().run(_base_args())
 
     color_scheme = designs[0].SlideMaster.Theme.ThemeColorScheme
-    assert color_scheme.Item(5).RGB == hex_to_ppt_rgb("#1E7145")
-    assert color_scheme.Item(10).RGB == hex_to_ppt_rgb("#BFBFBF")
+    assert color_scheme(5).RGB == hex_to_ppt_rgb("#1E7145")
+    assert color_scheme(10).RGB == hex_to_ppt_rgb("#BFBFBF")
 
 
 def test_theme_colors_applied_to_all_designs(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -225,7 +230,7 @@ def test_theme_colors_applied_to_all_designs(monkeypatch: pytest.MonkeyPatch) ->
 
     for design in designs:
         color_scheme = design.SlideMaster.Theme.ThemeColorScheme
-        assert color_scheme.Item(5).RGB == hex_to_ppt_rgb("#1E7145")
+        assert color_scheme(5).RGB == hex_to_ppt_rgb("#1E7145")
 
 
 def test_freeze_preserves_original_rgb_not_new_theme_color(
