@@ -36,7 +36,11 @@ def build_parser(processors: dict[str, Processor]) -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", required=True)
     for proc in processors.values():
-        sub = subparsers.add_parser(proc.name, help=proc.help)
+        # サブコマンド一覧のhelp=はargparseの%展開（%(default)s等）の対象に
+        # なるため、proc.helpに含まれる可能性のある'%'（例: %APPDATA%）を
+        # そのまま渡すとValueErrorでクラッシュする。ここでのみエスケープし、
+        # description=等の他の用途ではproc.helpを未加工のまま使えるようにする。
+        sub = subparsers.add_parser(proc.name, help=proc.help.replace("%", "%%"))
         proc.add_arguments(sub)
     return parser
 

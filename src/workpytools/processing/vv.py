@@ -91,7 +91,10 @@ class VvProcessor(Processor):
     """
 
     name = "vv"
-    help = "定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）"
+    help = (
+        "定型プロンプトをクリップボードにコピーする（引数なしで一覧表示）。"
+        "プロンプトは %APPDATA%\\workpytools\\vv\\ に1ファイル1つの.txtとして配置する"
+    )
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(

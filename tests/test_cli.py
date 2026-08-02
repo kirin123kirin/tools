@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 import pytest
@@ -5,6 +6,7 @@ from PIL import Image
 
 from workpytools.cli import _discover_processors, build_parser, run_as_subcommand
 from workpytools.processing import denoise as denoise_module
+from workpytools.processing.base import Processor
 
 
 def _fake_fast_nl_means_denoising_colored(
@@ -26,6 +28,27 @@ def test_build_parser_registers_subcommand() -> None:
     args = parser.parse_args(["denoise", "photo.jpg"])
     assert args.command == "denoise"
     assert args.path == "photo.jpg"
+
+
+def test_build_parser_survives_percent_sign_in_processor_help() -> None:
+    # サブコマンド一覧のhelp=はargparseの%展開(%(default)s等)の対象になる
+    # ため、proc.helpに"%APPDATA%"のような単一の'%'が含まれるとValueErrorで
+    # クラッシュしていた（vvコマンドで実際に発生）。build_parserが内部で
+    # エスケープしてクラッシュしないことを確認する
+    class _FakeProcessor(Processor):
+        name = "fake"
+        help = "テスト用 %APPDATA%\\example\\ を使う"
+
+        def add_arguments(self, parser: argparse.ArgumentParser) -> None:
+            pass
+
+        def run(self, args: argparse.Namespace) -> int:
+            return 0
+
+    parser = build_parser({"fake": _FakeProcessor()})
+
+    # print_help()がValueErrorを送出しないことを確認する
+    parser.format_help()
 
 
 def test_run_as_subcommand_uses_program_name(

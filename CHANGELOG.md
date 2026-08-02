@@ -5,6 +5,24 @@
 
 ## [Unreleased]
 
+## [0.1.34] - 2026-08-02
+
+### Added
+
+- `vv`の説明文に、プロンプトファイルの配置先
+  （`%APPDATA%\workpytools\vv\`）を明記。`tools --help`のサブコマンド
+  一覧、`tools vv --help`、`help.html`のいずれにも反映される
+
+### Fixed
+
+- `tools --help`が、`%APPDATA%`のように`%`を含む`help`文字列を持つ
+  サブコマンドが存在すると`ValueError`でクラッシュする不具合を修正。
+  `add_subparsers().add_parser(..., help=...)`のhelp引数はargparseの
+  `%`展開（`%(default)s`等）の対象になるため、サブコマンド一覧表示の
+  ためだけに`%`を`%%`へエスケープするようにした
+  （`description=`等の他の用途では`proc.help`を未加工のまま使うため、
+  影響範囲はサブコマンド一覧のみ）
+
 ## [0.1.33] - 2026-08-02
 
 ### Docs
